@@ -112,3 +112,5 @@ coverage/
 
 # Alembic
 alembic/versions/*.pyc
+
+DEVELOPMENT_PLAN.md
