@@ -23,7 +23,7 @@ class ResumeTestRequest(BaseModel):
 
 
 @router.post("/parse-resume")
-async def test_parse_resume(request: ResumeTestRequest):nv
+async def test_parse_resume(request: ResumeTestRequest):
     try:
         parsed_data = await parse_resume_text(request.resume_text)
         return {
