@@ -53,8 +53,15 @@ class Settings(BaseSettings):
         return [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",")]
 
     class Config:
-        env_file = ".env"
+        # Try both paths - works from root or backend directory
+        import os
+        if os.path.exists("backend/.env"):
+            env_file = "backend/.env"
+        else:
+            env_file = ".env"
+        env_file_encoding = 'utf-8'
         case_sensitive = True
+        extra = "ignore"
 
 
 # Global settings instance
