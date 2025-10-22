@@ -8,18 +8,28 @@ from app.models.user import User
 security = HTTPBearer()
 
 
+class AuthenticatedUser:
+    """Wrapper for user with their token"""
+    def __init__(self, user, token: str):
+        self.user = user
+        self.token = token
+        # Expose user attributes directly
+        self.id = user.id
+        self.email = user.email
+
+
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
-):
+) -> AuthenticatedUser:
     """
     Verify JWT token from Supabase and get current user
     Auto-sync user to local database if not exists
 
     Usage in routes:
         @app.get("/protected")
-        async def protected_route(user = Depends(get_current_user)):
-            return {"user_id": user.id}
+        async def protected_route(current_user = Depends(get_current_user)):
+            return {"user_id": current_user.id, "token": current_user.token}
     """
     token = credentials.credentials
     supabase = get_supabase()
@@ -50,7 +60,7 @@ async def get_current_user(
             db.commit()
             db.refresh(local_user)
 
-        return supabase_user
+        return AuthenticatedUser(supabase_user, token)
 
     except Exception as e:
         raise HTTPException(

@@ -1,14 +1,13 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends, status
 from sqlalchemy.orm import Session
-from typing import List
-import uuid
-from datetime import datetime
+from io import BytesIO
 
 from app.database import get_db
 from app.dependencies import get_current_user
 from app.models.resume import Resume
 from app.services.pdf_parser import extract_text_from_pdf
 from app.services.gemini_service import parse_resume_text
+from app.services.storage_service import StorageService
 
 router = APIRouter(prefix="/resumes", tags=["Resumes"])
 
@@ -19,15 +18,12 @@ async def upload_resume(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-
-    # Validate file type
     if not file.filename.endswith('.pdf'):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Only PDF files are allowed"
         )
 
-    # Read file content
     try:
         content = await file.read()
         max_size = 10 * 1024 * 1024
@@ -37,15 +33,17 @@ async def upload_resume(
                 detail="File size exceeds 10MB limit"
             )
 
-        # Extract text from PDF
-        from io import BytesIO
         pdf_file = BytesIO(content)
         resume_text = extract_text_from_pdf(pdf_file)
 
         parsed_data = await parse_resume_text(resume_text)
 
-        unique_filename = f"{uuid.uuid4()}_{file.filename}"
-        file_url = f"/uploads/{unique_filename}"  # Placeholder URL
+        file_url = await StorageService.upload_resume(
+            file=content,
+            filename=file.filename,
+            user_id=current_user.id,
+            user_token=current_user.token
+        )
 
         resume = Resume(
             user_id=current_user.id,
@@ -135,6 +133,8 @@ async def delete_resume(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Resume not found"
         )
+
+    await StorageService.delete_resume(resume.file_url, current_user.token)
 
     db.delete(resume)
     db.commit()
