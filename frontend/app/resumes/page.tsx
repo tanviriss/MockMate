@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
 import { api } from '@/lib/api';
+import Logo from '@/components/Logo';
 
 interface Resume {
   id: number;
@@ -20,6 +21,7 @@ export default function ResumesPage() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [dragActive, setDragActive] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -41,20 +43,37 @@ export default function ResumesPage() {
     }
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.type !== 'application/pdf') {
-        setError('Please select a PDF file');
-        return;
-      }
-      if (file.size > 10 * 1024 * 1024) {
-        setError('File size must be less than 10MB');
-        return;
-      }
-      setSelectedFile(file);
-      setError('');
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
     }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFileSelect(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleFileSelect = (file: File) => {
+    if (file.type !== 'application/pdf') {
+      setError('Please select a PDF file');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setError('File size must be less than 10MB');
+      return;
+    }
+    setSelectedFile(file);
+    setError('');
   };
 
   const handleUpload = async () => {
@@ -87,112 +106,193 @@ export default function ResumesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Loading...</p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+          <p className="text-gray-300">Loading...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">My Resumes</h1>
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="text-blue-600 hover:underline"
-          >
-            Back to Dashboard
-          </button>
+    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      {/* Animated background */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+        <div className="absolute top-40 right-10 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+      </div>
+
+      {/* Navigation */}
+      <nav className="relative z-10 border-b border-white/10 bg-white/5 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex justify-between items-center">
+            <button onClick={() => router.push('/dashboard')}>
+              <Logo />
+            </button>
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="text-gray-300 hover:text-white transition flex items-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Back to Dashboard
+            </button>
+          </div>
         </div>
+      </nav>
+
+      {/* Main Content */}
+      <div className="relative z-10 max-w-6xl mx-auto px-6 py-12">
+        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+          My Resumes
+        </h1>
+        <p className="text-xl text-gray-300 mb-12">
+          Upload and manage your resumes with AI-powered parsing
+        </p>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="bg-red-500/10 border border-red-500/50 text-red-200 px-4 py-3 rounded-lg backdrop-blur-sm mb-6">
             {error}
           </div>
         )}
 
         {/* Upload Section */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">Upload New Resume</h2>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Select PDF File (Max 10MB)
-              </label>
-              <input
-                type="file"
-                accept=".pdf"
-                onChange={handleFileSelect}
-                className="block w-full text-sm text-gray-500
-                  file:mr-4 file:py-2 file:px-4
-                  file:rounded-md file:border-0
-                  file:text-sm file:font-semibold
-                  file:bg-blue-50 file:text-blue-700
-                  hover:file:bg-blue-100
-                  cursor-pointer"
-              />
-            </div>
+        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 mb-8">
+          <h2 className="text-2xl font-bold text-white mb-6">Upload New Resume</h2>
 
-            {selectedFile && (
-              <div className="flex items-center justify-between bg-gray-50 p-3 rounded">
-                <span className="text-sm text-gray-700">{selectedFile.name}</span>
-                <button
-                  onClick={handleUpload}
-                  disabled={uploading}
-                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400"
-                >
-                  {uploading ? 'Uploading...' : 'Upload & Parse'}
-                </button>
+          <div
+            onDragEnter={handleDrag}
+            onDragLeave={handleDrag}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
+            className={`border-2 border-dashed rounded-xl p-12 text-center transition ${
+              dragActive
+                ? 'border-blue-400 bg-blue-500/10'
+                : 'border-white/20 hover:border-white/40'
+            }`}
+          >
+            {!selectedFile ? (
+              <div>
+                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                </div>
+                <p className="text-white text-lg font-semibold mb-2">
+                  Drop your resume here or click to browse
+                </p>
+                <p className="text-gray-400 text-sm mb-4">
+                  PDF only, max 10MB
+                </p>
+                <label className="cursor-pointer">
+                  <span className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition inline-block">
+                    Choose File
+                  </span>
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between bg-white/5 p-4 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <div className="text-left">
+                    <p className="text-white font-medium">{selectedFile.name}</p>
+                    <p className="text-gray-400 text-sm">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleUpload}
+                    disabled={uploading}
+                    className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {uploading ? 'Uploading...' : 'Upload'}
+                  </button>
+                  <button
+                    onClick={() => setSelectedFile(null)}
+                    className="px-4 py-2 bg-white/10 text-gray-300 rounded-lg hover:bg-white/20 transition"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             )}
           </div>
         </div>
 
         {/* Resumes List */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-6 border-b">
-            <h2 className="text-xl font-semibold">
+        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden">
+          <div className="p-6 border-b border-white/10">
+            <h2 className="text-2xl font-bold text-white">
               Your Resumes ({resumes.length})
             </h2>
           </div>
 
           {resumes.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
-              No resumes uploaded yet. Upload your first resume above!
+            <div className="p-12 text-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-white/5 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <p className="text-gray-400">No resumes uploaded yet.</p>
+              <p className="text-gray-500 text-sm mt-2">Upload your first resume above!</p>
             </div>
           ) : (
-            <div className="divide-y">
+            <div className="divide-y divide-white/10">
               {resumes.map((resume) => (
-                <div key={resume.id} className="p-6 hover:bg-gray-50">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-medium text-gray-900">
+                <div key={resume.id} className="p-6 hover:bg-white/5 transition group">
+                  <div className="flex gap-6">
+                    <div className="flex-shrink-0">
+                      <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-xl font-bold text-white mb-1">
                         {resume.parsed_data?.name || 'Resume'}
                       </h3>
-                      <p className="text-sm text-gray-500 mt-1">
+                      <p className="text-gray-300 text-sm mb-3">
                         {resume.parsed_data?.email || 'No email'}
                       </p>
-                      <p className="text-xs text-gray-400 mt-2">
-                        Uploaded: {new Date(resume.created_at).toLocaleDateString()}
+                      <p className="text-xs text-gray-400 mb-4">
+                        Uploaded: {new Date(resume.created_at).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
                       </p>
 
                       {/* Skills Preview */}
                       {resume.parsed_data?.technical_skills && (
-                        <div className="mt-3">
-                          <p className="text-xs text-gray-600 font-medium mb-1">Skills:</p>
-                          <div className="flex flex-wrap gap-1">
-                            {resume.parsed_data.technical_skills.languages?.slice(0, 5).map((skill: string, idx: number) => (
+                        <div>
+                          <p className="text-xs text-gray-400 font-medium mb-2">Top Skills:</p>
+                          <div className="flex flex-wrap gap-2">
+                            {resume.parsed_data.technical_skills.languages?.slice(0, 6).map((skill: string, idx: number) => (
                               <span
                                 key={idx}
-                                className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded"
+                                className="px-3 py-1 bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-medium rounded-full"
                               >
                                 {skill}
                               </span>
                             ))}
-                            {resume.parsed_data.technical_skills.languages?.length > 5 && (
-                              <span className="text-xs text-gray-500 px-2 py-1">
-                                +{resume.parsed_data.technical_skills.languages.length - 5} more
+                            {resume.parsed_data.technical_skills.languages?.length > 6 && (
+                              <span className="px-3 py-1 text-xs text-gray-400">
+                                +{resume.parsed_data.technical_skills.languages.length - 6} more
                               </span>
                             )}
                           </div>
@@ -200,18 +300,18 @@ export default function ResumesPage() {
                       )}
                     </div>
 
-                    <div className="flex gap-2 ml-4">
+                    <div className="flex flex-col gap-2">
                       <a
                         href={resume.file_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline text-sm"
+                        className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm font-medium transition text-center"
                       >
                         View PDF
                       </a>
                       <button
                         onClick={() => handleDelete(resume.id)}
-                        className="text-red-600 hover:underline text-sm"
+                        className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-300 rounded-lg text-sm font-medium transition"
                       >
                         Delete
                       </button>
@@ -223,6 +323,20 @@ export default function ResumesPage() {
           )}
         </div>
       </div>
-    </div>
+
+      <style jsx global>{`
+        @keyframes blob {
+          0%, 100% { transform: translate(0px, 0px) scale(1); }
+          33% { transform: translate(30px, -50px) scale(1.1); }
+          66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+        .animate-blob {
+          animation: blob 7s infinite;
+        }
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+      `}</style>
+    </main>
   );
 }

@@ -8,14 +8,12 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
         <div className="absolute top-40 right-10 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
         <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
       </div>
 
-      {/* Navigation */}
       <nav className="relative z-10 flex items-center justify-between p-6 max-w-7xl mx-auto">
         <Logo className="text-white" />
         <div className="flex gap-4">
@@ -34,7 +32,6 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero Section */}
       <div className="relative z-10 flex flex-col items-center justify-center px-6 py-20 text-center">
         <div className="max-w-4xl space-y-8 animate-fade-in">
           <div className="inline-block">
@@ -75,7 +72,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Feature Cards */}
         <div id="features" className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto mt-24">
           <div className="group p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl hover:bg-white/10 transition hover:scale-105 transform">
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition">
@@ -115,7 +111,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Add custom animations to globals.css */}
       <style jsx global>{`
         @keyframes blob {
           0% {
