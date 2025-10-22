@@ -148,22 +148,3 @@ You'll need free API keys from:
 3. **ElevenLabs**: https://elevenlabs.io/
 4. **Supabase**: https://supabase.com/ (for database and storage)
 
-All services have generous free tiers!
-
-## Development Roadmap
-
-See [DEVELOPMENT_PLAN.md](./DEVELOPMENT_PLAN.md) for the detailed 14-phase build plan.
-
-**Current Phase**: Phase 0 - Project Setup ✅
-
-## Contributing
-
-This is an active development project. We're building step-by-step following the development plan.
-
-## License
-
-MIT License - See LICENSE file for details
-
----
-
-**Built with ❤️ for job seekers everywhere**
