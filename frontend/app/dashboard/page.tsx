@@ -92,26 +92,30 @@ export default function DashboardPage() {
             </div>
           </button>
 
-          {/* Practice Interview Card - Coming Soon */}
-          <div className="relative overflow-hidden bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8 opacity-60">
-            <div className="absolute top-4 right-4">
-              <span className="px-3 py-1 bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-semibold rounded-full">
-                Coming Soon
-              </span>
-            </div>
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/10 to-transparent rounded-bl-full"></div>
+          {/* Practice Interview Card */}
+          <button
+            onClick={() => router.push('/interviews/new')}
+            className="group relative overflow-hidden bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 hover:bg-white/15 transition-all hover:scale-105 transform text-left"
+          >
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/20 to-transparent rounded-bl-full"></div>
             <div className="relative">
-              <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mb-6">
+              <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-white mb-3">Practice Interview</h3>
-              <p className="text-gray-400">
-                AI-powered mock interviews with real-time voice feedback
+              <h3 className="text-2xl font-bold text-white mb-3">Create Interview</h3>
+              <p className="text-gray-300 mb-4">
+                Generate AI interview questions based on job description
               </p>
+              <div className="flex items-center text-purple-400 font-semibold group-hover:translate-x-2 transition-transform">
+                Start interview
+                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
             </div>
-          </div>
+          </button>
 
           {/* Progress Card - Coming Soon */}
           <div className="relative overflow-hidden bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8 opacity-60">

@@ -77,7 +77,10 @@ export default function NewInterviewPage() {
         token!
       );
 
-      // Navigate to interview details page (we'll create this next)
+      // Store interview data in session storage for details page
+      sessionStorage.setItem(`interview_${response.id}`, JSON.stringify(response));
+
+      // Navigate to interview details page
       router.push(`/interviews/${response.id}`);
     } catch (err: any) {
       setError(err.message);
