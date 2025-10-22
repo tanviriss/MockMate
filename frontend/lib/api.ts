@@ -135,4 +135,66 @@ export const api = {
 
     return response.json();
   },
+
+  // Interview endpoints
+  async createInterview(data: { resume_id: number; job_description: string; num_questions?: number }, token: string) {
+    const response = await fetch(`${API_URL}/interviews/`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || 'Failed to create interview');
+    }
+
+    return response.json();
+  },
+
+  async getInterviews(token: string) {
+    const response = await fetch(`${API_URL}/interviews/`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch interviews');
+    }
+
+    return response.json();
+  },
+
+  async getInterview(interviewId: number, token: string) {
+    const response = await fetch(`${API_URL}/interviews/${interviewId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch interview');
+    }
+
+    return response.json();
+  },
+
+  async deleteInterview(interviewId: number, token: string) {
+    const response = await fetch(`${API_URL}/interviews/${interviewId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete interview');
+    }
+
+    return response.json();
+  },
 };
