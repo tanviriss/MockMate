@@ -1,7 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import socketio
 from app.config import settings
-from app.routers import auth, test, resumes, interviews
+from app.routers import auth, test, resumes, interviews, audio
+from app.websocket.interview_handler import sio
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -11,6 +13,8 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
 )
+
+socket_app = socketio.ASGIApp(sio, app)
 
 # Configure CORS
 app.add_middleware(
@@ -25,6 +29,7 @@ app.include_router(auth.router)
 app.include_router(test.router)
 app.include_router(resumes.router)
 app.include_router(interviews.router)
+app.include_router(audio.router)
 
 
 @app.get("/")
@@ -45,3 +50,5 @@ async def health_check():
         "environment": settings.ENVIRONMENT,
         "version": settings.VERSION,
     }
+
+app = socket_app
