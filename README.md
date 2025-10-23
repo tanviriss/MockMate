@@ -65,10 +65,14 @@ mockmate/
 
 ### Prerequisites
 
-- Python 3.11+
+- Python 3.12+
 - Node.js 18+
-- PostgreSQL (or Supabase account)
-- Redis (optional for local dev)
+- Supabase account (for PostgreSQL database and storage)
+- Redis instance (required for WebSocket session management)
+- API keys for:
+  - Google Gemini API
+  - Groq API (Whisper)
+  - ElevenLabs API
 
 ### Backend Setup
 
@@ -94,21 +98,51 @@ cp .env.example .env
 ```
 
 5. Configure environment variables in `.env`:
-- Add your API keys (Gemini, Groq, ElevenLabs)
-- Set database URL
-- Configure JWT secret
+```env
+# Supabase
+SUPABASE_URL=your_supabase_project_url
+SUPABASE_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_KEY=your_supabase_service_role_key
 
-6. Run database migrations:
+# Database
+DATABASE_URL=postgresql://postgres:[password]@[host]/postgres
+
+# Redis
+REDIS_URL=redis://localhost:6379/0
+
+# JWT
+JWT_SECRET=your_random_secret_key_here
+
+# AI Services
+GEMINI_API_KEY=your_gemini_api_key
+GROQ_API_KEY=your_groq_api_key
+ELEVENLABS_API_KEY=your_elevenlabs_api_key
+```
+
+6. Set up Supabase Storage buckets:
+   - Go to Supabase Dashboard → Storage
+   - Create two buckets:
+     - `resumes` (public: false)
+     - `audio-answers` (public: false)
+   - Set RLS policies to allow authenticated users access
+
+7. Start Redis (if running locally):
+```bash
+redis-server
+```
+
+8. Run database migrations:
 ```bash
 alembic upgrade head
 ```
 
-7. Start the server:
+9. Start the server:
 ```bash
 uvicorn app.main:app --reload
 ```
 
 Backend will be available at `http://localhost:8000`
+API docs at `http://localhost:8000/docs`
 
 ### Frontend Setup
 
@@ -122,9 +156,11 @@ cd frontend
 npm install
 ```
 
-3. Create `.env.local` file (copy from `.env.example`):
-```bash
-cp .env.example .env.local
+3. Create `.env.local` file:
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
 4. Start development server:
@@ -134,17 +170,95 @@ npm run dev
 
 Frontend will be available at `http://localhost:3000`
 
+## Usage
+
+1. **Sign up / Login** - Create an account or log in
+2. **Upload Resume** - Upload your resume (PDF format recommended)
+3. **Create Interview** - Paste a job description and generate tailored questions
+4. **Start Practice** - Begin live voice interview with AI interviewer
+5. **Get Feedback** - Receive detailed evaluation with scores and improvement tips
+
 ## Development
 
-- **Backend API docs**: http://localhost:8000/docs (auto-generated Swagger)
-- **Backend health check**: http://localhost:8000/health
+### Running Tests
+```bash
+# Backend tests
+cd backend
+pytest
 
-## API Keys Required
+# Frontend tests (if configured)
+cd frontend
+npm test
+```
 
-You'll need free API keys from:
+### API Documentation
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
+- **Health check**: http://localhost:8000/health
 
-1. **Google Gemini**: https://ai.google.dev/
-2. **Groq**: https://console.groq.com/
-3. **ElevenLabs**: https://elevenlabs.io/
-4. **Supabase**: https://supabase.com/ (for database and storage)
+### WebSocket Events
+
+The live interview uses Socket.IO with these events:
+
+**Client → Server:**
+- `start_interview` - Begin interview session
+- `submit_answer` - Send audio answer
+- `confirm_answer` - Confirm transcript and move to next question
+- `end_interview` - End interview early
+
+**Server → Client:**
+- `connected` - Connection established
+- `interview_started` - Interview session started
+- `question` - New question text
+- `question_audio` - Question TTS audio (base64)
+- `transcribing` - Answer transcription in progress
+- `transcript_ready` - Transcription complete
+- `interview_completed` - All questions answered
+- `error` - Error occurred
+
+## API Keys Setup
+
+### 1. Google Gemini API
+- Visit https://ai.google.dev/
+- Create account and get API key
+- Free tier: 15 requests/minute, 1500/day
+
+### 2. Groq API (Whisper)
+- Visit https://console.groq.com/
+- Create account and get API key
+- Free tier: Very generous limits
+
+### 3. ElevenLabs API
+- Visit https://elevenlabs.io/
+- Create account
+- Free tier: 10,000 characters/month
+- Paid tiers: Creator ($22/month) for more usage
+
+### 4. Supabase
+- Visit https://supabase.com/
+- Create new project
+- Get connection string and API keys from project settings
+- Free tier: 500MB database, 1GB storage
+
+## Troubleshooting
+
+### Backend won't start
+- Check Redis is running: `redis-cli ping` (should return "PONG")
+- Verify DATABASE_URL is correct
+- Ensure all API keys are set in `.env`
+
+### Frontend can't connect to backend
+- Verify backend is running on port 8000
+- Check NEXT_PUBLIC_API_URL in `.env.local`
+- Check CORS settings in backend
+
+### Audio recording not working
+- Use HTTPS or localhost (browser security requirement)
+- Grant microphone permissions when prompted
+- Check browser compatibility (Chrome/Firefox recommended)
+
+### Network issues on college/corporate WiFi
+- Some networks block cloud database connections
+- Try using a different network or VPN
+- Check firewall settings
 
