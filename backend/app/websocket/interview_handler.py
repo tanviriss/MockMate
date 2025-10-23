@@ -11,9 +11,11 @@ from app.database import get_db
 from app.models.interview import Interview
 from app.models.question import Question
 from app.models.answer import Answer
+from app.models.resume import Resume
 from app.services.text_to_speech import text_to_speech_service
 from app.services.speech_to_text import speech_to_text_service
 from app.services.storage_service import StorageService
+from app.services.evaluation_service import evaluate_answer, calculate_overall_score
 from app.websocket.session_manager import session_manager
 
 
@@ -304,6 +306,60 @@ async def confirm_answer(sid, data):
         }, room=sid)
 
 
+async def evaluate_interview_async(interview_id: int, db: Session):
+    """Evaluate all answers in an interview (background task)"""
+    try:
+        print(f"Starting evaluation for interview {interview_id}")
+
+        # Get interview
+        interview = db.query(Interview).filter(Interview.id == interview_id).first()
+        if not interview:
+            return
+
+        # Get resume
+        resume = db.query(Resume).filter(Resume.id == interview.resume_id).first()
+        if not resume:
+            return
+
+        # Get all questions with answers
+        questions = db.query(Question).filter(
+            Question.interview_id == interview_id
+        ).order_by(Question.order_number).all()
+
+        evaluations = []
+
+        for question in questions:
+            answer = db.query(Answer).filter(Answer.question_id == question.id).first()
+
+            if not answer or not answer.transcript:
+                continue
+
+            # Evaluate answer
+            evaluation = await evaluate_answer(
+                question_text=question.question_text,
+                question_context=question.question_context or {},
+                answer_transcript=answer.transcript,
+                resume_data=resume.parsed_data or {},
+                jd_analysis=interview.jd_analysis or {}
+            )
+
+            # Save evaluation
+            answer.evaluation = evaluation
+            answer.score = evaluation.get('score', 0)
+            evaluations.append(evaluation)
+
+        # Calculate overall score
+        overall_score = await calculate_overall_score(evaluations)
+        interview.overall_score = overall_score
+
+        db.commit()
+        print(f"Evaluation completed for interview {interview_id}. Score: {overall_score}")
+
+    except Exception as e:
+        print(f"Error evaluating interview: {e}")
+        db.rollback()
+
+
 async def complete_interview(sid, session, db: Session):
     """Complete the interview"""
     try:
@@ -322,11 +378,12 @@ async def complete_interview(sid, session, db: Session):
         # Send completion event
         await sio.emit('interview_completed', {
             'interview_id': session.interview_id,
-            'message': 'Interview completed! Processing your responses...'
+            'message': 'Interview completed! Evaluating your responses...'
         }, room=sid)
 
-        # Note: Evaluation will be triggered here in a background task
-        # For now, just notify completion
+        # Trigger evaluation in background
+        import asyncio
+        asyncio.create_task(evaluate_interview_async(session.interview_id, db))
 
     except Exception as e:
         print(f"Error completing interview: {e}")

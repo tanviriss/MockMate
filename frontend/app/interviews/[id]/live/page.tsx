@@ -47,8 +47,8 @@ export default function LiveInterviewPage({
   useEffect(() => {
     if (isCompleted) {
       setTimeout(() => {
-        router.push(`/interviews/${interviewId}`);
-      }, 2000);
+        router.push(`/interviews/${interviewId}/results`);
+      }, 3000);
     }
   }, [isCompleted, interviewId, router]);
 

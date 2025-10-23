@@ -63,6 +63,7 @@ async def get_current_user(
         return AuthenticatedUser(supabase_user, token)
 
     except Exception as e:
+        print(f"Auth error: {type(e).__name__}: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",

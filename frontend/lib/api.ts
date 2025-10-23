@@ -156,6 +156,7 @@ export const api = {
   },
 
   async getInterviews(token: string) {
+    console.log('Fetching interviews with token:', token ? 'Token exists' : 'No token');
     const response = await fetch(`${API_URL}/interviews/`, {
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -163,6 +164,7 @@ export const api = {
     });
 
     if (!response.ok) {
+      console.error('Failed to fetch interviews:', response.status, response.statusText);
       throw new Error('Failed to fetch interviews');
     }
 
@@ -193,6 +195,39 @@ export const api = {
 
     if (!response.ok) {
       throw new Error('Failed to delete interview');
+    }
+
+    return response.json();
+  },
+
+  // Evaluation endpoints
+  async getInterviewResults(interviewId: number, token: string) {
+    const response = await fetch(`${API_URL}/evaluation/interviews/${interviewId}/results`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch interview results');
+    }
+
+    return response.json();
+  },
+
+  async triggerEvaluation(interviewId: number, token: string) {
+    const response = await fetch(`${API_URL}/evaluation/interviews/${interviewId}/evaluate`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to trigger evaluation');
     }
 
     return response.json();
