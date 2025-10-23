@@ -131,13 +131,28 @@ export default function InterviewDetailsPage() {
       {/* Main Content */}
       <div className="relative z-10 max-w-6xl mx-auto px-6 py-12">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Interview Questions
-          </h1>
-          <p className="text-xl text-gray-300">
-            {interview.jd_analysis?.job_title || 'Interview'} - {questions.length} Questions
-          </p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              Interview Questions
+            </h1>
+            <p className="text-xl text-gray-300">
+              {interview.jd_analysis?.job_title || 'Interview'} - {questions.length} Questions
+            </p>
+          </div>
+
+          {interview.status === 'pending' && (
+            <button
+              onClick={() => router.push(`/interviews/${params.id}/live`)}
+              className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all flex items-center gap-3"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Start Interview
+            </button>
+          )}
         </div>
 
         {/* Job Analysis */}
