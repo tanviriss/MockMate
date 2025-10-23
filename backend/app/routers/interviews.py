@@ -6,6 +6,7 @@ from app.database import get_db
 from app.dependencies import get_current_user
 from app.models.interview import Interview, InterviewStatus
 from app.models.resume import Resume
+from app.models.question import Question
 from app.services.interview_service import analyze_job_description, generate_interview_questions
 
 router = APIRouter(prefix="/interviews", tags=["Interviews"])
@@ -61,8 +62,17 @@ async def create_interview(
         db.commit()
         db.refresh(interview)
 
-        # Store questions (we'll add Question model and relationship later)
-        # For now, return the interview with questions in response
+        # Save questions to database
+        for idx, question_data in enumerate(questions):
+            question = Question(
+                interview_id=interview.id,
+                question_text=question_data["question_text"],
+                question_context=question_data,  # Store full context as JSON
+                order_number=idx
+            )
+            db.add(question)
+
+        db.commit()
 
         return {
             "id": interview.id,
@@ -126,6 +136,11 @@ async def get_interview(
             detail="Interview not found"
         )
 
+    # Get questions for this interview
+    questions = db.query(Question).filter(
+        Question.interview_id == interview_id
+    ).order_by(Question.order_number).all()
+
     return {
         "id": interview.id,
         "resume_id": interview.resume_id,
@@ -134,7 +149,19 @@ async def get_interview(
         "status": interview.status,
         "overall_score": interview.overall_score,
         "created_at": interview.created_at,
-        "completed_at": interview.completed_at
+        "completed_at": interview.completed_at,
+        "questions": [
+            {
+                "id": q.id,
+                "question_text": q.question_text,
+                "question_number": q.order_number + 1,
+                "question_type": q.question_context.get("question_type", "general"),
+                "difficulty": q.question_context.get("difficulty", "medium"),
+                "category": q.question_context.get("category", "general"),
+                "expected_topics": q.question_context.get("expected_topics", [])
+            }
+            for q in questions
+        ]
     }
 
 
