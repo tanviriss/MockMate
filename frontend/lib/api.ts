@@ -156,7 +156,6 @@ export const api = {
   },
 
   async getInterviews(token: string) {
-    console.log('Fetching interviews with token:', token ? 'Token exists' : 'No token');
     const response = await fetch(`${API_URL}/interviews/`, {
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -164,7 +163,6 @@ export const api = {
     });
 
     if (!response.ok) {
-      console.error('Failed to fetch interviews:', response.status, response.statusText);
       throw new Error('Failed to fetch interviews');
     }
 

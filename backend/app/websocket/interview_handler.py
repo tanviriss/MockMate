@@ -71,7 +71,6 @@ async def start_interview(sid, data):
             return
 
         session = session_manager.create_session(sid, interview_id, user_id)
-        print(f"Created session for sid: {sid}, interview: {interview_id}")
 
         db: Session = next(get_db())
         interview = db.query(Interview).filter(Interview.id == interview_id).first()
@@ -170,7 +169,6 @@ async def submit_answer(sid, data):
         audio_bytes = base64.b64decode(audio_data_b64)
 
         session = session_manager.get_session(sid)
-        print(f"submit_answer - Looking for session with sid: {sid}, found: {session is not None}")
         if not session:
             await sio.emit('error', {
                 'message': 'Session not found'
