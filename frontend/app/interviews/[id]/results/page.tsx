@@ -5,6 +5,17 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/store";
 import { api } from "@/lib/api";
 
+interface IdealAnswer {
+  ideal_answer: string;
+  key_points: string[];
+  structure: {
+    opening: string;
+    body: string;
+    closing: string;
+  };
+  why_this_works: string;
+}
+
 export default function InterviewResultsPage({
   params,
 }: {
@@ -17,6 +28,8 @@ export default function InterviewResultsPage({
   const [results, setResults] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [idealAnswers, setIdealAnswers] = useState<{ [key: number]: IdealAnswer }>({});
+  const [loadingIdeal, setLoadingIdeal] = useState<{ [key: number]: boolean }>({});
 
   useEffect(() => {
     if (!token) {
@@ -36,6 +49,20 @@ export default function InterviewResultsPage({
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchIdealAnswer = async (questionId: number) => {
+    if (idealAnswers[questionId] || loadingIdeal[questionId]) return;
+
+    try {
+      setLoadingIdeal(prev => ({ ...prev, [questionId]: true }));
+      const data = await api.getIdealAnswer(questionId, token!);
+      setIdealAnswers(prev => ({ ...prev, [questionId]: data.ideal_answer }));
+    } catch (err: any) {
+      console.error('Failed to fetch ideal answer:', err);
+    } finally {
+      setLoadingIdeal(prev => ({ ...prev, [questionId]: false }));
     }
   };
 
@@ -274,6 +301,74 @@ export default function InterviewResultsPage({
                 <div className="text-center py-8 text-gray-400">
                   <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mb-2"></div>
                   <p>Evaluating...</p>
+                </div>
+              )}
+
+              {/* Ideal Answer Section */}
+              {result.has_evaluation && (
+                <div className="mt-6 pt-6 border-t border-gray-700">
+                  {!idealAnswers[result.question_id] && (
+                    <button
+                      onClick={() => fetchIdealAnswer(result.question_id)}
+                      disabled={loadingIdeal[result.question_id]}
+                      className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 text-white rounded-lg font-semibold transition flex items-center justify-center gap-2"
+                    >
+                      {loadingIdeal[result.question_id] ? (
+                        <>
+                          <div className="inline-block animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                          <span>Generating Ideal Answer...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>✨</span>
+                          <span>Show Ideal Answer Example</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+
+                  {idealAnswers[result.question_id] && (
+                    <div className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 border border-blue-500/30 rounded-xl p-6">
+                      <div className="flex items-center gap-2 mb-4">
+                        <span className="text-2xl">✨</span>
+                        <h4 className="text-lg font-bold text-blue-300">Ideal Answer Example</h4>
+                      </div>
+
+                      <div className="space-y-4">
+                        {/* Ideal Answer Text */}
+                        <div>
+                          <p className="text-gray-200 leading-relaxed">
+                            {idealAnswers[result.question_id].ideal_answer}
+                          </p>
+                        </div>
+
+                        {/* Key Points */}
+                        {idealAnswers[result.question_id].key_points && idealAnswers[result.question_id].key_points.length > 0 && (
+                          <div>
+                            <h5 className="text-sm font-semibold text-blue-400 mb-2">📌 Key Points to Cover:</h5>
+                            <ul className="space-y-1">
+                              {idealAnswers[result.question_id].key_points.map((point: string, i: number) => (
+                                <li key={i} className="flex items-start gap-2 text-gray-300 text-sm">
+                                  <span className="text-blue-400 mt-0.5">•</span>
+                                  <span>{point}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* Why This Works */}
+                        {idealAnswers[result.question_id].why_this_works && (
+                          <div className="bg-slate-800/50 rounded-lg p-4">
+                            <h5 className="text-sm font-semibold text-green-400 mb-2">💡 Why This Works:</h5>
+                            <p className="text-gray-300 text-sm">
+                              {idealAnswers[result.question_id].why_this_works}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

@@ -175,6 +175,7 @@ async def get_evaluation_results(
 
         if answer:
             results.append({
+                "question_id": question.id,
                 "question_number": question.order_number + 1,
                 "question_text": question.question_text,
                 "question_type": question.question_context.get('question_type', 'general'),

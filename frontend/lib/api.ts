@@ -231,6 +231,22 @@ export const api = {
     return response.json();
   },
 
+  async getIdealAnswer(questionId: number, token: string) {
+    const response = await fetch(`${API_URL}/evaluation/questions/${questionId}/ideal-answer`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch ideal answer');
+    }
+
+    return response.json();
+  },
+
   // Analytics endpoints
   async getAnalytics(token: string) {
     const response = await fetch(`${API_URL}/analytics/progress`, {
