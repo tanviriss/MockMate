@@ -168,6 +168,13 @@ async def submit_answer(sid, data):
         import base64
         audio_bytes = base64.b64decode(audio_data_b64)
 
+        # Validate audio size
+        if len(audio_bytes) < 100:
+            await sio.emit('error', {
+                'message': 'Audio file too small. Please record again.'
+            }, room=sid)
+            return
+
         session = session_manager.get_session(sid)
         if not session:
             await sio.emit('error', {

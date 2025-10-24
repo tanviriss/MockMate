@@ -42,7 +42,7 @@ export default function AudioRecorder({
       audioChunksRef.current = [];
 
       mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
+        if (event.data && event.data.size > 0) {
           audioChunksRef.current.push(event.data);
         }
       };
@@ -51,6 +51,17 @@ export default function AudioRecorder({
         const audioBlob = new Blob(audioChunksRef.current, {
           type: "audio/webm",
         });
+
+        // Validate audio blob has content
+        if (audioBlob.size < 100) {
+          console.error("Audio recording too small, likely corrupted");
+          alert("Recording failed. Please try again.");
+          setIsRecording(false);
+          setRecordingTime(0);
+          audioChunksRef.current = [];
+          return;
+        }
+
         const url = URL.createObjectURL(audioBlob);
         setAudioURL(url);
         setHasRecorded(true);
@@ -59,7 +70,8 @@ export default function AudioRecorder({
         streamRef.current?.getTracks().forEach((track) => track.stop());
       };
 
-      mediaRecorder.start();
+      // Request data every 100ms for better reliability
+      mediaRecorder.start(100);
       setIsRecording(true);
       setIsPaused(false);
       setHasRecorded(false);
