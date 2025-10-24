@@ -15,7 +15,7 @@ from app.logging_config import logger
 limiter = Limiter(key_func=get_remote_address)
 
 # Initialize FastAPI app
-app = FastAPI(
+fastapi_app = FastAPI(
     title=settings.APP_NAME,
     version=settings.VERSION,
     description="AI Voice Interview Coach Platform API",
@@ -24,10 +24,14 @@ app = FastAPI(
 )
 
 # Add rate limiter to app state
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+fastapi_app.state.limiter = limiter
+fastapi_app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-socket_app = socketio.ASGIApp(sio, app)
+# Keep reference to FastAPI app for testing
+app = fastapi_app
+
+# Wrap with SocketIO
+socket_app = socketio.ASGIApp(sio, fastapi_app)
 
 # Request logging middleware
 @app.middleware("http")
@@ -117,4 +121,7 @@ async def health_check():
         "version": settings.VERSION,
     }
 
-app = socket_app
+# For production, use socket_app which wraps FastAPI with SocketIO
+# For testing, import 'app' which is the FastAPI instance
+# To run: uvicorn app.main:socket_app
+__all__ = ["app", "socket_app"]
