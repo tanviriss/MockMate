@@ -200,9 +200,16 @@ export default function InterviewsPage() {
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between mb-2">
-                        <h3 className="text-xl font-bold text-white">
-                          {interview.jd_analysis?.job_title || 'Interview'}
-                        </h3>
+                        <div>
+                          <h3 className="text-xl font-bold text-white">
+                            {interview.jd_analysis?.job_title || 'Interview'}
+                          </h3>
+                          {interview.jd_analysis?.company && (
+                            <p className="text-sm text-purple-300 font-medium mt-1">
+                              {interview.jd_analysis.company}
+                            </p>
+                          )}
+                        </div>
                         <span className={`px-3 py-1 border text-xs font-semibold rounded-full ${getStatusBadge(interview.status)}`}>
                           {interview.status.replace('_', ' ')}
                         </span>

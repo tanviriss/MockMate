@@ -28,7 +28,7 @@ class AuthResponse(BaseModel):
 
 @router.post("/signup", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
 @limiter.limit("5/minute")
-async def signup(http_request: Request, request: SignUpRequest):
+async def signup(request: Request, signup_data: SignUpRequest):
     """
     Register a new user with Supabase Auth
 
@@ -39,11 +39,11 @@ async def signup(http_request: Request, request: SignUpRequest):
     try:
         # Sign up user with Supabase
         response = supabase.auth.sign_up({
-            "email": request.email,
-            "password": request.password,
+            "email": signup_data.email,
+            "password": signup_data.password,
             "options": {
                 "data": {
-                    "full_name": request.full_name
+                    "full_name": signup_data.full_name
                 }
             }
         })
@@ -59,7 +59,7 @@ async def signup(http_request: Request, request: SignUpRequest):
             user={
                 "id": response.user.id,
                 "email": response.user.email,
-                "full_name": request.full_name
+                "full_name": signup_data.full_name
             }
         )
 
@@ -72,7 +72,7 @@ async def signup(http_request: Request, request: SignUpRequest):
 
 @router.post("/login", response_model=AuthResponse)
 @limiter.limit("10/minute")
-async def login(http_request: Request, request: LoginRequest):
+async def login(request: Request, login_data: LoginRequest):
     """
     Login with email and password
 
@@ -83,8 +83,8 @@ async def login(http_request: Request, request: LoginRequest):
     try:
         # Sign in with Supabase
         response = supabase.auth.sign_in_with_password({
-            "email": request.email,
-            "password": request.password
+            "email": login_data.email,
+            "password": login_data.password
         })
 
         if not response.user:
