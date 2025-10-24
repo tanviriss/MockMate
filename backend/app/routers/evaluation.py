@@ -13,7 +13,8 @@ from app.models.resume import Resume
 from app.services.evaluation_service import (
     evaluate_answer,
     calculate_overall_score,
-    generate_interview_insights
+    generate_interview_insights,
+    analyze_speaking_patterns
 )
 
 router = APIRouter(prefix="/evaluation", tags=["Evaluation"])
@@ -64,6 +65,13 @@ async def evaluate_interview_background(interview_id: int, db: Session):
                 resume_data=resume.parsed_data or {},
                 jd_analysis=interview.jd_analysis or {}
             )
+
+            # Analyze speaking patterns
+            speaking_analysis = analyze_speaking_patterns(
+                transcript=answer.transcript,
+                audio_duration_seconds=answer.audio_duration_seconds
+            )
+            evaluation['speaking_analysis'] = speaking_analysis
 
             # Store evaluation in answer
             answer.evaluation = evaluation

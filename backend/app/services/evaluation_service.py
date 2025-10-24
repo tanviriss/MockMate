@@ -181,6 +181,99 @@ async def calculate_overall_score(evaluations: list) -> float:
     return round(total / len(evaluations), 2)
 
 
+def analyze_speaking_patterns(transcript: str, audio_duration_seconds: float = None) -> Dict[str, Any]:
+    """
+    Analyze speaking patterns from transcript
+
+    Args:
+        transcript: The answer transcript
+        audio_duration_seconds: Duration of audio (if available)
+
+    Returns:
+        Dict containing:
+        - words_per_minute: Speaking pace
+        - filler_words: List of detected filler words with counts
+        - total_filler_count: Total number of filler words
+        - filler_percentage: Percentage of words that are fillers
+        - speaking_pace_feedback: Assessment of speaking pace
+    """
+
+    # Common filler words and phrases
+    FILLER_WORDS = {
+        'um', 'uh', 'umm', 'uhh', 'like', 'you know', 'sort of', 'kind of',
+        'i mean', 'basically', 'actually', 'literally', 'right', 'okay',
+        'so', 'well', 'yeah', 'just', 'really'
+    }
+
+    # Clean and tokenize
+    words = transcript.lower().split()
+    total_words = len(words)
+
+    if total_words == 0:
+        return {
+            "words_per_minute": 0,
+            "filler_words": {},
+            "total_filler_count": 0,
+            "filler_percentage": 0,
+            "speaking_pace_feedback": "No speech detected"
+        }
+
+    # Count filler words
+    filler_counts = {}
+    total_fillers = 0
+
+    for filler in FILLER_WORDS:
+        if ' ' in filler:  # Multi-word phrases
+            count = transcript.lower().count(filler)
+        else:  # Single words
+            count = words.count(filler)
+
+        if count > 0:
+            filler_counts[filler] = count
+            total_fillers += count
+
+    # Calculate filler percentage
+    filler_percentage = round((total_fillers / total_words) * 100, 1)
+
+    # Calculate WPM if duration provided
+    wpm = None
+    wpm_feedback = ""
+
+    if audio_duration_seconds and audio_duration_seconds > 0:
+        minutes = audio_duration_seconds / 60
+        wpm = round(total_words / minutes, 1)
+
+        # Assess speaking pace (typical conversational: 120-150 WPM)
+        if wpm < 100:
+            wpm_feedback = "Consider speaking slightly faster for better engagement"
+        elif wpm <= 150:
+            wpm_feedback = "Good speaking pace - clear and easy to follow"
+        elif wpm <= 180:
+            wpm_feedback = "Slightly fast - ensure you're articulating clearly"
+        else:
+            wpm_feedback = "Speaking too fast - slow down for better clarity"
+
+    # Assess filler word usage
+    if filler_percentage < 2:
+        filler_feedback = "Excellent - minimal filler words"
+    elif filler_percentage < 5:
+        filler_feedback = "Good - occasional filler words are natural"
+    elif filler_percentage < 10:
+        filler_feedback = "Moderate - try to reduce filler words"
+    else:
+        filler_feedback = "High filler word usage - practice pausing instead"
+
+    return {
+        "words_per_minute": wpm,
+        "total_words": total_words,
+        "filler_words": dict(sorted(filler_counts.items(), key=lambda x: x[1], reverse=True)),
+        "total_filler_count": total_fillers,
+        "filler_percentage": filler_percentage,
+        "speaking_pace_feedback": wpm_feedback if wpm else "Audio duration not available",
+        "filler_word_feedback": filler_feedback
+    }
+
+
 async def generate_interview_insights(
     evaluations: list,
     jd_analysis: Dict[str, Any]

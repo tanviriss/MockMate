@@ -69,43 +69,93 @@ async def generate_interview_questions(resume_data: dict, jd_analysis: dict, num
     Returns:
         List of question dictionaries
     """
-    prompt = f"""
-    You are an expert interviewer. Generate {num_questions} interview questions for a candidate based on their resume and the job requirements.
 
-    CANDIDATE RESUME:
-    - Name: {resume_data.get('name', 'N/A')}
-    - Skills: {', '.join(resume_data.get('technical_skills', {}).get('languages', [])[:10])}
-    - Experience: {len(resume_data.get('experience', []))} positions
-    - Education: {resume_data.get('education', [{}])[0].get('degree', 'N/A') if resume_data.get('education') else 'N/A'}
+    # Extract detailed info from resume
+    skills = resume_data.get('technical_skills', {})
+    all_skills = []
+    if skills:
+        all_skills.extend(skills.get('languages', []))
+        all_skills.extend(skills.get('frameworks_libraries', []))
+        all_skills.extend(skills.get('cloud_databases', []))
 
-    JOB REQUIREMENTS:
-    - Title: {jd_analysis.get('job_title', 'N/A')}
-    - Required Skills: {', '.join(jd_analysis.get('required_skills', [])[:10])}
-    - Experience Level: {jd_analysis.get('experience_level', 'N/A')}
-    - Key Responsibilities: {', '.join(jd_analysis.get('key_responsibilities', [])[:5])}
+    experiences = resume_data.get('experience', [])
+    projects = resume_data.get('projects', [])
 
-    Generate questions that:
-    1. Test technical skills relevant to BOTH the resume and job requirements
-    2. Assess experience with responsibilities mentioned in the job description
-    3. Include a mix of technical, behavioral, and situational questions
-    4. Are progressively challenging
-    5. Are specific to the candidate's background and the role
+    # Build detailed context
+    experience_context = ""
+    if experiences:
+        for exp in experiences[:3]:  # Top 3 experiences
+            experience_context += f"\n- {exp.get('title', '')} at {exp.get('company', '')}: {', '.join(exp.get('responsibilities', [])[:2])}"
 
-    Return a JSON array with this exact structure:
-    [
-        {{
-            "question_number": 1,
-            "question_text": "the question text",
-            "question_type": "technical|behavioral|situational",
-            "difficulty": "easy|medium|hard",
-            "category": "category like 'Python', 'System Design', 'Leadership', etc.",
-            "expected_topics": ["topic1", "topic2"]
-        }},
-        ...
-    ]
+    project_context = ""
+    if projects:
+        for proj in projects[:2]:  # Top 2 projects
+            project_context += f"\n- {proj.get('name', '')}: {', '.join(proj.get('description', [])[:1])}"
 
-    Return ONLY the JSON array, no additional text or explanations.
-    """
+    prompt = f"""You are a senior technical interviewer at a top tech company (Google, Meta, Amazon level). Your job is to generate realistic, specific interview questions that actual interviewers ask.
+
+CANDIDATE BACKGROUND:
+- Skills: {', '.join(all_skills[:15])}
+- Recent Experience:{experience_context}
+- Key Projects:{project_context}
+
+JOB DESCRIPTION:
+- Role: {jd_analysis.get('job_title', 'Software Engineer')}
+- Required Skills: {', '.join(jd_analysis.get('required_skills', [])[:10])}
+- Level: {jd_analysis.get('experience_level', 'mid-level')}
+- Responsibilities: {', '.join(jd_analysis.get('key_responsibilities', [])[:3])}
+
+CRITICAL REQUIREMENTS FOR QUESTION QUALITY:
+
+1. **Technical Questions** - Must be specific and practical:
+   ❌ BAD: "Explain how Python works"
+   ✅ GOOD: "You mentioned using FastAPI in your resume. Walk me through how you'd design a rate-limiting middleware for a REST API. What data structure would you use and why?"
+
+2. **Behavioral Questions** - Use STAR method, reference their actual experience:
+   ❌ BAD: "Tell me about a time you worked on a team"
+   ✅ GOOD: "I see you worked as a Software Engineer at {experiences[0].get('company', 'TechCorp') if experiences else 'your previous company'}. Tell me about a time when you had to resolve a major production bug. What was the situation, your approach, and the outcome?"
+
+3. **System Design Questions** - Tie to job responsibilities:
+   ❌ BAD: "Design Twitter"
+   ✅ GOOD: "This role involves building scalable backend services. Design a notification system that can handle 1M users with real-time push notifications. Walk through your database schema, API design, and how you'd handle scale."
+
+4. **Project Deep-Dive** - Reference their actual projects:
+   ❌ BAD: "Tell me about a project"
+   ✅ GOOD: "I noticed your {projects[0].get('name', 'e-commerce') if projects else 'personal'} project used {projects[0].get('technologies', ['React'])[0] if projects and projects[0].get('technologies') else 'modern tech'}. What was the biggest technical challenge you faced and how did you solve it?"
+
+5. **Situational/Problem-Solving** - Real scenarios from the job:
+   ❌ BAD: "How do you handle deadlines?"
+   ✅ GOOD: "You're two weeks from launch and QA finds a critical security vulnerability in the authentication system. The fix will take 3 weeks. Walk me through your decision-making process."
+
+QUESTION MIX for {num_questions} questions:
+- 40% Technical (coding, architecture, system design)
+- 30% Behavioral (STAR method, past experiences)
+- 20% Project Deep-Dives (their resume projects)
+- 10% Situational (hypothetical scenarios)
+
+DIFFICULTY PROGRESSION:
+- Questions 1-3: Medium (warm-up)
+- Questions 4-7: Medium-Hard (core assessment)
+- Questions 8-{num_questions}: Hard (stretch questions)
+
+Generate {num_questions} questions following this exact JSON structure:
+
+[
+    {{
+        "question_number": 1,
+        "question_text": "Specific, detailed question that references their background or job requirements",
+        "question_type": "technical|behavioral|situational|project_deepdive",
+        "difficulty": "medium|hard",
+        "category": "Specific skill name (e.g., 'Python/FastAPI', 'System Design', 'Team Collaboration')",
+        "expected_topics": ["specific topic 1", "specific topic 2", "specific topic 3"]
+    }}
+]
+
+MAKE QUESTIONS SOUND NATURAL - like a real human interviewer would ask them.
+Reference their actual resume items whenever possible.
+Avoid generic textbook questions.
+
+Return ONLY the JSON array, no markdown, no explanations."""
 
     response = model.generate_content(prompt)
 
