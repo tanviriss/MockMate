@@ -221,6 +221,7 @@ async def get_ideal_answer(
 ):
     """
     Generate an ideal answer example for a question
+    Uses the user's actual answer for context if available
     """
     # Get question
     question = db.query(Question).filter(Question.id == question_id).first()
@@ -229,30 +230,35 @@ async def get_ideal_answer(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Question not found"
         )
-    
+
     # Get interview and verify ownership
     interview = db.query(Interview).filter(
         Interview.id == question.interview_id,
         Interview.user_id == current_user.id
     ).first()
-    
+
     if not interview:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Interview not found or access denied"
         )
-    
+
     # Get resume
     resume = db.query(Resume).filter(Resume.id == interview.resume_id).first()
-    
-    # Generate ideal answer
+
+    # Get user's answer for context
+    answer = db.query(Answer).filter(Answer.question_id == question_id).first()
+    user_answer_text = answer.transcript if answer else None
+
+    # Generate ideal answer with user's context
     ideal_answer = await generate_ideal_answer(
         question_text=question.question_text,
         question_context=question.question_context or {},
         resume_data=resume.parsed_data or {},
-        jd_analysis=interview.jd_analysis or {}
+        jd_analysis=interview.jd_analysis or {},
+        user_answer=user_answer_text
     )
-    
+
     return {
         "question_id": question_id,
         "question_text": question.question_text,

@@ -183,10 +183,12 @@ async def generate_ideal_answer(
     question_text: str,
     question_context: dict,
     resume_data: dict,
-    jd_analysis: dict
+    jd_analysis: dict,
+    user_answer: str = None
 ) -> dict:
     """
     Generate an ideal answer example for a given question
+    Uses the user's answer context to make it more relevant
     """
     skills = resume_data.get('technical_skills', {})
     all_skills = []
@@ -197,6 +199,19 @@ async def generate_ideal_answer(
 
     question_type = question_context.get('question_type', 'technical')
 
+    # Build context from user's answer if provided
+    user_context = ""
+    if user_answer:
+        user_context = f"""
+**User's Answer (for context):**
+{user_answer}
+
+IMPORTANT: Use the SAME scenario/project/experience mentioned in the user's answer, but show how to answer it more effectively.
+If they mentioned "NYC subway analysis project", use that same project.
+If they mentioned "worked at Company X", reference that same company.
+Keep their story but improve the structure, detail, and delivery.
+"""
+
     prompt = f"""Generate an IDEAL ANSWER EXAMPLE for this interview question.
 
 Question: {question_text}
@@ -204,18 +219,27 @@ Type: {question_type}
 Job: {jd_analysis.get('job_title', 'Software Engineer')}
 Skills: {', '.join(all_skills[:10])}
 
+{user_context}
+
 Generate a strong 150-200 word answer that:
-- Directly addresses the question
-- Uses STAR method if behavioral
-- Includes specific technical details
-- Is natural and realistic
+- Uses the SAME context/scenario as the user if they provided one
+- Shows proper STAR structure (for behavioral/situational questions)
+- Adds specific technical details and reasoning
+- Includes the "why" behind decisions
+- Demonstrates learning and outcomes
+
+For situational/behavioral questions:
+- Situation: Set clear context (use their scenario!)
+- Task: Define the specific challenge
+- Action: Explain concrete steps with technical details
+- Result: Quantify outcomes and learnings
 
 Return JSON:
 {{
-    "ideal_answer": "Full example answer",
+    "ideal_answer": "Full improved answer using THEIR scenario",
     "key_points": ["point 1", "point 2", "point 3"],
-    "structure": {{"opening": "start", "body": "main", "closing": "end"}},
-    "why_this_works": "explanation"
+    "structure": {{"opening": "how to start", "body": "main content", "closing": "how to end"}},
+    "why_this_works": "why this answer is stronger"
 }}
 
 Return ONLY JSON, no markdown."""
