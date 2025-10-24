@@ -5,11 +5,24 @@ import json
 from typing import Dict, Any
 import google.generativeai as genai
 from app.config import settings
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from app.logging_config import logger
 
 # Configure Gemini
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
+# Retry decorator for AI service calls
+ai_retry = retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(multiplier=1, min=1, max=10),
+    retry=retry_if_exception_type((Exception,)),
+    before_sleep=lambda retry_state: logger.warning(
+        f"Evaluation service retry attempt {retry_state.attempt_number}/3"
+    )
+)
 
+
+@ai_retry
 async def evaluate_answer(
     question_text: str,
     question_context: Dict[str, Any],
@@ -108,6 +121,7 @@ Be constructive and specific. Provide actionable feedback that helps the candida
 """
 
     try:
+        logger.info(f"Evaluating answer for question: {question_text[:50]}...")
         # Call Gemini API
         model = genai.GenerativeModel('gemini-2.0-flash-exp')
         response = model.generate_content(prompt)
@@ -131,10 +145,11 @@ Be constructive and specific. Provide actionable feedback that helps the candida
         # Validate score is between 1-10
         evaluation['score'] = max(1, min(10, evaluation.get('score', 5)))
 
+        logger.info(f"Answer evaluated successfully with score: {evaluation['score']}/10")
         return evaluation
 
     except Exception as e:
-        print(f"Error evaluating answer: {e}")
+        logger.error(f"Error evaluating answer: {e}")
         # Return a default evaluation if API fails
         return {
             "score": 5,

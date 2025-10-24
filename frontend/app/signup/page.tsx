@@ -16,11 +16,52 @@ export default function SignupPage() {
     full_name: '',
   });
   const [error, setError] = useState('');
+  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
   const [loading, setLoading] = useState(false);
+
+  const validateForm = () => {
+    const errors: {[key: string]: string} = {};
+
+    // Email validation
+    if (!formData.email) {
+      errors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+
+    // Password validation
+    if (!formData.password) {
+      errors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      errors.password = 'Password must be at least 6 characters long';
+    } else if (!/(?=.*[a-z])/.test(formData.password)) {
+      errors.password = 'Password must contain at least one lowercase letter';
+    } else if (!/(?=.*[A-Z])/.test(formData.password)) {
+      errors.password = 'Password must contain at least one uppercase letter';
+    } else if (!/(?=.*\d)/.test(formData.password)) {
+      errors.password = 'Password must contain at least one number';
+    }
+
+    // Name validation
+    if (!formData.full_name.trim()) {
+      errors.full_name = 'Full name is required';
+    } else if (formData.full_name.trim().length < 2) {
+      errors.full_name = 'Name must be at least 2 characters long';
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setValidationErrors({});
+
+    if (!validateForm()) {
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -28,7 +69,7 @@ export default function SignupPage() {
       setAuth(response.user, response.access_token);
       router.push('/dashboard');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Signup failed');
+      setError(err instanceof Error ? err.message : 'Signup failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -77,9 +118,12 @@ export default function SignupPage() {
                 type="text"
                 value={formData.full_name}
                 onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className={`w-full px-4 py-3 bg-white/5 border ${validationErrors.full_name ? 'border-red-500/50' : 'border-white/10'} rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 ${validationErrors.full_name ? 'focus:ring-red-500' : 'focus:ring-blue-500'} focus:border-transparent transition`}
                 placeholder="John Doe"
               />
+              {validationErrors.full_name && (
+                <p className="mt-2 text-sm text-red-400">{validationErrors.full_name}</p>
+              )}
             </div>
 
             <div>
@@ -89,12 +133,14 @@ export default function SignupPage() {
               <input
                 id="email"
                 type="email"
-                required
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className={`w-full px-4 py-3 bg-white/5 border ${validationErrors.email ? 'border-red-500/50' : 'border-white/10'} rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 ${validationErrors.email ? 'focus:ring-red-500' : 'focus:ring-blue-500'} focus:border-transparent transition`}
                 placeholder="you@example.com"
               />
+              {validationErrors.email && (
+                <p className="mt-2 text-sm text-red-400">{validationErrors.email}</p>
+              )}
             </div>
 
             <div>
@@ -104,13 +150,17 @@ export default function SignupPage() {
               <input
                 id="password"
                 type="password"
-                required
-                minLength={6}
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className={`w-full px-4 py-3 bg-white/5 border ${validationErrors.password ? 'border-red-500/50' : 'border-white/10'} rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 ${validationErrors.password ? 'focus:ring-red-500' : 'focus:ring-blue-500'} focus:border-transparent transition`}
                 placeholder="••••••••"
               />
+              {validationErrors.password && (
+                <p className="mt-2 text-sm text-red-400">{validationErrors.password}</p>
+              )}
+              <p className="mt-2 text-xs text-gray-400">
+                Must be at least 6 characters with uppercase, lowercase, and number
+              </p>
             </div>
 
             <button

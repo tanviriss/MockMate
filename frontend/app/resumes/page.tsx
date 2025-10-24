@@ -6,6 +6,7 @@ import { useAuthStore } from '@/lib/store';
 import { api } from '@/lib/api';
 import Logo from '@/components/Logo';
 import Modal from '@/components/Modal';
+import { SkeletonResume } from '@/components/Skeleton';
 
 interface Resume {
   id: number;
@@ -147,12 +148,48 @@ export default function ResumesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-          <p className="text-gray-300">Loading...</p>
+      <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        {/* Animated background */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+          <div className="absolute top-40 right-10 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
         </div>
-      </div>
+
+        {/* Navigation */}
+        <nav className="relative z-10 border-b border-white/10 bg-white/5 backdrop-blur-md">
+          <div className="max-w-7xl mx-auto px-6 py-4">
+            <div className="flex justify-between items-center">
+              <Logo />
+            </div>
+          </div>
+        </nav>
+
+        {/* Main Content Skeleton */}
+        <div className="relative z-10 max-w-6xl mx-auto px-6 py-12">
+          <div className="h-12 w-64 bg-white/10 rounded-lg mb-4 animate-pulse"></div>
+          <div className="h-6 w-96 bg-white/10 rounded-lg mb-12 animate-pulse"></div>
+
+          {/* Upload Section Skeleton */}
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 mb-8">
+            <div className="h-8 w-48 bg-white/10 rounded-lg mb-6 animate-pulse"></div>
+            <div className="border-2 border-dashed border-white/20 rounded-xl p-12">
+              <div className="h-64 bg-white/5 rounded-lg animate-pulse"></div>
+            </div>
+          </div>
+
+          {/* Resumes List Skeleton */}
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden">
+            <div className="p-6 border-b border-white/10">
+              <div className="h-8 w-48 bg-white/10 rounded-lg animate-pulse"></div>
+            </div>
+            <div className="divide-y divide-white/10">
+              {[1, 2, 3].map((i) => (
+                <SkeletonResume key={i} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </main>
     );
   }
 

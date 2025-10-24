@@ -1,9 +1,12 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Request
 from pydantic import BaseModel, EmailStr
 from app.supabase_client import get_supabase
 from app.dependencies import get_current_user
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
+limiter = Limiter(key_func=get_remote_address)
 
 
 class SignUpRequest(BaseModel):
@@ -24,7 +27,8 @@ class AuthResponse(BaseModel):
 
 
 @router.post("/signup", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
-async def signup(request: SignUpRequest):
+@limiter.limit("5/minute")
+async def signup(http_request: Request, request: SignUpRequest):
     """
     Register a new user with Supabase Auth
 
@@ -67,7 +71,8 @@ async def signup(request: SignUpRequest):
 
 
 @router.post("/login", response_model=AuthResponse)
-async def login(request: LoginRequest):
+@limiter.limit("10/minute")
+async def login(http_request: Request, request: LoginRequest):
     """
     Login with email and password
 

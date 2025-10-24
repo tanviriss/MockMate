@@ -1,9 +1,18 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 import socketio
+import time
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from app.config import settings
 from app.routers import auth, test, resumes, interviews, audio, evaluation, analytics
 from app.websocket.interview_handler import sio
+from app.logging_config import logger
+
+# Initialize rate limiter
+limiter = Limiter(key_func=get_remote_address)
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -14,7 +23,48 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
+# Add rate limiter to app state
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 socket_app = socketio.ASGIApp(sio, app)
+
+# Request logging middleware
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    """Log all HTTP requests and errors"""
+    start_time = time.time()
+
+    # Log incoming request
+    logger.info(f"Request: {request.method} {request.url.path}")
+
+    try:
+        response = await call_next(request)
+
+        # Calculate request duration
+        duration = time.time() - start_time
+
+        # Log response
+        logger.info(
+            f"Response: {request.method} {request.url.path} "
+            f"Status: {response.status_code} Duration: {duration:.2f}s"
+        )
+
+        return response
+    except Exception as e:
+        # Log error with full details
+        duration = time.time() - start_time
+        logger.error(
+            f"Error processing request: {request.method} {request.url.path} "
+            f"Duration: {duration:.2f}s Error: {str(e)}",
+            exc_info=True
+        )
+
+        # Return error response
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"detail": "Internal server error"}
+        )
 
 # Configure CORS
 app.add_middleware(
@@ -32,6 +82,20 @@ app.include_router(interviews.router)
 app.include_router(audio.router)
 app.include_router(evaluation.router)
 app.include_router(analytics.router)
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Log application startup"""
+    logger.info(f"Starting {settings.APP_NAME} v{settings.VERSION}")
+    logger.info(f"Environment: {settings.ENVIRONMENT}")
+    logger.info(f"API Documentation: /docs")
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Log application shutdown"""
+    logger.info(f"Shutting down {settings.APP_NAME}")
 
 
 @app.get("/")

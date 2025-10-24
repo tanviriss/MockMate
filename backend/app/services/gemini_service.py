@@ -1,5 +1,7 @@
 import google.generativeai as genai
 from app.config import settings
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from app.logging_config import logger
 
 
 genai.configure(api_key=settings.GEMINI_API_KEY)
@@ -8,16 +10,34 @@ genai.configure(api_key=settings.GEMINI_API_KEY)
 model = genai.GenerativeModel('gemini-2.0-flash-exp')
 
 
+# Retry decorator for AI service calls
+# Retries up to 3 times with exponential backoff: 1s, 2s, 4s
+ai_retry = retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(multiplier=1, min=1, max=10),
+    retry=retry_if_exception_type((Exception,)),
+    before_sleep=lambda retry_state: logger.warning(
+        f"AI service retry attempt {retry_state.attempt_number}/3"
+    )
+)
+
+
+@ai_retry
 async def test_gemini_connection() -> str:
     try:
+        logger.info("Testing Gemini connection")
         response = model.generate_content("Say hello!")
+        logger.info("Gemini connection test successful")
         return response.text
     except Exception as e:
+        logger.error(f"Gemini API error: {str(e)}")
         raise Exception(f"Gemini API error: {str(e)}")
 
 
+@ai_retry
 async def parse_resume_text(resume_text: str) -> dict:
 
+    logger.info("Parsing resume text with Gemini")
     prompt = f"""
 You are a resume parser specialized in technical resumes. Extract the following information from this resume and return it as valid JSON.
 
@@ -116,9 +136,12 @@ Resume:
         import json
         parsed_data = json.loads(json_text)
 
+        logger.info("Resume parsed successfully")
         return parsed_data
 
     except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse Gemini response as JSON: {str(e)}")
         raise Exception(f"Failed to parse Gemini response as JSON: {str(e)}")
     except Exception as e:
+        logger.error(f"Resume parsing error: {str(e)}")
         raise Exception(f"Resume parsing error: {str(e)}")
