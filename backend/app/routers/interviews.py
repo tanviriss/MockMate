@@ -63,16 +63,30 @@ async def create_interview(
         db.refresh(interview)
 
         # Save questions to database
-        for idx, question_data in enumerate(questions):
-            question = Question(
-                interview_id=interview.id,
-                question_text=question_data["question_text"],
-                question_context=question_data,  # Store full context as JSON
-                order_number=idx
-            )
-            db.add(question)
+        try:
+            for idx, question_data in enumerate(questions):
+                # Handle both formats: object with question_text key or direct text
+                question_text = question_data.get("question_text") if isinstance(question_data, dict) else str(question_data)
 
-        db.commit()
+                if not question_text:
+                    raise ValueError(f"Question {idx} missing question_text: {question_data}")
+
+                question = Question(
+                    interview_id=interview.id,
+                    question_text=question_text,
+                    question_context=question_data if isinstance(question_data, dict) else {"question_text": question_text},
+                    order_number=idx
+                )
+                db.add(question)
+
+            db.commit()
+
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to save questions: {str(e)}"
+            )
 
         return {
             "id": interview.id,
