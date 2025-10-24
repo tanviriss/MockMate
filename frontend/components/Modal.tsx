@@ -27,27 +27,19 @@ export default function Modal({
 
   const typeStyles = {
     info: {
-      bg: 'bg-blue-500/20',
-      border: 'border-blue-500/30',
-      icon: '💡',
+      accentColor: 'text-blue-400',
       buttonBg: 'bg-blue-600 hover:bg-blue-700',
     },
     warning: {
-      bg: 'bg-yellow-500/20',
-      border: 'border-yellow-500/30',
-      icon: '⚠️',
+      accentColor: 'text-yellow-400',
       buttonBg: 'bg-yellow-600 hover:bg-yellow-700',
     },
     error: {
-      bg: 'bg-red-500/20',
-      border: 'border-red-500/30',
-      icon: '❌',
+      accentColor: 'text-red-400',
       buttonBg: 'bg-red-600 hover:bg-red-700',
     },
     success: {
-      bg: 'bg-green-500/20',
-      border: 'border-green-500/30',
-      icon: '✅',
+      accentColor: 'text-green-400',
       buttonBg: 'bg-green-600 hover:bg-green-700',
     },
   };
@@ -55,40 +47,39 @@ export default function Modal({
   const style = typeStyles[type];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="bg-slate-900 border border-white/20 rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
-        {/* Header */}
-        <div className={`${style.bg} border-b ${style.border} p-6`}>
-          <div className="flex items-center gap-3">
-            <span className="text-3xl">{style.icon}</span>
-            <h2 className="text-2xl font-bold text-white">{title}</h2>
-          </div>
-        </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-slate-900/95 via-purple-900/95 to-slate-900/95 backdrop-blur-md">
+      <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl max-w-md w-full mx-4">
+        <div className="p-8 space-y-6">
+          {/* Title */}
+          <h2 className={`text-2xl font-bold ${style.accentColor}`}>
+            {title}
+          </h2>
 
-        {/* Body */}
-        <div className="p-6">
-          <p className="text-gray-300 whitespace-pre-line">{message}</p>
-        </div>
+          {/* Message */}
+          <p className="text-gray-200 whitespace-pre-line leading-relaxed text-base">
+            {message}
+          </p>
 
-        {/* Footer */}
-        <div className="bg-slate-800/50 p-6 flex gap-3 justify-end">
-          {showCancel && (
+          {/* Buttons */}
+          <div className="flex gap-3 justify-end pt-2">
+            {showCancel && (
+              <button
+                onClick={onClose}
+                className="px-6 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-lg font-medium transition border border-white/20"
+              >
+                {cancelText}
+              </button>
+            )}
             <button
-              onClick={onClose}
-              className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-semibold transition"
+              onClick={() => {
+                onConfirm?.();
+                onClose();
+              }}
+              className={`px-6 py-2.5 ${style.buttonBg} text-white rounded-lg font-medium transition`}
             >
-              {cancelText}
+              {confirmText}
             </button>
-          )}
-          <button
-            onClick={() => {
-              onConfirm?.();
-              onClose();
-            }}
-            className={`px-6 py-3 ${style.buttonBg} text-white rounded-lg font-semibold transition`}
-          >
-            {confirmText}
-          </button>
+          </div>
         </div>
       </div>
     </div>
