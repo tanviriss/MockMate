@@ -331,3 +331,65 @@ async def generate_interview_insights(
         "skill_gaps": list(set(all_missing_keywords))[:5],
         "overall_feedback": f"Your strongest area was {max(category_averages, key=category_averages.get)} with an average score of {max(category_averages.values()):.1f}/10."
     }
+
+
+def aggregate_skill_performance(evaluations: list) -> Dict[str, Any]:
+    """
+    Aggregate performance by skill tags across all questions
+
+    Args:
+        evaluations: List of evaluation dicts with skill_tags and scores
+
+    Returns:
+        Dict with skill-level performance breakdown
+    """
+    skill_scores = {}  # {skill_name: [scores]}
+    
+    for eval_data in evaluations:
+        score = eval_data.get('score', 0)
+        skill_tags = eval_data.get('skill_tags', [])
+        
+        for skill in skill_tags:
+            if skill not in skill_scores:
+                skill_scores[skill] = []
+            skill_scores[skill].append(score)
+    
+    # Calculate averages and counts
+    skill_performance = {}
+    for skill, scores in skill_scores.items():
+        avg_score = sum(scores) / len(scores)
+        skill_performance[skill] = {
+            "average_score": round(avg_score, 1),
+            "questions_count": len(scores),
+            "assessment": _get_skill_assessment(avg_score)
+        }
+    
+    # Sort by average score
+    sorted_skills = sorted(
+        skill_performance.items(),
+        key=lambda x: x[1]['average_score'],
+        reverse=True
+    )
+    
+    # Identify strengths and weaknesses
+    strengths = [s[0] for s in sorted_skills if s[1]['average_score'] >= 7.0][:5]
+    weaknesses = [s[0] for s in sorted_skills if s[1]['average_score'] < 6.0][:5]
+    
+    return {
+        "skill_breakdown": dict(sorted_skills),
+        "top_skills": strengths,
+        "skills_to_improve": weaknesses,
+        "total_skills_assessed": len(skill_scores)
+    }
+
+
+def _get_skill_assessment(score: float) -> str:
+    """Get qualitative assessment for a skill score"""
+    if score >= 8.0:
+        return "Strong"
+    elif score >= 6.5:
+        return "Proficient"
+    elif score >= 5.0:
+        return "Developing"
+    else:
+        return "Needs Improvement"

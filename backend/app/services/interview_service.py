@@ -147,9 +147,15 @@ Generate {num_questions} questions following this exact JSON structure:
         "question_type": "technical|behavioral|situational|project_deepdive",
         "difficulty": "medium|hard",
         "category": "Specific skill name (e.g., 'Python/FastAPI', 'System Design', 'Team Collaboration')",
-        "expected_topics": ["specific topic 1", "specific topic 2", "specific topic 3"]
+        "expected_topics": ["specific topic 1", "specific topic 2", "specific topic 3"],
+        "skill_tags": ["skill1", "skill2", "skill3"]
     }}
 ]
+
+SKILL TAGS should be specific technical or soft skills being assessed:
+- Technical: "Python", "PostgreSQL", "System Design", "API Design", "Docker", "React"
+- Soft Skills: "Communication", "Leadership", "Problem Solving", "Conflict Resolution"
+- Be specific (e.g., "FastAPI" not just "Python", "Database Optimization" not just "SQL")
 
 MAKE QUESTIONS SOUND NATURAL - like a real human interviewer would ask them.
 Reference their actual resume items whenever possible.
@@ -171,4 +177,58 @@ Return ONLY the JSON array, no markdown, no explanations."""
     if result_text.endswith('```'):
         result_text = result_text[:-3]
 
+    return json.loads(result_text.strip())
+
+async def generate_ideal_answer(
+    question_text: str,
+    question_context: dict,
+    resume_data: dict,
+    jd_analysis: dict
+) -> dict:
+    """
+    Generate an ideal answer example for a given question
+    """
+    skills = resume_data.get('technical_skills', {})
+    all_skills = []
+    if skills:
+        all_skills.extend(skills.get('languages', []))
+        all_skills.extend(skills.get('frameworks_libraries', []))
+        all_skills.extend(skills.get('cloud_databases', []))
+
+    question_type = question_context.get('question_type', 'technical')
+
+    prompt = f"""Generate an IDEAL ANSWER EXAMPLE for this interview question.
+
+Question: {question_text}
+Type: {question_type}
+Job: {jd_analysis.get('job_title', 'Software Engineer')}
+Skills: {', '.join(all_skills[:10])}
+
+Generate a strong 150-200 word answer that:
+- Directly addresses the question
+- Uses STAR method if behavioral
+- Includes specific technical details
+- Is natural and realistic
+
+Return JSON:
+{{
+    "ideal_answer": "Full example answer",
+    "key_points": ["point 1", "point 2", "point 3"],
+    "structure": {{"opening": "start", "body": "main", "closing": "end"}},
+    "why_this_works": "explanation"
+}}
+
+Return ONLY JSON, no markdown."""
+
+    response = model.generate_content(prompt)
+    import json
+    result_text = response.text.strip()
+    
+    if result_text.startswith('```json'):
+        result_text = result_text[7:]
+    if result_text.startswith('```'):
+        result_text = result_text[3:]
+    if result_text.endswith('```'):
+        result_text = result_text[:-3]
+    
     return json.loads(result_text.strip())

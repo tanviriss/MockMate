@@ -14,8 +14,10 @@ from app.services.evaluation_service import (
     evaluate_answer,
     calculate_overall_score,
     generate_interview_insights,
-    analyze_speaking_patterns
+    analyze_speaking_patterns,
+    aggregate_skill_performance
 )
+from app.services.interview_service import generate_ideal_answer
 
 router = APIRouter(prefix="/evaluation", tags=["Evaluation"])
 
@@ -77,8 +79,9 @@ async def evaluate_interview_background(interview_id: int, db: Session):
             answer.evaluation = evaluation
             answer.score = evaluation.get('score', 0)
 
-            # Store question category for insights
+            # Store question category and skill tags for insights
             evaluation['question_category'] = question.question_context.get('category', 'general')
+            evaluation['skill_tags'] = question.question_context.get('skill_tags', [])
             evaluations.append(evaluation)
 
             print(f"Question {question.id} evaluated with score: {answer.score}")
@@ -87,8 +90,9 @@ async def evaluate_interview_background(interview_id: int, db: Session):
         overall_score = await calculate_overall_score(evaluations)
         interview.overall_score = overall_score
 
-        # Generate insights (optional, for future use)
+        # Generate insights and skill performance
         insights = await generate_interview_insights(evaluations, interview.jd_analysis or {})
+        skill_performance = aggregate_skill_performance(evaluations)
 
         # Commit all changes
         db.commit()
@@ -176,12 +180,25 @@ async def get_evaluation_results(
                 "question_type": question.question_context.get('question_type', 'general'),
                 "question_category": question.question_context.get('category', 'general'),
                 "difficulty": question.question_context.get('difficulty', 'medium'),
+                "skill_tags": question.question_context.get('skill_tags', []),
                 "answer_transcript": answer.transcript,
                 "audio_url": answer.audio_url,
                 "score": answer.score,
                 "evaluation": answer.evaluation,
                 "has_evaluation": answer.evaluation is not None
             })
+
+    # Calculate skill performance if evaluations exist
+    skill_performance = None
+    evaluated_results = [r for r in results if r['has_evaluation']]
+    if evaluated_results:
+        eval_data = []
+        for r in evaluated_results:
+            eval_data.append({
+                'score': r['score'],
+                'skill_tags': r['skill_tags']
+            })
+        skill_performance = aggregate_skill_performance(eval_data)
 
     return {
         "interview_id": interview_id,
@@ -190,5 +207,53 @@ async def get_evaluation_results(
         "jd_analysis": interview.jd_analysis,
         "total_questions": len(questions),
         "evaluated_answers": sum(1 for r in results if r['has_evaluation']),
+        "skill_performance": skill_performance,
         "results": results
+    }
+
+
+@router.get("/questions/{question_id}/ideal-answer")
+async def get_ideal_answer(
+    question_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """
+    Generate an ideal answer example for a question
+    """
+    # Get question
+    question = db.query(Question).filter(Question.id == question_id).first()
+    if not question:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Question not found"
+        )
+    
+    # Get interview and verify ownership
+    interview = db.query(Interview).filter(
+        Interview.id == question.interview_id,
+        Interview.user_id == current_user.id
+    ).first()
+    
+    if not interview:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Interview not found or access denied"
+        )
+    
+    # Get resume
+    resume = db.query(Resume).filter(Resume.id == interview.resume_id).first()
+    
+    # Generate ideal answer
+    ideal_answer = await generate_ideal_answer(
+        question_text=question.question_text,
+        question_context=question.question_context or {},
+        resume_data=resume.parsed_data or {},
+        jd_analysis=interview.jd_analysis or {}
+    )
+    
+    return {
+        "question_id": question_id,
+        "question_text": question.question_text,
+        "ideal_answer": ideal_answer
     }
