@@ -80,6 +80,30 @@ export default function InterviewResultsPage({
 
   const isEvaluated = results.evaluated_answers === results.total_questions;
 
+  // Calculate category breakdown
+  const getCategoryBreakdown = () => {
+    const categories: { [key: string]: { scores: number[], count: number } } = {};
+
+    results.results.forEach((result: any) => {
+      if (result.score !== null && result.score !== undefined) {
+        const category = result.question_type || 'general';
+        if (!categories[category]) {
+          categories[category] = { scores: [], count: 0 };
+        }
+        categories[category].scores.push(result.score);
+        categories[category].count++;
+      }
+    });
+
+    return Object.entries(categories).map(([category, data]) => ({
+      category,
+      average: data.scores.reduce((a, b) => a + b, 0) / data.scores.length,
+      count: data.count
+    }));
+  };
+
+  const categoryBreakdown = getCategoryBreakdown();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8">
       <div className="max-w-6xl mx-auto">
@@ -116,6 +140,29 @@ export default function InterviewResultsPage({
             </div>
             <div className="mt-4 text-gray-400">
               Based on {results.evaluated_answers} evaluated answers
+            </div>
+          </div>
+        )}
+
+        {/* Category Breakdown */}
+        {categoryBreakdown.length > 0 && (
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 mb-8">
+            <h2 className="text-2xl font-bold text-white mb-6">Performance by Category</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {categoryBreakdown.map((cat, idx) => (
+                <div key={idx} className="bg-slate-800/50 rounded-xl p-6 text-center">
+                  <div className="text-sm text-gray-400 mb-2 uppercase tracking-wide">
+                    {cat.category}
+                  </div>
+                  <div className={`text-4xl font-bold mb-2 ${getScoreColor(cat.average)}`}>
+                    {cat.average.toFixed(1)}
+                    <span className="text-xl text-gray-400">/10</span>
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {cat.count} question{cat.count > 1 ? 's' : ''}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -234,7 +281,19 @@ export default function InterviewResultsPage({
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-8 flex gap-4 justify-center">
+        <div className="mt-8 flex flex-wrap gap-4 justify-center">
+          <button
+            onClick={() => router.push("/interviews/new")}
+            className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg font-semibold transition"
+          >
+            🎯 Practice Again
+          </button>
+          <button
+            onClick={() => router.push("/analytics")}
+            className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition"
+          >
+            📊 View Analytics
+          </button>
           <button
             onClick={() => router.push("/interviews")}
             className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-semibold transition"
