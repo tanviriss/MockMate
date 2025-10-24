@@ -230,4 +230,19 @@ export const api = {
 
     return response.json();
   },
+
+  // Analytics endpoints
+  async getAnalytics(token: string) {
+    const response = await fetch(`${API_URL}/analytics/progress`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch analytics');
+    }
+
+    return response.json();
+  },
 };

@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import socketio
 from app.config import settings
-from app.routers import auth, test, resumes, interviews, audio, evaluation
+from app.routers import auth, test, resumes, interviews, audio, evaluation, analytics
 from app.websocket.interview_handler import sio
 
 # Initialize FastAPI app
@@ -31,6 +31,7 @@ app.include_router(resumes.router)
 app.include_router(interviews.router)
 app.include_router(audio.router)
 app.include_router(evaluation.router)
+app.include_router(analytics.router)
 
 
 @app.get("/")
