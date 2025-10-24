@@ -122,7 +122,11 @@ async def delete_resume(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    """Delete a resume"""
+    """Delete a resume and all associated interviews"""
+    from app.models.interview import Interview
+    from app.models.question import Question
+    from app.models.answer import Answer
+
     resume = db.query(Resume).filter(
         Resume.id == resume_id,
         Resume.user_id == current_user.id
@@ -134,9 +138,32 @@ async def delete_resume(
             detail="Resume not found"
         )
 
+    # Get all interviews associated with this resume
+    interviews = db.query(Interview).filter(Interview.resume_id == resume_id).all()
+
+    # Delete all associated data (cascade delete)
+    for interview in interviews:
+        # Get all questions for this interview
+        questions = db.query(Question).filter(Question.interview_id == interview.id).all()
+
+        # Delete all answers for each question
+        for question in questions:
+            db.query(Answer).filter(Answer.question_id == question.id).delete()
+
+        # Delete all questions
+        db.query(Question).filter(Question.interview_id == interview.id).delete()
+
+        # Delete the interview
+        db.delete(interview)
+
+    # Delete the resume file from storage
     await StorageService.delete_resume(resume.file_url, current_user.token)
 
+    # Delete the resume
     db.delete(resume)
     db.commit()
 
-    return {"message": "Resume deleted successfully"}
+    return {
+        "message": "Resume deleted successfully",
+        "deleted_interviews": len(interviews)
+    }

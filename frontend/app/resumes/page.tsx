@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
 import { api } from '@/lib/api';
 import Logo from '@/components/Logo';
+import Modal from '@/components/Modal';
 
 interface Resume {
   id: number;
@@ -22,6 +23,20 @@ export default function ResumesPage() {
   const [error, setError] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    type: 'info' | 'warning' | 'error' | 'success';
+    title: string;
+    message: string;
+    onConfirm?: () => void;
+    showCancel?: boolean;
+  }>({
+    isOpen: false,
+    type: 'info',
+    title: '',
+    message: '',
+    showCancel: true,
+  });
 
   useEffect(() => {
     if (!token) {
@@ -94,14 +109,40 @@ export default function ResumesPage() {
 
   const handleDelete = async (resumeId: number) => {
     if (!token) return;
-    if (!confirm('Are you sure you want to delete this resume?')) return;
 
-    try {
-      await api.deleteResume(resumeId, token);
-      fetchResumes();
-    } catch (err: any) {
-      setError(err.message);
-    }
+    setModalState({
+      isOpen: true,
+      type: 'warning',
+      title: 'Delete Resume',
+      message: 'Are you sure you want to delete this resume?\n\nWARNING: This will also delete all interviews created with this resume.',
+      showCancel: true,
+      onConfirm: async () => {
+        try {
+          const result = await api.deleteResume(resumeId, token);
+
+          // Show success message
+          setModalState({
+            isOpen: true,
+            type: 'success',
+            title: 'Resume Deleted',
+            message: result.deleted_interviews > 0
+              ? `Resume deleted successfully.\n\n${result.deleted_interviews} associated interview(s) were also deleted.`
+              : 'Resume deleted successfully.',
+            showCancel: false,
+          });
+
+          fetchResumes();
+        } catch (err: any) {
+          setModalState({
+            isOpen: true,
+            type: 'error',
+            title: 'Delete Failed',
+            message: err.message || 'Failed to delete resume. Please try again.',
+            showCancel: false,
+          });
+        }
+      },
+    });
   };
 
   if (loading) {
@@ -323,6 +364,17 @@ export default function ResumesPage() {
           )}
         </div>
       </div>
+
+      {/* Modal */}
+      <Modal
+        isOpen={modalState.isOpen}
+        onClose={() => setModalState({ ...modalState, isOpen: false })}
+        onConfirm={modalState.onConfirm}
+        title={modalState.title}
+        message={modalState.message}
+        type={modalState.type}
+        showCancel={modalState.showCancel}
+      />
 
       <style jsx global>{`
         @keyframes blob {
