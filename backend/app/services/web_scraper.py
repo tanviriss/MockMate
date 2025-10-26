@@ -42,33 +42,61 @@ async def search_reddit_questions(company: str, role: str) -> List[str]:
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
         }
 
-        async with aiohttp.ClientSession() as session:
+        # Create SSL context that doesn't verify certificates (for development)
+        import ssl
+        ssl_context = ssl.create_default_context()
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+
+        connector = aiohttp.TCPConnector(ssl=ssl_context)
+        async with aiohttp.ClientSession(connector=connector) as session:
             async with session.get(url, headers=headers) as response:
+                print(f"Reddit response status: {response.status}")
                 if response.status == 200:
                     data = await response.json()
+                    posts_count = len(data.get('data', {}).get('children', []))
+                    print(f"Found {posts_count} Reddit posts")
 
                     for post in data.get('data', {}).get('children', []):
                         post_data = post.get('data', {})
                         title = post_data.get('title', '')
                         selftext = post_data.get('selftext', '')
 
-                        # Extract questions from post text
                         text = f"{title}\n{selftext}"
 
-                        # Look for question patterns
-                        question_patterns = [
-                            r'"([^"]*\?)"',  # Questions in quotes
-                            r'(?:asked|question was|they asked me):\s*([^\.]+\?)',  # "they asked: ..."
-                            r'(?:Q\d*:|Question \d*:)\s*([^\n]+\?)',  # Q1: or Question:
+                        print(f"Post title: {title[:100]}")
+
+                        quoted_questions = re.findall(r'"([^"]+\?)"', text)
+                        print(f"Found {len(quoted_questions)} quoted questions in this post")
+
+                        if quoted_questions:
+                            print(f"Sample: {quoted_questions[0][:100] if quoted_questions else 'none'}")
+
+                        interview_context_keywords = [
+                            'interviewer asked', 'they asked', 'was asked',
+                            'interview question', 'got asked', 'asked me'
                         ]
 
-                        for pattern in question_patterns:
-                            matches = re.findall(pattern, text, re.IGNORECASE)
-                            questions.extend(matches)
+                        exclude_keywords = [
+                            'how do i', 'should i', 'can i', 'email', 'recruiter',
+                            'apply', 'resume', 'find', 'cold email', 'advice'
+                        ]
+
+                        for q in quoted_questions:
+                            q = q.strip()
+                            word_count = len(q.split())
+                            has_context = any(keyword in text.lower() for keyword in interview_context_keywords)
+                            has_exclude = any(keyword in q.lower() for keyword in exclude_keywords)
+
+                            if 5 <= word_count <= 50 and has_context and not has_exclude:
+                                questions.append(q)
+
+                    print(f"Extracted {len(questions)} questions from Reddit")
 
     except Exception as e:
         print(f"Error searching Reddit: {e}")
 
+    print(f"Returning {len(questions[:10])} questions from Reddit")
     return questions[:10]  # Return top 10
 
 
@@ -87,24 +115,33 @@ async def search_leetcode_discuss(company: str) -> List[str]:
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
         }
 
-        async with aiohttp.ClientSession() as session:
+        # Create SSL context that doesn't verify certificates (for development)
+        import ssl
+        ssl_context = ssl.create_default_context()
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+
+        connector = aiohttp.TCPConnector(ssl=ssl_context)
+        async with aiohttp.ClientSession(connector=connector) as session:
             async with session.get(url, headers=headers) as response:
                 if response.status == 200:
                     html = await response.text()
                     soup = BeautifulSoup(html, 'html.parser')
 
-                    # Look for question patterns in discussion titles and content
-                    # This is simplified - actual implementation would parse the page structure
                     text = soup.get_text()
 
                     question_patterns = [
-                        r'"([^"]*\?)"',
-                        r'(?:Question|Problem):\s*([^\n]+\?)',
+                        r'"([^"]{20,300}\?)"',
+                        r'(?:Question|Problem):\s*([^\n]{20,300}\?)',
                     ]
 
                     for pattern in question_patterns:
                         matches = re.findall(pattern, text, re.IGNORECASE)
-                        questions.extend(matches)
+                        for match in matches:
+                            cleaned = match.strip()
+                            word_count = len(cleaned.split())
+                            if word_count >= 4 and word_count <= 50:
+                                questions.append(cleaned)
 
     except Exception as e:
         print(f"Error searching LeetCode: {e}")
