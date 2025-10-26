@@ -8,6 +8,7 @@ from app.models.interview import Interview, InterviewStatus
 from app.models.resume import Resume
 from app.models.question import Question
 from app.services.interview_service import analyze_job_description, generate_interview_questions
+from app.services.company_research_service import generate_company_specific_questions
 
 router = APIRouter(prefix="/interviews", tags=["Interviews"])
 
@@ -16,6 +17,8 @@ class CreateInterviewRequest(BaseModel):
     resume_id: int
     job_description: str
     num_questions: int = 10
+    target_company: str = None  
+    target_role: str = None 
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
@@ -43,12 +46,21 @@ async def create_interview(
         # Analyze job description
         jd_analysis = await analyze_job_description(request.job_description)
 
-        # Generate interview questions
-        questions = await generate_interview_questions(
-            resume.parsed_data,
-            jd_analysis,
-            request.num_questions
-        )
+        # Generate interview questions (company-specific if provided)
+        if request.target_company and request.target_role:
+            questions = await generate_company_specific_questions(
+                company_name=request.target_company,
+                role=request.target_role,
+                resume_data=resume.parsed_data,
+                jd_analysis=jd_analysis,
+                num_questions=request.num_questions
+            )
+        else:
+            questions = await generate_interview_questions(
+                resume.parsed_data,
+                jd_analysis,
+                request.num_questions
+            )
 
         # Create interview record
         interview = Interview(
@@ -56,6 +68,7 @@ async def create_interview(
             resume_id=request.resume_id,
             job_description=request.job_description,
             jd_analysis=jd_analysis,
+            target_company=request.target_company,
             status=InterviewStatus.PENDING
         )
         db.add(interview)

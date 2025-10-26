@@ -19,6 +19,7 @@ class Interview(Base):
     resume_id = Column(Integer, ForeignKey("resumes.id"), nullable=False)
     job_description = Column(String, nullable=False)
     jd_analysis = Column(JSON, nullable=True)  # AI-analyzed JD requirements
+    target_company = Column(String, nullable=True)  # Target company for prep (e.g., "Google", "Amazon")
     status = Column(Enum(InterviewStatus), default=InterviewStatus.PENDING)
     overall_score = Column(Float, nullable=True)  # Average score across all answers
     created_at = Column(DateTime(timezone=True), server_default=func.now())

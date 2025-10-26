@@ -137,7 +137,7 @@ export const api = {
   },
 
   // Interview endpoints
-  async createInterview(data: { resume_id: number; job_description: string; num_questions?: number }, token: string) {
+  async createInterview(data: { resume_id: number; job_description: string; num_questions?: number; target_company?: string; target_role?: string }, token: string) {
     const response = await fetch(`${API_URL}/interviews/`, {
       method: 'POST',
       headers: {

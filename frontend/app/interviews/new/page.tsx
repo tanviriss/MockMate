@@ -23,7 +23,9 @@ export default function NewInterviewPage() {
   const [formData, setFormData] = useState({
     resume_id: '',
     job_description: '',
-    num_questions: 10
+    num_questions: 10,
+    target_company: '',
+    target_role: ''
   });
 
   useEffect(() => {
@@ -72,7 +74,9 @@ export default function NewInterviewPage() {
         {
           resume_id: parseInt(formData.resume_id),
           job_description: formData.job_description,
-          num_questions: formData.num_questions
+          num_questions: formData.num_questions,
+          target_company: formData.target_company || undefined,
+          target_role: formData.target_role || undefined
         },
         token!
       );
@@ -196,6 +200,51 @@ export default function NewInterviewPage() {
                 />
                 <p className="text-gray-400 text-sm mt-2">
                   Paste the full job description to get the most relevant interview questions
+                </p>
+              </div>
+
+              {/* Company-Specific Prep (Optional) */}
+              <div className="border border-blue-500/30 rounded-lg p-4 bg-blue-500/5">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-xl">🎯</span>
+                  <h3 className="text-lg font-semibold text-white">Company-Specific Prep (Optional)</h3>
+                </div>
+                <p className="text-sm text-gray-300 mb-4">
+                  Get questions tailored to a specific company by searching recent interview experiences from Glassdoor, Reddit, and more
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Target Company */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
+                      Target Company
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.target_company}
+                      onChange={(e) => setFormData({ ...formData, target_company: e.target.value })}
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      placeholder="e.g., Google, Amazon, Meta"
+                    />
+                  </div>
+
+                  {/* Target Role */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-200 mb-2">
+                      Target Role
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.target_role}
+                      onChange={(e) => setFormData({ ...formData, target_role: e.target.value })}
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      placeholder="e.g., Software Engineer, PM"
+                    />
+                  </div>
+                </div>
+
+                <p className="text-xs text-gray-400 mt-2">
+                  💡 If provided, we'll research recent interview questions specific to this company and role
                 </p>
               </div>
 
