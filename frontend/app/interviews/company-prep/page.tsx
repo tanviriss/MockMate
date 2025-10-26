@@ -24,7 +24,6 @@ export default function CompanyPrepPage() {
     resume_id: '',
     target_company: '',
     target_role: '',
-    job_description: '', // Optional
     num_questions: 5
   });
 
@@ -77,7 +76,7 @@ export default function CompanyPrepPage() {
       const response = await api.createInterview(
         {
           resume_id: parseInt(formData.resume_id),
-          job_description: formData.job_description || `Interview prep for ${formData.target_role} at ${formData.target_company}`,
+          job_description: `Company-specific prep for ${formData.target_role} at ${formData.target_company}`,
           num_questions: formData.num_questions,
           target_company: formData.target_company,
           target_role: formData.target_role
@@ -220,20 +219,12 @@ export default function CompanyPrepPage() {
                 </div>
               </div>
 
-              {/* Job Description (Optional) */}
-              <div>
-                <label className="block text-sm font-medium text-gray-200 mb-2">
-                  Job Description (Optional)
-                </label>
-                <textarea
-                  value={formData.job_description}
-                  onChange={(e) => setFormData({ ...formData, job_description: e.target.value })}
-                  rows={6}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                  placeholder="Optionally paste a specific job description to combine with company-specific questions..."
-                />
-                <p className="text-gray-400 text-sm mt-2">
-                  💡 Leave blank to get purely company/role-based questions, or add a JD for more specificity
+              {/* Info about web scraping */}
+              <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+                <p className="text-sm text-gray-300">
+                  <span className="font-semibold text-blue-400">🌐 Real Questions from the Web</span>
+                  <br />
+                  We'll search Reddit, LeetCode, and other sources for actual interview questions from {formData.target_company || 'your target company'} and generate questions based on real interview experiences.
                 </p>
               </div>
 

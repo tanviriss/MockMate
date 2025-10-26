@@ -4,6 +4,7 @@ Searches the web for real interview questions from Glassdoor, Reddit, Blind
 """
 import google.generativeai as genai
 from app.config import settings
+from app.services.web_scraper import scrape_interview_questions
 import json
 
 genai.configure(api_key=settings.GEMINI_API_KEY)
@@ -16,7 +17,7 @@ async def research_company_interview_questions(
     num_questions: int = 5
 ) -> dict:
     """
-    Research company-specific interview questions using web search
+    Research company-specific interview questions using actual web scraping
 
     Args:
         company_name: Target company (e.g., "Google", "Amazon")
@@ -24,78 +25,84 @@ async def research_company_interview_questions(
         num_questions: Number of questions to generate based on research
 
     Returns:
-        Dict with researched questions and company culture insights
+        Dict with scraped questions and AI-generated insights
     """
 
-    # Use Gemini with explicit web search instructions
-    prompt = f"""I need you to research and find information about {company_name} {role} interviews.
+    try:
+        # Actually scrape the web for real interview questions
+        print(f"🔍 Scraping web for {company_name} {role} interview questions...")
+        scraped_data = await scrape_interview_questions(company_name, role)
 
-**SEARCH THE WEB** for recent interview experiences from:
+        scraped_questions = scraped_data.get("all_questions", [])
+        total_found = scraped_data.get("total_found", 0)
 
-Look for information from:
-- Glassdoor interview experiences
-- Reddit r/cscareerquestions posts
-- Blind app discussions
-- LeetCode company discussion threads
-- Recent interview prep sites
+        print(f"✅ Found {total_found} real questions from web scraping")
 
-Based on your web search findings, provide:
+        # If we found real questions, use AI to extract insights from them
+        if scraped_questions:
+            analysis_prompt = f"""Analyze these REAL interview questions scraped from Reddit and LeetCode for {company_name} {role} interviews:
 
-1. **Real Questions Asked**: What actual questions are candidates reporting from {company_name} {role} interviews in the last 1-2 years?
+REAL QUESTIONS FOUND:
+{chr(10).join(['- ' + q for q in scraped_questions[:15]])}
 
-2. **Company Culture & Values**: What does {company_name} value in candidates based on recent interviews?
-
-3. **Interview Format**: How are {company_name} {role} interviews typically structured?
-
-4. **Common Themes**: What topics/skills are frequently assessed?
-
-Return your findings in this JSON format:
+Based on these actual questions, extract insights in JSON format:
 {{
     "company_culture": {{
         "values": ["value1", "value2", "value3"],
-        "interview_style": "description of interview approach"
+        "interview_style": "What the question patterns reveal about interview approach"
     }},
     "common_question_themes": ["theme1", "theme2", "theme3"],
-    "example_questions": [
-        "Actual question 1 from research",
-        "Actual question 2 from research",
-        "Actual question 3 from research"
-    ],
     "technical_focus_areas": ["area1", "area2", "area3"],
-    "behavioral_focus": ["focus1", "focus2"],
-    "sources": "Brief mention of where you found this info"
+    "behavioral_focus": ["focus1", "focus2"]
 }}
 
-Focus on RECENT information (2023-2025) and SPECIFIC to {role} role.
 Return ONLY the JSON, no markdown."""
 
-    try:
-        # Generate response with web search capability
-        # Gemini 2.0 Flash has built-in grounding but we'll use direct prompting
-        response = model.generate_content(prompt)
+            response = model.generate_content(analysis_prompt)
+            result_text = response.text.strip()
 
-        # Parse response
-        result_text = response.text.strip()
+            # Remove markdown if present
+            if result_text.startswith('```json'):
+                result_text = result_text[7:]
+            if result_text.startswith('```'):
+                result_text = result_text[3:]
+            if result_text.endswith('```'):
+                result_text = result_text[:-3]
 
-        # Remove markdown if present
-        if result_text.startswith('```json'):
-            result_text = result_text[7:]
-        if result_text.startswith('```'):
-            result_text = result_text[3:]
-        if result_text.endswith('```'):
-            result_text = result_text[:-3]
+            insights = json.loads(result_text.strip())
 
-        research_data = json.loads(result_text.strip())
-
-        return {
-            "company_name": company_name,
-            "role": role,
-            "research_data": research_data,
-            "data_freshness": "Based on recent web search (last 1-2 years)"
-        }
+            return {
+                "company_name": company_name,
+                "role": role,
+                "research_data": {
+                    **insights,
+                    "example_questions": scraped_questions[:10],  # Return top 10 real questions
+                    "sources": f"Scraped from Reddit and LeetCode ({total_found} questions found)"
+                },
+                "data_freshness": "Real-time web scraping"
+            }
+        else:
+            # No questions found, fallback
+            print(f"⚠️ No questions found via scraping, using generic fallback")
+            return {
+                "company_name": company_name,
+                "role": role,
+                "research_data": {
+                    "company_culture": {
+                        "values": ["Innovation", "Collaboration", "Excellence"],
+                        "interview_style": "Standard behavioral and technical interviews"
+                    },
+                    "common_question_themes": ["Past experience", "Problem solving", "Teamwork"],
+                    "example_questions": [],
+                    "technical_focus_areas": ["System Design", "Coding", "Architecture"],
+                    "behavioral_focus": ["Leadership", "Communication"],
+                    "sources": "No data found via scraping"
+                },
+                "data_freshness": "Fallback - generic data"
+            }
 
     except Exception as e:
-        print(f"Error researching company questions: {e}")
+        print(f"❌ Error in web scraping: {e}")
         # Fallback to generic response
         return {
             "company_name": company_name,
@@ -109,7 +116,7 @@ Return ONLY the JSON, no markdown."""
                 "example_questions": [],
                 "technical_focus_areas": ["System Design", "Coding", "Architecture"],
                 "behavioral_focus": ["Leadership", "Communication"],
-                "sources": "Unable to fetch recent data"
+                "sources": "Error during scraping"
             },
             "data_freshness": "Fallback - generic data"
         }
