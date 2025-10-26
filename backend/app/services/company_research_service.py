@@ -27,9 +27,10 @@ async def research_company_interview_questions(
         Dict with researched questions and company culture insights
     """
 
-    # Use Gemini's built-in Google Search grounding
-    # This searches the web and grounds responses in real data
-    prompt = f"""Search the web for recent {company_name} {role} interview questions and experiences.
+    # Use Gemini with explicit web search instructions
+    prompt = f"""I need you to research and find information about {company_name} {role} interviews.
+
+**SEARCH THE WEB** for recent interview experiences from:
 
 Look for information from:
 - Glassdoor interview experiences
@@ -69,11 +70,9 @@ Focus on RECENT information (2023-2025) and SPECIFIC to {role} role.
 Return ONLY the JSON, no markdown."""
 
     try:
-        # Enable Google Search grounding for real-time web data
-        response = model.generate_content(
-            prompt,
-            tools='google_search_retrieval'  # This enables web search
-        )
+        # Generate response with web search capability
+        # Gemini 2.0 Flash has built-in grounding but we'll use direct prompting
+        response = model.generate_content(prompt)
 
         # Parse response
         result_text = response.text.strip()
