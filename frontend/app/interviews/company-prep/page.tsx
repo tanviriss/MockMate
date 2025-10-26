@@ -12,7 +12,7 @@ interface Resume {
   created_at: string;
 }
 
-export default function NewInterviewPage() {
+export default function CompanyPrepPage() {
   const router = useRouter();
   const { token } = useAuthStore();
   const [resumes, setResumes] = useState<Resume[]>([]);
@@ -22,7 +22,9 @@ export default function NewInterviewPage() {
 
   const [formData, setFormData] = useState({
     resume_id: '',
-    job_description: '',
+    target_company: '',
+    target_role: '',
+    job_description: '', // Optional
     num_questions: 5
   });
 
@@ -40,7 +42,6 @@ export default function NewInterviewPage() {
       const data = await api.getResumes(token!);
       setResumes(data.resumes || []);
 
-      // Auto-select first resume if available
       if (data.resumes && data.resumes.length > 0) {
         setFormData(prev => ({ ...prev, resume_id: data.resumes[0].id.toString() }));
       }
@@ -59,8 +60,13 @@ export default function NewInterviewPage() {
       return;
     }
 
-    if (!formData.job_description.trim()) {
-      setError('Please enter a job description');
+    if (!formData.target_company.trim()) {
+      setError('Please enter a target company');
+      return;
+    }
+
+    if (!formData.target_role.trim()) {
+      setError('Please enter a target role');
       return;
     }
 
@@ -71,16 +77,15 @@ export default function NewInterviewPage() {
       const response = await api.createInterview(
         {
           resume_id: parseInt(formData.resume_id),
-          job_description: formData.job_description,
-          num_questions: formData.num_questions
+          job_description: formData.job_description || `Interview prep for ${formData.target_role} at ${formData.target_company}`,
+          num_questions: formData.num_questions,
+          target_company: formData.target_company,
+          target_role: formData.target_role
         },
         token!
       );
 
-      // Store interview data in session storage for details page
       sessionStorage.setItem(`interview_${response.id}`, JSON.stringify(response));
-
-      // Navigate to interview details page
       router.push(`/interviews/${response.id}`);
     } catch (err: any) {
       setError(err.message);
@@ -116,13 +121,13 @@ export default function NewInterviewPage() {
               <Logo />
             </button>
             <button
-              onClick={() => router.push('/dashboard')}
+              onClick={() => router.push('/interviews/new')}
               className="text-gray-300 hover:text-white transition flex items-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
-              Back to Dashboard
+              Back to Interview Options
             </button>
           </div>
         </div>
@@ -130,31 +135,15 @@ export default function NewInterviewPage() {
 
       {/* Main Content */}
       <div className="relative z-10 max-w-4xl mx-auto px-6 py-12">
-        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-          Create New Interview
-        </h1>
-        <p className="text-xl text-gray-300 mb-8">
-          Generate AI-powered interview questions based on your resume and job description
-        </p>
-
-        {/* Option to go to company-specific */}
-        <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-8">
-          <div className="flex items-start gap-3">
-            <span className="text-2xl">🎯</span>
-            <div className="flex-1">
-              <h3 className="font-semibold text-white mb-1">Want company-specific questions?</h3>
-              <p className="text-sm text-gray-300 mb-3">
-                Get questions tailored to Google, Amazon, Meta, etc. by researching recent interview experiences
-              </p>
-              <button
-                onClick={() => router.push('/interviews/company-prep')}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition text-sm"
-              >
-                Try Company-Specific Prep →
-              </button>
-            </div>
-          </div>
+        <div className="flex items-center gap-3 mb-4">
+          <span className="text-5xl">🎯</span>
+          <h1 className="text-4xl md:text-5xl font-bold text-white">
+            Company-Specific Prep
+          </h1>
         </div>
+        <p className="text-xl text-gray-300 mb-12">
+          Get interview questions tailored to a specific company by researching recent experiences from Glassdoor, Reddit, and more
+        </p>
 
         {resumes.length === 0 ? (
           <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-12 text-center">
@@ -200,21 +189,51 @@ export default function NewInterviewPage() {
                 </select>
               </div>
 
-              {/* Job Description */}
+              {/* Target Company & Role */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-200 mb-2">
+                    Target Company *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.target_company}
+                    onChange={(e) => setFormData({ ...formData, target_company: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    placeholder="e.g., Google, Amazon, Meta"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-200 mb-2">
+                    Target Role *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.target_role}
+                    onChange={(e) => setFormData({ ...formData, target_role: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    placeholder="e.g., Software Engineer, PM"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Job Description (Optional) */}
               <div>
                 <label className="block text-sm font-medium text-gray-200 mb-2">
-                  Job Description
+                  Job Description (Optional)
                 </label>
                 <textarea
                   value={formData.job_description}
                   onChange={(e) => setFormData({ ...formData, job_description: e.target.value })}
-                  rows={10}
+                  rows={6}
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                  placeholder="Paste the job description here..."
-                  required
+                  placeholder="Optionally paste a specific job description to combine with company-specific questions..."
                 />
                 <p className="text-gray-400 text-sm mt-2">
-                  Paste the full job description to get the most relevant interview questions
+                  💡 Leave blank to get purely company/role-based questions, or add a JD for more specificity
                 </p>
               </div>
 
@@ -249,10 +268,10 @@ export default function NewInterviewPage() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Generating Questions...
+                    Researching & Generating Questions...
                   </span>
                 ) : (
-                  'Generate Interview Questions'
+                  'Generate Company-Specific Questions'
                 )}
               </button>
             </div>
@@ -262,7 +281,7 @@ export default function NewInterviewPage() {
 
       <style jsx global>{`
         @keyframes blob {
-          0%, 100% { transform: translate(0px, 0px) scale(1); }
+          0%, 100% { transform: translate(0, 0) scale(1); }
           33% { transform: translate(30px, -50px) scale(1.1); }
           66% { transform: translate(-20px, 20px) scale(0.9); }
         }
