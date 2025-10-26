@@ -18,6 +18,7 @@ class InterviewSession:
         self.start_time = datetime.utcnow().isoformat()
         self.answers = []
         self.status = "active"
+        self.pending_followup = None
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert session to dictionary"""
@@ -27,7 +28,8 @@ class InterviewSession:
             "current_question_index": self.current_question_index,
             "start_time": self.start_time,
             "answers": self.answers,
-            "status": self.status
+            "status": self.status,
+            "pending_followup": self.pending_followup
         }
 
     @classmethod
@@ -41,6 +43,7 @@ class InterviewSession:
         session.start_time = data["start_time"]
         session.answers = data.get("answers", [])
         session.status = data.get("status", "active")
+        session.pending_followup = data.get("pending_followup")
         return session
 
 

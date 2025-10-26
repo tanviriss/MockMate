@@ -16,6 +16,7 @@ from app.services.text_to_speech import text_to_speech_service
 from app.services.speech_to_text import speech_to_text_service
 from app.services.storage_service import StorageService
 from app.services.evaluation_service import evaluate_answer, calculate_overall_score
+from app.services.followup_service import should_ask_followup
 from app.websocket.session_manager import session_manager
 
 
@@ -276,32 +277,58 @@ async def confirm_answer(sid, data):
         answer = Answer(
             question_id=question_id,
             transcript=transcript,
-            audio_url=None,  # Will be set later
-            score=None,  # Will be set after evaluation
-            evaluation=None  # Will be set after evaluation
+            audio_url=None,
+            score=None,
+            evaluation=None
         )
         db.add(answer)
         db.commit()
 
-        # Move to next question
+        current_question = db.query(Question).filter(Question.id == question_id).first()
+
+        needs_followup, followup_data = await should_ask_followup(
+            question_text=current_question.question_text,
+            answer_transcript=transcript,
+            question_context=current_question.question_context or {}
+        )
+
+        if needs_followup and followup_data:
+            await sio.emit('followup_question', {
+                'question_id': question_id,
+                'followup_text': followup_data['question_text'],
+                'reason': followup_data.get('reason', ''),
+                'is_followup': True
+            }, room=sid)
+
+            followup_audio = await text_to_speech_service.synthesize_speech(followup_data['question_text'])
+            await sio.emit('question_audio', {
+                'question_id': question_id,
+                'audio_data': followup_audio,
+                'is_followup': True
+            }, room=sid)
+
+            session.pending_followup = {
+                'parent_question_id': question_id,
+                'followup_data': followup_data
+            }
+            session_manager.update_session(sid, session)
+            return
+
         session.current_question_index += 1
         session_manager.update_session(sid, session)
 
-        # Get next question
         question = db.query(Question).filter(
             Question.interview_id == session.interview_id,
             Question.order_number == session.current_question_index
         ).first()
 
         if question:
-            # Send next question
             total_questions = db.query(Question).filter(
                 Question.interview_id == session.interview_id
             ).count()
 
             await send_question(sid, question, session.current_question_index, total_questions)
         else:
-            # No more questions, interview complete
             await complete_interview(sid, session, db)
 
     except Exception as e:
