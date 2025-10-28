@@ -40,6 +40,11 @@ export function useInterview(interviewId: number, userId: string, token: string)
 
   // Initialize WebSocket connection
   useEffect(() => {
+    if (!token || !userId) {
+      console.log("Waiting for token and userId...");
+      return;
+    }
+
     const WS_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
     const socket = io(WS_URL, {
@@ -47,6 +52,9 @@ export function useInterview(interviewId: number, userId: string, token: string)
         token: token,
       },
       transports: ["websocket", "polling"],
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: 5,
     });
 
     socketRef.current = socket;
@@ -54,7 +62,16 @@ export function useInterview(interviewId: number, userId: string, token: string)
     // Connection handlers
     socket.on("connect", () => {
       console.log("Connected to WebSocket");
-      setState((prev) => ({ ...prev, isConnected: true, error: null }));
+      setState((prev) => {
+        if (prev.isStarted && !prev.isCompleted) {
+          console.log("Reconnected during interview, restarting interview session");
+          socket.emit("start_interview", {
+            interview_id: interviewId,
+            user_id: userId,
+          });
+        }
+        return { ...prev, isConnected: true, error: null };
+      });
     });
 
     socket.on("disconnect", () => {
@@ -151,9 +168,11 @@ export function useInterview(interviewId: number, userId: string, token: string)
 
     // Cleanup
     return () => {
-      socket.disconnect();
+      if (socket) {
+        socket.disconnect();
+      }
     };
-  }, [token]);
+  }, [token, userId, interviewId]);
 
   // Start interview
   const startInterview = useCallback(() => {
