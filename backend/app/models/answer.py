@@ -8,7 +8,7 @@ class Answer(Base):
     __tablename__ = "answers"
 
     id = Column(Integer, primary_key=True, index=True)
-    question_id = Column(Integer, ForeignKey("questions.id"), nullable=False, unique=True)
+    question_id = Column(Integer, ForeignKey("questions.id"), nullable=False)
     audio_url = Column(String, nullable=True)  # URL to audio recording
     transcript = Column(String, nullable=False)  # Transcribed answer text
     audio_duration_seconds = Column(Float, nullable=True)  # Duration of audio in seconds

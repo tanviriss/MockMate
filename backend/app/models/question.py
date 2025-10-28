@@ -14,4 +14,4 @@ class Question(Base):
 
     # Relationships
     interview = relationship("Interview", back_populates="questions")
-    answer = relationship("Answer", back_populates="question", uselist=False, cascade="all, delete-orphan")
+    answers = relationship("Answer", back_populates="question", cascade="all, delete-orphan")
