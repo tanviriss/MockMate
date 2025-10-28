@@ -38,6 +38,7 @@ async def connect(sid, environ, auth):
         print(f"Authenticated connection from {sid}")
 
     await sio.emit('connected', {'sid': sid}, room=sid)
+    return True
 
 
 @sio.event
@@ -286,6 +287,12 @@ async def confirm_answer(sid, data):
 
         current_question = db.query(Question).filter(Question.id == question_id).first()
 
+        if not current_question:
+            await sio.emit('error', {
+                'message': 'Question not found'
+            }, room=sid)
+            return
+
         needs_followup, followup_data = await should_ask_followup(
             question_text=current_question.question_text,
             answer_transcript=transcript,
@@ -293,26 +300,31 @@ async def confirm_answer(sid, data):
         )
 
         if needs_followup and followup_data:
-            await sio.emit('followup_question', {
-                'question_id': question_id,
-                'followup_text': followup_data['question_text'],
-                'reason': followup_data.get('reason', ''),
-                'is_followup': True
-            }, room=sid)
+            followup_text = followup_data.get('followup_question', '')
 
-            followup_audio = await text_to_speech_service.synthesize_speech(followup_data['question_text'])
-            await sio.emit('question_audio', {
-                'question_id': question_id,
-                'audio_data': followup_audio,
-                'is_followup': True
-            }, room=sid)
+            if not followup_text:
+                print("Follow-up generated but no question text found")
+            else:
+                await sio.emit('followup_question', {
+                    'question_id': question_id,
+                    'followup_text': followup_text,
+                    'reason': followup_data.get('reason', ''),
+                    'is_followup': True
+                }, room=sid)
 
-            session.pending_followup = {
-                'parent_question_id': question_id,
-                'followup_data': followup_data
-            }
-            session_manager.update_session(sid, session)
-            return
+                followup_audio = await text_to_speech_service.synthesize_speech(followup_text)
+                await sio.emit('question_audio', {
+                    'question_id': question_id,
+                    'audio_data': followup_audio,
+                    'is_followup': True
+                }, room=sid)
+
+                session.pending_followup = {
+                    'parent_question_id': question_id,
+                    'followup_data': followup_data
+                }
+                session_manager.update_session(sid, session)
+                return
 
         session.current_question_index += 1
         session_manager.update_session(sid, session)
