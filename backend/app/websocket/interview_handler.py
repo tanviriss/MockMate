@@ -293,42 +293,52 @@ async def confirm_answer(sid, data):
             }, room=sid)
             return
 
-        needs_followup, followup_data = await should_ask_followup(
-            question_text=current_question.question_text,
-            answer_transcript=transcript,
-            question_context=current_question.question_context or {}
+        is_answering_followup = (
+            session.pending_followup and
+            session.pending_followup.get('parent_question_id') == question_id
         )
 
-        if needs_followup and followup_data:
-            followup_text = followup_data.get('followup_question', '')
+        if is_answering_followup:
+            print(f"User answered follow-up for question {question_id}, moving to next question")
+            session.pending_followup = None
+            session_manager.update_session(sid, session)
+        else:
+            needs_followup, followup_data = await should_ask_followup(
+                question_text=current_question.question_text,
+                answer_transcript=transcript,
+                question_context=current_question.question_context or {}
+            )
 
-            if not followup_text:
-                print("Follow-up generated but no question text found")
-            else:
-                await sio.emit('followup_question', {
-                    'question_id': question_id,
-                    'followup_text': followup_text,
-                    'reason': followup_data.get('reason', ''),
-                    'is_followup': True
-                }, room=sid)
+            if needs_followup and followup_data:
+                followup_text = followup_data.get('followup_question', '')
 
-                followup_audio_bytes = await text_to_speech_service.generate_speech(followup_text)
+                if not followup_text:
+                    print("Follow-up generated but no question text found")
+                else:
+                    await sio.emit('followup_question', {
+                        'question_id': question_id,
+                        'followup_text': followup_text,
+                        'reason': followup_data.get('reason', ''),
+                        'is_followup': True
+                    }, room=sid)
 
-                import base64
-                followup_audio_base64 = base64.b64encode(followup_audio_bytes).decode('utf-8')
+                    followup_audio_bytes = await text_to_speech_service.generate_speech(followup_text)
 
-                await sio.emit('question_audio', {
-                    'question_id': question_id,
-                    'audio_data': followup_audio_base64,
-                    'is_followup': True
-                }, room=sid)
+                    import base64
+                    followup_audio_base64 = base64.b64encode(followup_audio_bytes).decode('utf-8')
 
-                session.pending_followup = {
-                    'parent_question_id': question_id,
-                    'followup_data': followup_data
-                }
-                session_manager.update_session(sid, session)
-                return
+                    await sio.emit('question_audio', {
+                        'question_id': question_id,
+                        'audio_data': followup_audio_base64,
+                        'is_followup': True
+                    }, room=sid)
+
+                    session.pending_followup = {
+                        'parent_question_id': question_id,
+                        'followup_data': followup_data
+                    }
+                    session_manager.update_session(sid, session)
+                    return
 
         session.current_question_index += 1
         session_manager.update_session(sid, session)
