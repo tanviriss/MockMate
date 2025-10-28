@@ -113,6 +113,24 @@ export function useInterview(interviewId: number, userId: string, token: string)
       }));
     });
 
+    socket.on("followup_question", (data) => {
+      console.log("Received follow-up question:", data);
+      const cleanFollowupText = data.followup_text
+        .replace(/\*\*/g, '')
+        .replace(/\*/g, '')
+        .trim();
+
+      setState((prev) => ({
+        ...prev,
+        currentQuestion: {
+          ...prev.currentQuestion!,
+          question_text: cleanFollowupText,
+        },
+        questionAudio: null,
+        transcript: null,
+      }));
+    });
+
     socket.on("interview_completed", (data) => {
       console.log("Interview completed:", data);
       setState((prev) => ({
