@@ -92,76 +92,84 @@ async def generate_interview_questions(resume_data: dict, jd_analysis: dict, num
         for proj in projects[:2]:  # Top 2 projects
             project_context += f"\n- {proj.get('name', '')}: {', '.join(proj.get('description', [])[:1])}"
 
-    prompt = f"""You are a senior technical interviewer at a top tech company (Google, Meta, Amazon level). Your job is to generate realistic, specific interview questions that actual interviewers ask.
+    prompt = f"""You are a senior technical interviewer. Generate {num_questions} REALISTIC interview questions that sound natural and conversational.
 
 CANDIDATE BACKGROUND:
 - Skills: {', '.join(all_skills[:15])}
 - Recent Experience:{experience_context}
 - Key Projects:{project_context}
 
-JOB DESCRIPTION:
-- Role: {jd_analysis.get('job_title', 'Software Engineer')}
-- Required Skills: {', '.join(jd_analysis.get('required_skills', [])[:10])}
-- Level: {jd_analysis.get('experience_level', 'mid-level')}
-- Responsibilities: {', '.join(jd_analysis.get('key_responsibilities', [])[:3])}
+JOB: {jd_analysis.get('job_title', 'Software Engineer')} | Level: {jd_analysis.get('experience_level', 'mid')} | Skills: {', '.join(jd_analysis.get('required_skills', [])[:8])}
 
-CRITICAL REQUIREMENTS FOR QUESTION QUALITY:
+CRITICAL: Questions MUST be SHORT, DIRECT, and NATURAL. DO NOT create long hypothetical scenarios!
 
-1. **Technical Questions** - Must be specific and practical:
-   ❌ BAD: "Explain how Python works"
-   ✅ GOOD: "You mentioned using FastAPI in your resume. Walk me through how you'd design a rate-limiting middleware for a REST API. What data structure would you use and why?"
+✅ GOOD QUESTIONS (keep them this simple):
+- "I see you used FastAPI at OpenGym. How did you handle authentication?"
+- "Tell me about a bug you spent days debugging. What was it?"
+- "Walk me through how you'd design a URL shortener."
+- "What's the most complex database query you've written?"
+- "I noticed your NYC subway project. What was the hardest part?"
+- "Have you worked with caching? Tell me about a time you used it."
+- "How do you approach code reviews?"
+- "Explain async/await like I'm a junior developer."
 
-2. **Behavioral Questions** - Use STAR method, reference their actual experience:
-   ❌ BAD: "Tell me about a time you worked on a team"
-   ✅ GOOD: "I see you worked as a Software Engineer at {experiences[0].get('company', 'TechCorp') if experiences else 'your previous company'}. Tell me about a time when you had to resolve a major production bug. What was the situation, your approach, and the outcome?"
+❌ BAD QUESTIONS (too long, too hypothetical):
+- "Let's say you're building a new feature that leverages a different LLM but its API has significantly higher latency. How would you architect your React/Next.js frontend..."
+- "Imagine you're working on a distributed system with microservices and you need to implement..."
+- Any question with "Let's say" or "Imagine" followed by 3+ sentences
 
-3. **System Design Questions** - Tie to job responsibilities:
-   ❌ BAD: "Design Twitter"
-   ✅ GOOD: "This role involves building scalable backend services. Design a notification system that can handle 1M users with real-time push notifications. Walk through your database schema, API design, and how you'd handle scale."
+QUESTION TYPES ({num_questions} total) - MIX THEM THROUGHOUT, DON'T GROUP BY TYPE:
+1. TECHNICAL (35%) - Short, specific technical questions
+   - "How does [technology] work?"
+   - "I see you used [X]. Walk me through your implementation."
+   - "What's the difference between [A] and [B]?"
+   - "Explain [concept] in simple terms."
 
-4. **Project Deep-Dive** - Reference their actual projects:
-   ❌ BAD: "Tell me about a project"
-   ✅ GOOD: "I noticed your {projects[0].get('name', 'e-commerce') if projects else 'personal'} project used {projects[0].get('technologies', ['React'])[0] if projects and projects[0].get('technologies') else 'modern tech'}. What was the biggest technical challenge you faced and how did you solve it?"
+2. BEHAVIORAL (40%) - Simple past experience questions (MOST IMPORTANT)
+   - "Tell me about a time you [did something]."
+   - "What was your biggest challenge at [company]?"
+   - "Describe a conflict you had with a teammate."
+   - "Tell me about a project you're proud of and why."
+   - "Have you ever missed a deadline? What happened?"
+   - "Describe a time you had to learn something quickly."
 
-5. **Situational/Problem-Solving** - Real scenarios from the job:
-   ❌ BAD: "How do you handle deadlines?"
-   ✅ GOOD: "You're two weeks from launch and QA finds a critical security vulnerability in the authentication system. The fix will take 3 weeks. Walk me through your decision-making process."
+3. PROJECT DEEP-DIVE (15%) - Ask about their actual projects
+   - "I saw your [project name]. What was the hardest part?"
+   - "Why did you choose [technology] for [project]?"
+   - "Walk me through the architecture of [project]."
 
-QUESTION MIX for {num_questions} questions:
-- 40% Technical (coding, architecture, system design)
-- 30% Behavioral (STAR method, past experiences)
-- 20% Project Deep-Dives (their resume projects)
-- 10% Situational (hypothetical scenarios)
+4. SYSTEM DESIGN (10%) - Classic design questions, keep them SHORT
+   - "Design a URL shortener."
+   - "How would you build a rate limiter?"
+   - "Design a simple caching system."
 
-DIFFICULTY PROGRESSION:
-- Questions 1-3: Medium (warm-up)
-- Questions 4-7: Medium-Hard (core assessment)
-- Questions 8-{num_questions}: Hard (stretch questions)
+DIFFICULTY MIX:
+- First 3 questions: Easy-Medium (warm up)
+- Middle questions: Medium-Hard (core skills)
+- Last 2-3 questions: Hard (stretch)
 
-Generate {num_questions} questions following this exact JSON structure:
+RULES:
+- Each question should be 1-2 sentences MAX
+- Reference their actual resume/projects when possible
+- Sound conversational, not robotic
+- NO long hypothetical scenarios
+- NO compound questions (asking 3 things in one question)
+- Focus on ONE thing per question
 
+Return JSON array:
 [
     {{
         "question_number": 1,
-        "question_text": "Specific, detailed question that references their background or job requirements",
-        "question_type": "technical|behavioral|situational|project_deepdive",
-        "difficulty": "medium|hard",
-        "category": "Specific skill name (e.g., 'Python/FastAPI', 'System Design', 'Team Collaboration')",
-        "expected_topics": ["specific topic 1", "specific topic 2", "specific topic 3"],
-        "skill_tags": ["skill1", "skill2", "skill3"]
+        "question_text": "Short, natural question here",
+        "question_type": "technical|behavioral|project_deepdive|system_design",
+        "difficulty": "easy|medium|hard",
+        "category": "Specific skill (e.g., 'FastAPI', 'Team Collaboration', 'React')",
+        "expected_topics": ["topic1", "topic2", "topic3"],
+        "skill_tags": ["skill1", "skill2"]
     }}
 ]
 
-SKILL TAGS should be specific technical or soft skills being assessed:
-- Technical: "Python", "PostgreSQL", "System Design", "API Design", "Docker", "React"
-- Soft Skills: "Communication", "Leadership", "Problem Solving", "Conflict Resolution"
-- Be specific (e.g., "FastAPI" not just "Python", "Database Optimization" not just "SQL")
-
-MAKE QUESTIONS SOUND NATURAL - like a real human interviewer would ask them.
-Reference their actual resume items whenever possible.
-Avoid generic textbook questions.
-
-Return ONLY the JSON array, no markdown, no explanations."""
+Return ONLY valid JSON, no markdown, no explanations."""
 
     response = model.generate_content(prompt)
 
