@@ -92,7 +92,12 @@ async def generate_interview_questions(resume_data: dict, jd_analysis: dict, num
         for proj in projects[:2]:  # Top 2 projects
             project_context += f"\n- {proj.get('name', '')}: {', '.join(proj.get('description', [])[:1])}"
 
-    prompt = f"""You are a senior technical interviewer. Generate {num_questions} REALISTIC interview questions that sound natural and conversational.
+    prompt = f"""You are a senior technical interviewer. Generate EXACTLY {num_questions} interview questions.
+
+CRITICAL REQUIREMENT: You MUST generate EXACTLY {num_questions} questions. No more, no less.
+- If asked for 2 questions, return 2 questions
+- If asked for 5 questions, return 5 questions
+- If asked for 10 questions, return 10 questions
 
 CANDIDATE BACKGROUND:
 - Skills: {', '.join(all_skills[:15])}
@@ -156,7 +161,7 @@ RULES:
 - NO compound questions (asking 3 things in one question)
 - Focus on ONE thing per question
 
-Return JSON array:
+Return a JSON array with EXACTLY {num_questions} questions:
 [
     {{
         "question_number": 1,
@@ -166,9 +171,11 @@ Return JSON array:
         "category": "Specific skill (e.g., 'FastAPI', 'Team Collaboration', 'React')",
         "expected_topics": ["topic1", "topic2", "topic3"],
         "skill_tags": ["skill1", "skill2"]
-    }}
+    }},
+    ... (continue until you have EXACTLY {num_questions} questions)
 ]
 
+REMINDER: Return EXACTLY {num_questions} questions in the array.
 Return ONLY valid JSON, no markdown, no explanations."""
 
     response = model.generate_content(prompt)
