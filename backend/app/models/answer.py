@@ -17,4 +17,4 @@ class Answer(Base):
     answered_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
-    question = relationship("Question", back_populates="answer")
+    question = relationship("Question", back_populates="answers")

@@ -312,7 +312,7 @@ async def confirm_answer(sid, data):
                     'is_followup': True
                 }, room=sid)
 
-                followup_audio = await text_to_speech_service.synthesize_speech(followup_text)
+                followup_audio = await text_to_speech_service.generate_speech(followup_text)
                 await sio.emit('question_audio', {
                     'question_id': question_id,
                     'audio_data': followup_audio,
