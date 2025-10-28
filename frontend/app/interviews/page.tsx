@@ -39,7 +39,12 @@ export default function InterviewsPage() {
       const data = await api.getInterviews(token!);
       setInterviews(data.interviews || []);
     } catch (err: any) {
-      setError(err.message);
+      if (err.message.includes('401') || err.message.includes('Unauthorized')) {
+        useAuthStore.getState().clearAuth();
+        router.push('/login');
+      } else {
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
     }
