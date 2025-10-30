@@ -170,7 +170,6 @@ async def submit_answer(sid, data):
         import base64
         audio_bytes = base64.b64decode(audio_data_b64)
 
-        # Validate audio size
         if len(audio_bytes) < 100:
             await sio.emit('error', {
                 'message': 'Audio file too small. Please record again.'
@@ -184,7 +183,6 @@ async def submit_answer(sid, data):
             }, room=sid)
             return
 
-        # Save audio to temporary file
         with tempfile.NamedTemporaryFile(
             delete=False,
             suffix=f'.{audio_format}'
@@ -193,7 +191,6 @@ async def submit_answer(sid, data):
             temp_path = temp_file.name
 
         try:
-            # Transcribe audio
             await sio.emit('transcribing', {
                 'message': 'Transcribing your answer...'
             }, room=sid)
@@ -205,7 +202,6 @@ async def submit_answer(sid, data):
 
             transcript = transcription_result['text']
 
-            # Send transcript for confirmation
             await sio.emit('transcript_ready', {
                 'question_id': question_id,
                 'transcript': transcript,
@@ -244,7 +240,6 @@ async def confirm_answer(sid, data):
         question_id = data.get('question_id')
         transcript = data.get('transcript')
 
-        # Get session
         session = session_manager.get_session(sid)
         if not session:
             await sio.emit('error', {
@@ -252,10 +247,8 @@ async def confirm_answer(sid, data):
             }, room=sid)
             return
 
-        # Get database session
         db: Session = next(get_db())
 
-        # Get the answer from session
         answer_data = None
         for ans in session.answers:
             if ans['question_id'] == question_id:
@@ -268,22 +261,9 @@ async def confirm_answer(sid, data):
             }, room=sid)
             return
 
-        # Upload audio to storage
         import base64
         audio_bytes = base64.b64decode(answer_data['audio_bytes'])
 
-        # Note: We'll upload this later when we save to database
-        # For now, just save the transcript
-
-        answer = Answer(
-            question_id=question_id,
-            transcript=transcript,
-            audio_url=None,
-            score=None,
-            evaluation=None
-        )
-        db.add(answer)
-        db.commit()
 
         current_question = db.query(Question).filter(Question.id == question_id).first()
 
@@ -297,6 +277,36 @@ async def confirm_answer(sid, data):
             session.pending_followup and
             session.pending_followup.get('parent_question_id') == question_id
         )
+
+        if is_answering_followup:
+            existing_answer = db.query(Answer).filter(
+                Answer.question_id == question_id
+            ).first()
+
+            if existing_answer:
+                existing_answer.transcript += f"\n\n[Follow-up: {session.pending_followup.get('followup_data', {}).get('followup_question', 'Additional question')}]\n{transcript}"
+                db.commit()
+                print(f"Appended follow-up answer to question {question_id}")
+            else:
+                answer = Answer(
+                    question_id=question_id,
+                    transcript=transcript,
+                    audio_url=None,
+                    score=None,
+                    evaluation=None
+                )
+                db.add(answer)
+                db.commit()
+        else:
+            answer = Answer(
+                question_id=question_id,
+                transcript=transcript,
+                audio_url=None,
+                score=None,
+                evaluation=None
+            )
+            db.add(answer)
+            db.commit()
 
         if is_answering_followup:
             print(f"User answered follow-up for question {question_id}, moving to next question")
@@ -367,32 +377,39 @@ async def confirm_answer(sid, data):
 async def evaluate_interview_async(interview_id: int, db: Session):
     """Evaluate all answers in an interview (background task)"""
     try:
-        print(f"Starting evaluation for interview {interview_id}")
+        import time
+        start_time = time.time()
+        print(f"[EVALUATION] Starting evaluation for interview {interview_id}")
 
-        # Get interview
         interview = db.query(Interview).filter(Interview.id == interview_id).first()
         if not interview:
+            print(f"[EVALUATION] Interview {interview_id} not found")
             return
 
-        # Get resume
         resume = db.query(Resume).filter(Resume.id == interview.resume_id).first()
         if not resume:
+            print(f"[EVALUATION] Resume not found for interview {interview_id}")
             return
 
-        # Get all questions with answers
         questions = db.query(Question).filter(
             Question.interview_id == interview_id
         ).order_by(Question.order_number).all()
 
+        total_questions = len(questions)
+        print(f"[EVALUATION] Found {total_questions} questions to evaluate")
+
         evaluations = []
 
-        for question in questions:
+        for idx, question in enumerate(questions, 1):
+            question_start = time.time()
             answer = db.query(Answer).filter(Answer.question_id == question.id).first()
 
             if not answer or not answer.transcript:
+                print(f"[EVALUATION] No answer found for question {question.id} ({idx}/{total_questions})")
                 continue
 
-            # Evaluate answer
+            print(f"[EVALUATION] Evaluating question {idx}/{total_questions} (ID: {question.id})...")
+
             evaluation = await evaluate_answer(
                 question_text=question.question_text,
                 question_context=question.question_context or {},
@@ -401,27 +418,34 @@ async def evaluate_interview_async(interview_id: int, db: Session):
                 jd_analysis=interview.jd_analysis or {}
             )
 
-            # Save evaluation
             answer.evaluation = evaluation
             answer.score = evaluation.get('score', 0)
             evaluations.append(evaluation)
 
-        # Calculate overall score
+            elapsed = time.time() - question_start
+            print(f"[EVALUATION] Question {idx}/{total_questions} evaluated in {elapsed:.2f}s - Score: {answer.score}")
+
+        print(f"[EVALUATION] Calculating overall score...")
         overall_score = await calculate_overall_score(evaluations)
         interview.overall_score = overall_score
 
         db.commit()
-        print(f"Evaluation completed for interview {interview_id}. Score: {overall_score}")
+
+        total_elapsed = time.time() - start_time
+        print(f"[EVALUATION] ✓ Evaluation completed for interview {interview_id}")
+        print(f"[EVALUATION] Overall Score: {overall_score}/10")
+        print(f"[EVALUATION] Total time: {total_elapsed:.2f}s ({len(evaluations)} questions)")
 
     except Exception as e:
-        print(f"Error evaluating interview: {e}")
+        print(f"[EVALUATION] ✗ Error evaluating interview {interview_id}: {e}")
+        import traceback
+        traceback.print_exc()
         db.rollback()
 
 
 async def complete_interview(sid, session, db: Session):
     """Complete the interview"""
     try:
-        # Update interview status
         interview = db.query(Interview).filter(
             Interview.id == session.interview_id
         ).first()
@@ -430,10 +454,8 @@ async def complete_interview(sid, session, db: Session):
             interview.status = "completed"
             db.commit()
 
-        # Mark session as completed
         session_manager.complete_session(sid)
 
-        # Send completion event
         await sio.emit('interview_completed', {
             'interview_id': session.interview_id,
             'message': 'Interview completed! Evaluating your responses...'
@@ -451,7 +473,7 @@ async def complete_interview(sid, session, db: Session):
 
 
 @sio.event
-async def end_interview(sid, data):
+async def end_interview(sid, data=None):
     """End interview early"""
     try:
         session = session_manager.get_session(sid)
