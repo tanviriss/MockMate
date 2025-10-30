@@ -461,9 +461,18 @@ async def complete_interview(sid, session, db: Session):
             'message': 'Interview completed! Evaluating your responses...'
         }, room=sid)
 
-        # Trigger evaluation in background
         import asyncio
-        asyncio.create_task(evaluate_interview_async(session.interview_id, db))
+        from app.database import SessionLocal
+
+        async def run_evaluation():
+            """Run evaluation with its own database session"""
+            eval_db = SessionLocal()
+            try:
+                await evaluate_interview_async(session.interview_id, eval_db)
+            finally:
+                eval_db.close()
+
+        asyncio.create_task(run_evaluation())
 
     except Exception as e:
         print(f"Error completing interview: {e}")
