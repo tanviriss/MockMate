@@ -34,6 +34,7 @@ export default function LiveInterviewPage({
     submitAnswer,
     confirmAnswer,
     endInterview,
+    resetTranscript,
   } = useInterview(interviewId, user?.id || "", token || "");
 
   // Update edited transcript when new transcript arrives
@@ -231,7 +232,10 @@ export default function LiveInterviewPage({
 
                 <div className="flex gap-4 mt-6">
                   <button
-                    onClick={() => setEditedTranscript("")}
+                    onClick={() => {
+                      setEditedTranscript("");
+                      resetTranscript();
+                    }}
                     className="flex-1 px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-semibold transition-all"
                   >
                     Re-record

@@ -233,11 +233,19 @@ export function useInterview(interviewId: number, userId: string, token: string)
     }
   }, []);
 
+  const resetTranscript = useCallback(() => {
+    setState((prev) => ({
+      ...prev,
+      transcript: null,
+    }));
+  }, []);
+
   return {
     ...state,
     startInterview,
     submitAnswer,
     confirmAnswer,
     endInterview,
+    resetTranscript,
   };
 }
