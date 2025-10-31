@@ -195,23 +195,41 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        {/* Quick Stats - Placeholder for future */}
+        {/* Quick Stats */}
         <div className="mt-12 grid md:grid-cols-4 gap-6">
           <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-6">
             <p className="text-gray-400 text-sm mb-2">Resumes Uploaded</p>
-            <p className="text-3xl font-bold text-white">0</p>
+            {loading ? (
+              <div className="h-9 w-16 bg-white/10 animate-pulse rounded"></div>
+            ) : (
+              <p className="text-3xl font-bold text-white">{stats?.resumes_uploaded || 0}</p>
+            )}
           </div>
           <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-6">
             <p className="text-gray-400 text-sm mb-2">Interviews Completed</p>
-            <p className="text-3xl font-bold text-white">0</p>
+            {loading ? (
+              <div className="h-9 w-16 bg-white/10 animate-pulse rounded"></div>
+            ) : (
+              <p className="text-3xl font-bold text-white">{stats?.interviews_completed || 0}</p>
+            )}
           </div>
           <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-6">
             <p className="text-gray-400 text-sm mb-2">Questions Practiced</p>
-            <p className="text-3xl font-bold text-white">0</p>
+            {loading ? (
+              <div className="h-9 w-16 bg-white/10 animate-pulse rounded"></div>
+            ) : (
+              <p className="text-3xl font-bold text-white">{stats?.questions_practiced || 0}</p>
+            )}
           </div>
           <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-6">
             <p className="text-gray-400 text-sm mb-2">Average Score</p>
-            <p className="text-3xl font-bold text-white">-</p>
+            {loading ? (
+              <div className="h-9 w-16 bg-white/10 animate-pulse rounded"></div>
+            ) : (
+              <p className="text-3xl font-bold text-white">
+                {stats?.average_score ? `${stats.average_score}/10` : '-'}
+              </p>
+            )}
           </div>
         </div>
       </div>
