@@ -15,6 +15,62 @@ from app.models.answer import Answer
 router = APIRouter(prefix="/analytics", tags=["Analytics"])
 
 
+@router.get("/dashboard-stats")
+async def get_dashboard_stats(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """
+    Get quick stats for dashboard
+
+    Returns:
+    - Total resumes uploaded
+    - Total interviews completed
+    - Total questions practiced
+    - Average score across all interviews
+    """
+    from app.models.resume import Resume
+
+    # Count resumes
+    total_resumes = db.query(func.count(Resume.id)).filter(
+        Resume.user_id == current_user.id
+    ).scalar() or 0
+
+    # Count completed interviews
+    total_interviews = db.query(func.count(Interview.id)).filter(
+        Interview.user_id == current_user.id,
+        Interview.status == "completed"
+    ).scalar() or 0
+
+    # Count total questions practiced (from completed interviews)
+    completed_interview_ids = db.query(Interview.id).filter(
+        Interview.user_id == current_user.id,
+        Interview.status == "completed"
+    ).all()
+
+    interview_ids = [i[0] for i in completed_interview_ids]
+
+    total_questions = db.query(func.count(Question.id)).filter(
+        Question.interview_id.in_(interview_ids)
+    ).scalar() if interview_ids else 0
+
+    # Calculate average score
+    avg_score_result = db.query(func.avg(Interview.overall_score)).filter(
+        Interview.user_id == current_user.id,
+        Interview.status == "completed",
+        Interview.overall_score.isnot(None)
+    ).scalar()
+
+    average_score = round(avg_score_result, 1) if avg_score_result else None
+
+    return {
+        "resumes_uploaded": total_resumes,
+        "interviews_completed": total_interviews,
+        "questions_practiced": total_questions,
+        "average_score": average_score
+    }
+
+
 @router.get("/progress")
 async def get_progress(
     db: Session = Depends(get_db),

@@ -1,19 +1,46 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
+import { api } from '@/lib/api';
 import Logo from '@/components/Logo';
+
+interface DashboardStats {
+  resumes_uploaded: number;
+  interviews_completed: number;
+  questions_practiced: number;
+  average_score: number | null;
+}
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, isAuthenticated, clearAuth } = useAuthStore();
+  const { user, token, isAuthenticated, clearAuth } = useAuthStore();
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.push('/login');
+      return;
     }
-  }, [isAuthenticated, router]);
+
+    // Fetch dashboard stats
+    const fetchStats = async () => {
+      if (!token) return;
+
+      try {
+        const data = await api.getDashboardStats(token);
+        setStats(data);
+      } catch (error) {
+        console.error('Failed to fetch dashboard stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, [isAuthenticated, token, router]);
 
   const handleLogout = () => {
     clearAuth();

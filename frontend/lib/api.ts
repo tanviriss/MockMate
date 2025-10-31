@@ -248,6 +248,20 @@ export const api = {
   },
 
   // Analytics endpoints
+  async getDashboardStats(token: string) {
+    const response = await fetch(`${API_URL}/analytics/dashboard-stats`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch dashboard stats');
+    }
+
+    return response.json();
+  },
+
   async getAnalytics(token: string) {
     const response = await fetch(`${API_URL}/analytics/progress`, {
       headers: {
