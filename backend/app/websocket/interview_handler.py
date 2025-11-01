@@ -18,13 +18,16 @@ from app.services.storage_service import StorageService
 from app.services.evaluation_service import evaluate_answer, calculate_overall_score
 from app.services.followup_service import should_ask_followup
 from app.websocket.session_manager import session_manager
+from app.config import settings
 
+# Configure CORS based on environment - NEVER use wildcard in production
+cors_origins = settings.ALLOWED_ORIGINS.split(',') if settings.ALLOWED_ORIGINS else []
 
 sio = socketio.AsyncServer(
     async_mode='asgi',
-    cors_allowed_origins='*',
-    logger=True,
-    engineio_logger=True
+    cors_allowed_origins=cors_origins if cors_origins else '*',
+    logger=settings.DEBUG,
+    engineio_logger=settings.DEBUG
 )
 
 
