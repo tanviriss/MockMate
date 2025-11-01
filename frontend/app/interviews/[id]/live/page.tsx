@@ -149,7 +149,7 @@ export default function LiveInterviewPage({
               Ready to Start?
             </h2>
             <p className="text-gray-300 mb-8 max-w-md mx-auto">
-              Make sure you're in a quiet environment with a working microphone.
+              Make sure you&apos;re in a quiet environment with a working microphone.
               You'll be asked {totalQuestions || 10} questions.
             </p>
             <button

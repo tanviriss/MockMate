@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
 import { api } from '@/lib/api';
@@ -15,14 +15,36 @@ interface Question {
   expected_topics: string[];
 }
 
+interface InterviewData {
+  id: number;
+  status: string;
+  job_description: string;
+  created_at: string;
+  target_company?: string;
+  questions: Question[];
+}
+
 export default function InterviewDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const { token } = useAuthStore();
-  const [interview, setInterview] = useState<any>(null);
+  const [interview, setInterview] = useState<InterviewData | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const fetchInterview = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await api.getInterview(parseInt(params.id as string), token!);
+      setInterview(data);
+      setQuestions(data.questions || []);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch interview');
+    } finally {
+      setLoading(false);
+    }
+  }, [params.id, token]);
 
   useEffect(() => {
     if (!token) {
@@ -30,7 +52,6 @@ export default function InterviewDetailsPage() {
       return;
     }
 
-    // Get interview data from session storage if available
     const cachedData = sessionStorage.getItem(`interview_${params.id}`);
     if (cachedData) {
       const data = JSON.parse(cachedData);
@@ -40,20 +61,7 @@ export default function InterviewDetailsPage() {
     } else {
       fetchInterview();
     }
-  }, [token, params.id, router]);
-
-  const fetchInterview = async () => {
-    try {
-      setLoading(true);
-      const data = await api.getInterview(parseInt(params.id as string), token!);
-      setInterview(data);
-      setQuestions(data.questions || []);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [token, params.id, router, fetchInterview]);
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty.toLowerCase()) {

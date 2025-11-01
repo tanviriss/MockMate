@@ -1,18 +1,40 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
 import { api } from '@/lib/api';
 import Logo from '@/components/Logo';
 import { SkeletonStats, SkeletonChart } from '@/components/Skeleton';
 
+interface AnalyticsData {
+  total_interviews: number;
+  average_score: number | null;
+  improvement_rate: number | null;
+  best_category: string | null;
+  score_history: Array<{ date: string; score: number; interview_id: number }>;
+  category_performance: Array<{ category: string; average_score: number; count: number }>;
+  insights: string[];
+}
+
 export default function AnalyticsPage() {
   const router = useRouter();
   const { token } = useAuthStore();
-  const [analytics, setAnalytics] = useState<any>(null);
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const fetchAnalytics = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await api.getAnalytics(token!);
+      setAnalytics(data);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch analytics');
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
 
   useEffect(() => {
     if (!token) {
@@ -20,19 +42,7 @@ export default function AnalyticsPage() {
       return;
     }
     fetchAnalytics();
-  }, [token, router]);
-
-  const fetchAnalytics = async () => {
-    try {
-      setLoading(true);
-      const data = await api.getAnalytics(token!);
-      setAnalytics(data);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [token, router, fetchAnalytics]);
 
   if (loading) {
     return (
@@ -196,7 +206,7 @@ export default function AnalyticsPage() {
           <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 mb-12">
             <h2 className="text-2xl font-bold text-white mb-6">Score Progress</h2>
             <div className="h-64 flex items-end justify-between gap-2">
-              {analytics.score_history.map((item: any, idx: number) => {
+              {analytics.score_history.map((item, idx: number) => {
                 const height = (item.score / 10) * 100;
                 const color = item.score >= 8 ? 'bg-green-500' : item.score >= 6 ? 'bg-yellow-500' : 'bg-red-500';
 
@@ -223,7 +233,7 @@ export default function AnalyticsPage() {
           <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 mb-12">
             <h2 className="text-2xl font-bold text-white mb-6">Category Performance</h2>
             <div className="space-y-4">
-              {analytics.category_performance.map((cat: any, idx: number) => {
+              {analytics.category_performance.map((cat, idx: number) => {
                 const percentage = (cat.average_score / 10) * 100;
                 const color = cat.average_score >= 8 ? 'bg-green-500' : cat.average_score >= 6 ? 'bg-yellow-500' : 'bg-red-500';
 
