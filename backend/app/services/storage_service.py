@@ -1,6 +1,7 @@
 from supabase import create_client
 from app.config import settings
 import uuid
+from app.logging_config import logger
 
 
 class StorageService:
@@ -60,7 +61,7 @@ class StorageService:
             supabase.storage.from_(StorageService.BUCKET_NAME).remove([path])
             return True
         except Exception as e:
-            print(f"Error deleting file: {e}")
+            logger.error(f"Error deleting file: {e}")
             return False
 
     @staticmethod
@@ -123,5 +124,5 @@ class StorageService:
             supabase.storage.from_(StorageService.AUDIO_BUCKET_NAME).remove([path])
             return True
         except Exception as e:
-            print(f"Error deleting audio file: {e}")
+            logger.error(f"Error deleting audio file: {e}")
             return False

@@ -6,6 +6,7 @@ import google.generativeai as genai
 from app.config import settings
 from app.services.web_scraper import scrape_interview_questions
 import json
+from app.logging_config import logger
 
 genai.configure(api_key=settings.GEMINI_API_KEY)
 model = genai.GenerativeModel('gemini-2.0-flash-exp')
@@ -29,7 +30,7 @@ async def research_company_interview_questions(
     """
 
     try:
-        print(f"🔍 Generating {company_name} {role} interview questions...")
+        logger.info(f"Generating {company_name} {role} interview questions...")
 
         search_prompt = f"""Generate {num_questions} realistic interview questions that are commonly asked at {company_name} for {role} positions.
 
@@ -56,7 +57,7 @@ Return ONLY the JSON array, no markdown or explanation."""
         scraped_questions = json.loads(result_text.strip())
         total_found = len(scraped_questions)
 
-        print(f"✅ Generated {total_found} questions for {company_name}")
+        logger.info(f"Generated {total_found} questions for {company_name}")
 
         if scraped_questions:
             analysis_prompt = f"""Analyze these REAL interview questions scraped from Reddit and LeetCode for {company_name} {role} interviews:
@@ -102,7 +103,7 @@ Return ONLY the JSON, no markdown."""
             }
         else:
             # No questions found, fallback
-            print(f"⚠️ No questions found via scraping, using generic fallback")
+            logger.warning(f"No questions found via scraping, using generic fallback")
             return {
                 "company_name": company_name,
                 "role": role,
@@ -121,7 +122,7 @@ Return ONLY the JSON, no markdown."""
             }
 
     except Exception as e:
-        print(f"❌ Error in web scraping: {e}")
+        logger.error(f"Error in web scraping: {e}")
         # Fallback to generic response
         return {
             "company_name": company_name,
@@ -159,7 +160,7 @@ async def generate_company_specific_questions(
     scraped_questions = research_data.get('example_questions', [])
 
     if not scraped_questions:
-        print(f"⚠️ No scraped questions found for {company_name}, returning empty list")
+        logger.warning(f"No scraped questions found for {company_name}, returning empty list")
         return []
 
     # Use the exact scraped questions, format them properly
@@ -190,5 +191,5 @@ async def generate_company_specific_questions(
             "source": "Real scraped question"
         })
 
-    print(f"✅ Returning {len(questions)} exact scraped questions from {company_name}")
+    logger.info(f"Returning {len(questions)} exact scraped questions from {company_name}")
     return questions

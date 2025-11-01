@@ -27,19 +27,19 @@ limiter = Limiter(key_func=get_remote_address)
 
 async def evaluate_interview_background(interview_id: int, db: Session):
     """Background task to evaluate all answers in an interview"""
-    try:
-        print(f"Starting evaluation for interview {interview_id}")
+    from app.logging_config import logger
 
-        # Get interview with all related data
+    try:
+        logger.info(f"Starting evaluation for interview {interview_id}")
+
         interview = db.query(Interview).filter(Interview.id == interview_id).first()
         if not interview:
-            print(f"Interview {interview_id} not found")
+            logger.warning(f"Interview {interview_id} not found")
             return
 
-        # Get resume
         resume = db.query(Resume).filter(Resume.id == interview.resume_id).first()
         if not resume:
-            print(f"Resume not found for interview {interview_id}")
+            logger.warning(f"Resume not found for interview {interview_id}")
             return
 
         # Get all questions for this interview
@@ -57,10 +57,10 @@ async def evaluate_interview_background(interview_id: int, db: Session):
             ).first()
 
             if not answer or not answer.transcript:
-                print(f"No answer found for question {question.id}")
+                logger.debug(f"No answer found for question {question.id}")
                 continue
 
-            print(f"Evaluating answer for question {question.id}")
+            logger.debug(f"Evaluating answer for question {question.id}")
 
             # Evaluate the answer
             evaluation = await evaluate_answer(
@@ -87,7 +87,7 @@ async def evaluate_interview_background(interview_id: int, db: Session):
             evaluation['skill_tags'] = question.question_context.get('skill_tags', [])
             evaluations.append(evaluation)
 
-            print(f"Question {question.id} evaluated with score: {answer.score}")
+            logger.debug(f"Question {question.id} evaluated with score: {answer.score}")
 
         # Calculate overall score
         overall_score = await calculate_overall_score(evaluations)
@@ -100,10 +100,10 @@ async def evaluate_interview_background(interview_id: int, db: Session):
         # Commit all changes
         db.commit()
 
-        print(f"Interview {interview_id} evaluation completed. Overall score: {overall_score}")
+        logger.info(f"Interview {interview_id} evaluation completed. Overall score: {overall_score}")
 
     except Exception as e:
-        print(f"Error in background evaluation: {e}")
+        logger.error(f"Error in background evaluation: {e}")
         db.rollback()
 
 

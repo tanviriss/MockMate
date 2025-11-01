@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 from typing import List, Dict
 import re
 import json
+from app.logging_config import logger
 
 
 async def search_glassdoor_questions(company: str, role: str) -> List[str]:
@@ -51,11 +52,11 @@ async def search_reddit_questions(company: str, role: str) -> List[str]:
         connector = aiohttp.TCPConnector(ssl=ssl_context)
         async with aiohttp.ClientSession(connector=connector) as session:
             async with session.get(url, headers=headers) as response:
-                print(f"Reddit response status: {response.status}")
+                logger.debug(f"Reddit response status: {response.status}")
                 if response.status == 200:
                     data = await response.json()
                     posts_count = len(data.get('data', {}).get('children', []))
-                    print(f"Found {posts_count} Reddit posts")
+                    logger.debug(f"Found {posts_count} Reddit posts")
 
                     for post in data.get('data', {}).get('children', []):
                         post_data = post.get('data', {})
@@ -64,13 +65,13 @@ async def search_reddit_questions(company: str, role: str) -> List[str]:
 
                         text = f"{title}\n{selftext}"
 
-                        print(f"Post title: {title[:100]}")
+                        logger.debug(f"Post title: {title[:100]}")
 
                         quoted_questions = re.findall(r'"([^"]+\?)"', text)
-                        print(f"Found {len(quoted_questions)} quoted questions in this post")
+                        logger.debug(f"Found {len(quoted_questions)} quoted questions in this post")
 
                         if quoted_questions:
-                            print(f"Sample: {quoted_questions[0][:100] if quoted_questions else 'none'}")
+                            logger.debug(f"Sample: {quoted_questions[0][:100] if quoted_questions else 'none'}")
 
                         interview_context_keywords = [
                             'interviewer asked', 'they asked', 'was asked',
@@ -91,12 +92,12 @@ async def search_reddit_questions(company: str, role: str) -> List[str]:
                             if 5 <= word_count <= 50 and has_context and not has_exclude:
                                 questions.append(q)
 
-                    print(f"Extracted {len(questions)} questions from Reddit")
+                    logger.debug(f"Extracted {len(questions)} questions from Reddit")
 
     except Exception as e:
-        print(f"Error searching Reddit: {e}")
+        logger.error(f"Error searching Reddit: {e}")
 
-    print(f"Returning {len(questions[:10])} questions from Reddit")
+    logger.debug(f"Returning {len(questions[:10])} questions from Reddit")
     return questions[:10]  # Return top 10
 
 
@@ -144,7 +145,7 @@ async def search_leetcode_discuss(company: str) -> List[str]:
                                 questions.append(cleaned)
 
     except Exception as e:
-        print(f"Error searching LeetCode: {e}")
+        logger.error(f"Error searching LeetCode: {e}")
 
     return questions[:10]
 
@@ -157,7 +158,7 @@ async def scrape_interview_questions(company: str, role: str) -> Dict[str, List[
         Dict with sources and their questions
     """
 
-    print(f"🔍 Scraping interview questions for {company} {role}...")
+    logger.info(f"Scraping interview questions for {company} {role}...")
 
     # Run all scrapers in parallel
     reddit_task = search_reddit_questions(company, role)
@@ -185,7 +186,7 @@ async def scrape_interview_questions(company: str, role: str) -> Dict[str, List[
             all_questions.append(q_clean)
             seen.add(q_clean)
 
-    print(f"✅ Found {len(all_questions)} unique questions from web scraping")
+    logger.info(f"Found {len(all_questions)} unique questions from web scraping")
 
     return {
         "reddit": reddit_questions if not isinstance(reddit_questions, Exception) else [],

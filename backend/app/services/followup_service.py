@@ -5,6 +5,7 @@ Analyzes answers in real-time and generates clarifying questions
 import google.generativeai as genai
 from app.config import settings
 import json
+from app.logging_config import logger
 
 genai.configure(api_key=settings.GEMINI_API_KEY)
 model = genai.GenerativeModel('gemini-2.0-flash-exp')
@@ -74,7 +75,7 @@ Return ONLY JSON, no markdown."""
         return analysis
 
     except Exception as e:
-        print(f"Error analyzing answer quality: {e}")
+        logger.error(f"Error analyzing answer quality: {e}")
         # Default to no follow-up if analysis fails
         return {
             "needs_followup": False,
@@ -145,7 +146,7 @@ Return ONLY JSON, no markdown."""
         return followup
 
     except Exception as e:
-        print(f"Error generating follow-up: {e}")
+        logger.error(f"Error generating follow-up: {e}")
         # Return a generic follow-up
         return {
             "followup_question": "Could you elaborate on that with a specific example?",

@@ -6,6 +6,7 @@ import tempfile
 import os
 from typing import Optional
 from sqlalchemy.orm import Session
+from app.logging_config import logger
 
 from app.database import get_db
 from app.models.interview import Interview
@@ -34,11 +35,11 @@ sio = socketio.AsyncServer(
 @sio.event
 async def connect(sid, environ, auth):
     """Handle client connection"""
-    print(f"Client connected: {sid}")
+    logger.info(f"Client connected: {sid}")
 
     if auth and 'token' in auth:
         token = auth['token']
-        print(f"Authenticated connection from {sid}")
+        logger.info(f"Authenticated connection from {sid}")
 
     await sio.emit('connected', {'sid': sid}, room=sid)
     return True
@@ -47,7 +48,7 @@ async def connect(sid, environ, auth):
 @sio.event
 async def disconnect(sid):
     """Handle client disconnection"""
-    print(f"Client disconnected: {sid}")
+    logger.info(f"Client disconnected: {sid}")
 
     session = session_manager.get_session(sid)
     if session:
@@ -110,7 +111,7 @@ async def start_interview(sid, data):
         await send_question(sid, first_question, 0, len(questions))
 
     except Exception as e:
-        print(f"Error starting interview: {e}")
+        logger.error(f"Error starting interview: {e}")
         await sio.emit('error', {
             'message': f'Error starting interview: {str(e)}'
         }, room=sid)
@@ -141,7 +142,7 @@ async def send_question(sid, question: Question, question_index: int, total_ques
         }, room=sid)
 
     except Exception as e:
-        print(f"Error sending question: {e}")
+        logger.error(f"Error sending question: {e}")
         await sio.emit('error', {
             'message': f'Error sending question: {str(e)}'
         }, room=sid)
@@ -217,7 +218,7 @@ async def submit_answer(sid, data):
             })
 
     except Exception as e:
-        print(f"Error submitting answer: {e}")
+        logger.error(f"Error submitting answer: {e}")
         await sio.emit('error', {
             'message': f'Error processing answer: {str(e)}'
         }, room=sid)
@@ -284,7 +285,7 @@ async def confirm_answer(sid, data):
             if existing_answer:
                 existing_answer.transcript += f"\n\n[Follow-up: {session.pending_followup.get('followup_data', {}).get('followup_question', 'Additional question')}]\n{transcript}"
                 db.commit()
-                print(f"Appended follow-up answer to question {question_id}")
+                logger.info(f"Appended follow-up answer to question {question_id}")
             else:
                 answer = Answer(
                     question_id=question_id,
@@ -307,7 +308,7 @@ async def confirm_answer(sid, data):
             db.commit()
 
         if is_answering_followup:
-            print(f"User answered follow-up for question {question_id}, moving to next question")
+            logger.info(f"User answered follow-up for question {question_id}, moving to next question")
             session.pending_followup = None
             session_manager.update_session(sid, session)
         else:
@@ -321,7 +322,7 @@ async def confirm_answer(sid, data):
                 followup_text = followup_data.get('followup_question', '')
 
                 if not followup_text:
-                    print("Follow-up generated but no question text found")
+                    logger.warning("Follow-up generated but no question text found")
                 else:
                     await sio.emit('followup_question', {
                         'question_id': question_id,
@@ -366,7 +367,7 @@ async def confirm_answer(sid, data):
             await complete_interview(sid, session, db)
 
     except Exception as e:
-        print(f"Error confirming answer: {e}")
+        logger.error(f"Error confirming answer: {e}")
         await sio.emit('error', {
             'message': f'Error confirming answer: {str(e)}'
         }, room=sid)
@@ -377,16 +378,16 @@ async def evaluate_interview_async(interview_id: int, db: Session):
     try:
         import time
         start_time = time.time()
-        print(f"[EVALUATION] Starting evaluation for interview {interview_id}")
+        logger.info(f"[EVALUATION] Starting evaluation for interview {interview_id}")
 
         interview = db.query(Interview).filter(Interview.id == interview_id).first()
         if not interview:
-            print(f"[EVALUATION] Interview {interview_id} not found")
+            logger.info(f"[EVALUATION] Interview {interview_id} not found")
             return
 
         resume = db.query(Resume).filter(Resume.id == interview.resume_id).first()
         if not resume:
-            print(f"[EVALUATION] Resume not found for interview {interview_id}")
+            logger.info(f"[EVALUATION] Resume not found for interview {interview_id}")
             return
 
         questions = db.query(Question).filter(
@@ -394,7 +395,7 @@ async def evaluate_interview_async(interview_id: int, db: Session):
         ).order_by(Question.order_number).all()
 
         total_questions = len(questions)
-        print(f"[EVALUATION] Found {total_questions} questions to evaluate")
+        logger.info(f"[EVALUATION] Found {total_questions} questions to evaluate")
 
         evaluations = []
 
@@ -403,10 +404,10 @@ async def evaluate_interview_async(interview_id: int, db: Session):
             answer = db.query(Answer).filter(Answer.question_id == question.id).first()
 
             if not answer or not answer.transcript:
-                print(f"[EVALUATION] No answer found for question {question.id} ({idx}/{total_questions})")
+                logger.info(f"[EVALUATION] No answer found for question {question.id} ({idx}/{total_questions})")
                 continue
 
-            print(f"[EVALUATION] Evaluating question {idx}/{total_questions} (ID: {question.id})...")
+            logger.info(f"[EVALUATION] Evaluating question {idx}/{total_questions} (ID: {question.id})...")
 
             evaluation = await evaluate_answer(
                 question_text=question.question_text,
@@ -421,21 +422,21 @@ async def evaluate_interview_async(interview_id: int, db: Session):
             evaluations.append(evaluation)
 
             elapsed = time.time() - question_start
-            print(f"[EVALUATION] Question {idx}/{total_questions} evaluated in {elapsed:.2f}s - Score: {answer.score}")
+            logger.info(f"[EVALUATION] Question {idx}/{total_questions} evaluated in {elapsed:.2f}s - Score: {answer.score}")
 
-        print(f"[EVALUATION] Calculating overall score...")
+        logger.info(f"[EVALUATION] Calculating overall score...")
         overall_score = await calculate_overall_score(evaluations)
         interview.overall_score = overall_score
 
         db.commit()
 
         total_elapsed = time.time() - start_time
-        print(f"[EVALUATION] ✓ Evaluation completed for interview {interview_id}")
-        print(f"[EVALUATION] Overall Score: {overall_score}/10")
-        print(f"[EVALUATION] Total time: {total_elapsed:.2f}s ({len(evaluations)} questions)")
+        logger.info(f"[EVALUATION] ✓ Evaluation completed for interview {interview_id}")
+        logger.info(f"[EVALUATION] Overall Score: {overall_score}/10")
+        logger.info(f"[EVALUATION] Total time: {total_elapsed:.2f}s ({len(evaluations)} questions)")
 
     except Exception as e:
-        print(f"[EVALUATION] ✗ Error evaluating interview {interview_id}: {e}")
+        logger.info(f"[EVALUATION] ✗ Error evaluating interview {interview_id}: {e}")
         import traceback
         traceback.print_exc()
         db.rollback()
@@ -473,7 +474,7 @@ async def complete_interview(sid, session, db: Session):
         asyncio.create_task(run_evaluation())
 
     except Exception as e:
-        print(f"Error completing interview: {e}")
+        logger.error(f"Error completing interview: {e}")
         await sio.emit('error', {
             'message': f'Error completing interview: {str(e)}'
         }, room=sid)
@@ -488,4 +489,4 @@ async def end_interview(sid, data=None):
             db: Session = next(get_db())
             await complete_interview(sid, session, db)
     except Exception as e:
-        print(f"Error ending interview: {e}")
+        logger.error(f"Error ending interview: {e}")

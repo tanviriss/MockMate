@@ -7,7 +7,7 @@ import warnings
 class Settings(BaseSettings):
     """Application settings loaded from environment variables"""
 
-    APP_NAME: str = "MockMate API"
+    isAPP_NAME: str = "MockMate API"
     VERSION: str = "0.1.0"
     ENVIRONMENT: str = "development"
     DEBUG: bool = True

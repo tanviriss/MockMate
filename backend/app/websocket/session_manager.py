@@ -6,6 +6,7 @@ import redis
 from typing import Optional, Dict, Any
 from datetime import datetime
 from app.config import settings
+from app.logging_config import logger
 
 
 class InterviewSession:
@@ -60,7 +61,7 @@ class SessionManager:
             # Test connection
             self.redis_client.ping()
         except Exception as e:
-            print(f"Warning: Redis connection failed: {e}")
+            logger.warning(f"Redis connection failed: {e}")
             self.redis_client = None
 
     def _get_session_key(self, session_id: str) -> str:
