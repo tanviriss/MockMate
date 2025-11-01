@@ -1,12 +1,14 @@
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, Request, status, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from sqlalchemy.orm import Session
 import socketio
 import time
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from app.config import settings
+from app.database import get_db
 from app.routers import auth, test, resumes, interviews, audio, evaluation, analytics
 from app.websocket.interview_handler import sio
 from app.logging_config import logger
@@ -113,13 +115,39 @@ async def root():
 
 
 @app.get("/health")
-async def health_check():
+async def health_check(db: Session = Depends(get_db)):
     """Health check endpoint for monitoring"""
-    return {
+    from sqlalchemy import text
+    from app.websocket.session_manager import session_manager
+
+    health = {
         "status": "healthy",
         "environment": settings.ENVIRONMENT,
         "version": settings.VERSION,
+        "services": {}
     }
+
+    try:
+        db.execute(text("SELECT 1"))
+        health["services"]["database"] = "healthy"
+    except Exception as e:
+        health["services"]["database"] = f"unhealthy: {str(e)}"
+        health["status"] = "degraded"
+        logger.error(f"Database health check failed: {e}")
+
+    try:
+        if session_manager.redis_client:
+            session_manager.redis_client.ping()
+            health["services"]["redis"] = "healthy"
+        else:
+            health["services"]["redis"] = "not configured"
+            health["status"] = "degraded"
+    except Exception as e:
+        health["services"]["redis"] = f"unhealthy: {str(e)}"
+        health["status"] = "degraded"
+        logger.error(f"Redis health check failed: {e}")
+
+    return health
 
 # For production, use socket_app which wraps FastAPI with SocketIO
 # For testing, import 'app' which is the FastAPI instance

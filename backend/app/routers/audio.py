@@ -89,17 +89,15 @@ async def speech_to_text(
 
         audio_bytes = await audio_file.read()
 
-        # Save to temporary file
         with tempfile.NamedTemporaryFile(
-            delete=False,
+            delete=True,
             suffix=os.path.splitext(audio_file.filename)[1]
         ) as temp_file:
             temp_file.write(audio_bytes)
-            temp_path = temp_file.name
+            temp_file.flush()
 
-        try:
             result = await speech_to_text_service.transcribe_audio(
-                audio_file_path=temp_path,
+                audio_file_path=temp_file.name,
                 language=language
             )
 
@@ -108,10 +106,6 @@ async def speech_to_text(
                 duration=result.get("duration"),
                 language=result.get("language")
             )
-
-        finally:
-            if os.path.exists(temp_path):
-                os.unlink(temp_path)
 
     except HTTPException:
         raise

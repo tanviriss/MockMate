@@ -1,6 +1,8 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Depends, status
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends, status, Request
 from sqlalchemy.orm import Session
 from io import BytesIO
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from app.database import get_db
 from app.dependencies import get_current_user
@@ -10,10 +12,13 @@ from app.services.gemini_service import parse_resume_text
 from app.services.storage_service import StorageService
 
 router = APIRouter(prefix="/resumes", tags=["Resumes"])
+limiter = Limiter(key_func=get_remote_address)
 
 
 @router.post("/upload", status_code=status.HTTP_201_CREATED)
+@limiter.limit("10/hour")
 async def upload_resume(
+    request: Request,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)

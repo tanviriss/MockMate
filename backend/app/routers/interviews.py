@@ -1,6 +1,8 @@
-from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi import APIRouter, HTTPException, Depends, status, Request
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from app.database import get_db
 from app.dependencies import get_current_user
@@ -11,6 +13,7 @@ from app.services.interview_service import analyze_job_description, generate_int
 from app.services.company_research_service import generate_company_specific_questions
 
 router = APIRouter(prefix="/interviews", tags=["Interviews"])
+limiter = Limiter(key_func=get_remote_address)
 
 
 class CreateInterviewRequest(BaseModel):
@@ -22,7 +25,9 @@ class CreateInterviewRequest(BaseModel):
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
+@limiter.limit("5/minute")
 async def create_interview(
+    http_request: Request,
     request: CreateInterviewRequest,
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)

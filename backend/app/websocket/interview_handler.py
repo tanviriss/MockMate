@@ -187,19 +187,18 @@ async def submit_answer(sid, data):
             return
 
         with tempfile.NamedTemporaryFile(
-            delete=False,
+            delete=True,
             suffix=f'.{audio_format}'
         ) as temp_file:
             temp_file.write(audio_bytes)
-            temp_path = temp_file.name
+            temp_file.flush()
 
-        try:
             await sio.emit('transcribing', {
                 'message': 'Transcribing your answer...'
             }, room=sid)
 
             transcription_result = await speech_to_text_service.transcribe_audio(
-                audio_file_path=temp_path,
+                audio_file_path=temp_file.name,
                 language="en"
             )
 
@@ -216,10 +215,6 @@ async def submit_answer(sid, data):
                 'audio_bytes': audio_data_b64,
                 'format': audio_format
             })
-
-        finally:
-            if os.path.exists(temp_path):
-                os.unlink(temp_path)
 
     except Exception as e:
         print(f"Error submitting answer: {e}")

@@ -1,8 +1,10 @@
 """
 Evaluation endpoints for interview answers
 """
-from fastapi import APIRouter, HTTPException, Depends, status, BackgroundTasks
+from fastapi import APIRouter, HTTPException, Depends, status, BackgroundTasks, Request
 from sqlalchemy.orm import Session
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from app.database import get_db
 from app.dependencies import get_current_user
@@ -20,6 +22,7 @@ from app.services.evaluation_service import (
 from app.services.interview_service import generate_ideal_answer
 
 router = APIRouter(prefix="/evaluation", tags=["Evaluation"])
+limiter = Limiter(key_func=get_remote_address)
 
 
 async def evaluate_interview_background(interview_id: int, db: Session):
@@ -105,7 +108,9 @@ async def evaluate_interview_background(interview_id: int, db: Session):
 
 
 @router.post("/interviews/{interview_id}/evaluate")
+@limiter.limit("3/minute")
 async def trigger_evaluation(
+    request: Request,
     interview_id: int,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
