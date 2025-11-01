@@ -15,12 +15,12 @@ class Interview(Base):
     __tablename__ = "interviews"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(String, ForeignKey("users.id"), nullable=False)  # UUID string
+    user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)  # UUID string
     resume_id = Column(Integer, ForeignKey("resumes.id"), nullable=False)
     job_description = Column(String, nullable=False)
     jd_analysis = Column(JSON, nullable=True)  # AI-analyzed JD requirements
     target_company = Column(String, nullable=True)  # Target company for prep (e.g., "Google", "Amazon")
-    status = Column(Enum(InterviewStatus), default=InterviewStatus.PENDING)
+    status = Column(Enum(InterviewStatus), default=InterviewStatus.PENDING, index=True)
     overall_score = Column(Float, nullable=True)  # Average score across all answers
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     completed_at = Column(DateTime(timezone=True), nullable=True)

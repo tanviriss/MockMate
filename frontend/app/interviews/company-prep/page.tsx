@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
 import { api } from '@/lib/api';
@@ -8,7 +8,7 @@ import Logo from '@/components/Logo';
 
 interface Resume {
   id: number;
-  parsed_data: any;
+  parsed_data: unknown;
   created_at: string;
 }
 
@@ -44,7 +44,7 @@ export default function CompanyPrepPage() {
       if (data.resumes && data.resumes.length > 0) {
         setFormData(prev => ({ ...prev, resume_id: data.resumes[0].id.toString() }));
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message);
     } finally {
       setLoading(false);
@@ -86,7 +86,7 @@ export default function CompanyPrepPage() {
 
       sessionStorage.setItem(`interview_${response.id}`, JSON.stringify(response));
       router.push(`/interviews/${response.id}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message);
     } finally {
       setCreating(false);

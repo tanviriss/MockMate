@@ -22,6 +22,12 @@ interface InterviewData {
   created_at: string;
   target_company?: string;
   questions: Question[];
+  jd_analysis?: {
+    job_title?: string;
+    company?: string;
+    required_skills?: string[];
+    [key: string]: unknown;
+  };
 }
 
 export default function InterviewDetailsPage() {

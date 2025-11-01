@@ -6,7 +6,7 @@ interface Question {
   question_text: string;
   question_number: number;
   total_questions: number;
-  context: any;
+  context: unknown;
 }
 
 interface InterviewState {
@@ -79,12 +79,12 @@ export function useInterview(interviewId: number, userId: string, token: string)
       setState((prev) => ({ ...prev, isConnected: false }));
     });
 
-    socket.on("connected", (data) => {
+    socket.on("connected", (_data) => {
       console.log("Session connected:", data.sid);
     });
 
     // Interview event handlers
-    socket.on("interview_started", (data) => {
+    socket.on("interview_started", (_data) => {
       console.log("Interview started:", data);
       setState((prev) => ({
         ...prev,
@@ -105,7 +105,7 @@ export function useInterview(interviewId: number, userId: string, token: string)
       }));
     });
 
-    socket.on("question_audio", (data) => {
+    socket.on("question_audio", (_data) => {
       console.log("Received question audio");
       setState((prev) => ({
         ...prev,
@@ -113,7 +113,7 @@ export function useInterview(interviewId: number, userId: string, token: string)
       }));
     });
 
-    socket.on("transcribing", (data) => {
+    socket.on("transcribing", (_data) => {
       console.log("Transcribing...");
       setState((prev) => ({
         ...prev,
@@ -121,7 +121,7 @@ export function useInterview(interviewId: number, userId: string, token: string)
       }));
     });
 
-    socket.on("transcript_ready", (data) => {
+    socket.on("transcript_ready", (_data) => {
       console.log("Transcript ready:", data.transcript);
       setState((prev) => ({
         ...prev,
@@ -130,7 +130,7 @@ export function useInterview(interviewId: number, userId: string, token: string)
       }));
     });
 
-    socket.on("followup_question", (data) => {
+    socket.on("followup_question", (_data) => {
       console.log("Received follow-up question:", data);
       const cleanFollowupText = data.followup_text
         .replace(/\*\*/g, '')
@@ -148,7 +148,7 @@ export function useInterview(interviewId: number, userId: string, token: string)
       }));
     });
 
-    socket.on("interview_completed", (data) => {
+    socket.on("interview_completed", (_data) => {
       console.log("Interview completed:", data);
       setState((prev) => ({
         ...prev,
@@ -157,7 +157,7 @@ export function useInterview(interviewId: number, userId: string, token: string)
       }));
     });
 
-    socket.on("error", (data) => {
+    socket.on("error", (_data) => {
       console.error("Interview error:", data.message);
       setState((prev) => ({
         ...prev,

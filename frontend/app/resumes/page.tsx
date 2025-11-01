@@ -11,7 +11,7 @@ import { SkeletonResume } from '@/components/Skeleton';
 interface Resume {
   id: number;
   file_url: string;
-  parsed_data: any;
+  parsed_data: unknown;
   created_at: string;
 }
 
@@ -52,7 +52,7 @@ export default function ResumesPage() {
       setLoading(true);
       const data = await api.getResumes(token!);
       setResumes(data.resumes || []);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message);
     } finally {
       setLoading(false);
@@ -101,7 +101,7 @@ export default function ResumesPage() {
       await api.uploadResume(selectedFile, token);
       setSelectedFile(null);
       fetchResumes();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message);
     } finally {
       setUploading(false);
@@ -133,7 +133,7 @@ export default function ResumesPage() {
           });
 
           fetchResumes();
-        } catch (err: any) {
+        } catch (err: unknown) {
           setModalState({
             isOpen: true,
             type: 'error',

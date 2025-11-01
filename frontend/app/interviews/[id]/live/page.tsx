@@ -150,7 +150,7 @@ export default function LiveInterviewPage({
             </h2>
             <p className="text-gray-300 mb-8 max-w-md mx-auto">
               Make sure you&apos;re in a quiet environment with a working microphone.
-              You'll be asked {totalQuestions || 10} questions.
+              You&apos;ll be asked {totalQuestions || 10} questions.
             </p>
             <button
               onClick={handleStart}
@@ -270,8 +270,8 @@ export default function LiveInterviewPage({
               Interview Complete!
             </h2>
             <p className="text-gray-300 mb-8">
-              Great job! We're processing your responses and generating feedback.
-              You'll be redirected to the results page shortly.
+              Great job! We&apos;re processing your responses and generating feedback.
+              You&apos;ll be redirected to the results page shortly.
             </p>
             <div className="flex items-center justify-center gap-2">
               <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" />

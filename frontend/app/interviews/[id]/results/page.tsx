@@ -25,7 +25,7 @@ export default function InterviewResultsPage({
   const interviewId = parseInt(resolvedParams.id);
   const router = useRouter();
   const { token } = useAuthStore();
-  const [results, setResults] = useState<any>(null);
+  const [results, setResults] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [idealAnswers, setIdealAnswers] = useState<{ [key: number]: IdealAnswer }>({});
@@ -45,7 +45,7 @@ export default function InterviewResultsPage({
       setLoading(true);
       const data = await api.getInterviewResults(interviewId, token!);
       setResults(data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message);
     } finally {
       setLoading(false);
@@ -59,7 +59,7 @@ export default function InterviewResultsPage({
       setLoadingIdeal(prev => ({ ...prev, [questionId]: true }));
       const data = await api.getIdealAnswer(questionId, token!);
       setIdealAnswers(prev => ({ ...prev, [questionId]: data.ideal_answer }));
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to fetch ideal answer:', err);
     } finally {
       setLoadingIdeal(prev => ({ ...prev, [questionId]: false }));
@@ -111,7 +111,7 @@ export default function InterviewResultsPage({
   const getCategoryBreakdown = () => {
     const categories: { [key: string]: { scores: number[], count: number } } = {};
 
-    results.results.forEach((result: any) => {
+    results.results.forEach((result: unknown) => {
       if (result.score !== null && result.score !== undefined) {
         const category = result.question_type || 'general';
         if (!categories[category]) {
@@ -196,7 +196,7 @@ export default function InterviewResultsPage({
 
         {/* Question Results */}
         <div className="space-y-6">
-          {results.results.map((result: any, index: number) => (
+          {results.results.map((result: unknown, index: number) => (
             <div
               key={index}
               className="bg-white/10 backdrop-blur-lg rounded-2xl p-6"

@@ -7,7 +7,7 @@ class Question(Base):
     __tablename__ = "questions"
 
     id = Column(Integer, primary_key=True, index=True)
-    interview_id = Column(Integer, ForeignKey("interviews.id"), nullable=False)
+    interview_id = Column(Integer, ForeignKey("interviews.id"), nullable=False, index=True)
     question_text = Column(String, nullable=False)
     question_context = Column(JSON, nullable=True)  # Category, difficulty, reasoning
     order_number = Column(Integer, nullable=False)  # Question order (1-10)

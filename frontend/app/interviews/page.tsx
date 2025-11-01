@@ -11,7 +11,7 @@ interface Interview {
   id: number;
   resume_id: number;
   job_description: string;
-  jd_analysis: any;
+  jd_analysis: unknown;
   status: string;
   overall_score: number | null;
   created_at: string;
@@ -38,7 +38,7 @@ export default function InterviewsPage() {
       setLoading(true);
       const data = await api.getInterviews(token!);
       setInterviews(data.interviews || []);
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (err.message.includes('401') || err.message.includes('Unauthorized')) {
         useAuthStore.getState().clearAuth();
         router.push('/login');
@@ -56,7 +56,7 @@ export default function InterviewsPage() {
     try {
       await api.deleteInterview(interviewId, token!);
       fetchInterviews();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message);
     }
   };

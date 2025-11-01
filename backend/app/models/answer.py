@@ -8,7 +8,7 @@ class Answer(Base):
     __tablename__ = "answers"
 
     id = Column(Integer, primary_key=True, index=True)
-    question_id = Column(Integer, ForeignKey("questions.id"), nullable=False)  # Removed unique=True for follow-ups
+    question_id = Column(Integer, ForeignKey("questions.id"), nullable=False, index=True)  # Removed unique=True for follow-ups
     audio_url = Column(String, nullable=True)
     transcript = Column(String, nullable=False)
     audio_duration_seconds = Column(Float, nullable=True)
