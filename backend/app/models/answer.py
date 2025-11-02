@@ -8,10 +8,8 @@ class Answer(Base):
     __tablename__ = "answers"
 
     id = Column(Integer, primary_key=True, index=True)
-    question_id = Column(Integer, ForeignKey("questions.id"), nullable=False, index=True)  # Removed unique=True for follow-ups
-    audio_url = Column(String, nullable=True)
+    question_id = Column(Integer, ForeignKey("questions.id"), nullable=False, index=True)
     transcript = Column(String, nullable=False)
-    audio_duration_seconds = Column(Float, nullable=True)
     evaluation = Column(JSON, nullable=True)
     score = Column(Float, nullable=True)
     answered_at = Column(DateTime(timezone=True), server_default=func.now())

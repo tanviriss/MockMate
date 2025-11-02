@@ -170,7 +170,7 @@ class SessionManager:
         Args:
             session_id: Session identifier
             question_id: Question ID
-            answer_data: Answer data (transcript, audio_url, etc.)
+            answer_data: Answer data (transcript, audio bytes, format)
 
         Returns:
             True if successful

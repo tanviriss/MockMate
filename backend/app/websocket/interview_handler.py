@@ -290,7 +290,6 @@ async def confirm_answer(sid, data):
                 answer = Answer(
                     question_id=question_id,
                     transcript=transcript,
-                    audio_url=None,
                     score=None,
                     evaluation=None
                 )
@@ -300,7 +299,6 @@ async def confirm_answer(sid, data):
             answer = Answer(
                 question_id=question_id,
                 transcript=transcript,
-                audio_url=None,
                 score=None,
                 evaluation=None
             )

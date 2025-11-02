@@ -188,7 +188,6 @@ async def get_evaluation_results(
                 "difficulty": question.question_context.get('difficulty', 'medium'),
                 "skill_tags": question.question_context.get('skill_tags', []),
                 "answer_transcript": answer.transcript,
-                "audio_url": answer.audio_url,
                 "score": answer.score,
                 "evaluation": answer.evaluation,
                 "has_evaluation": answer.evaluation is not None
