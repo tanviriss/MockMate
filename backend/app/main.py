@@ -35,6 +35,33 @@ app = fastapi_app
 # Wrap with SocketIO
 socket_app = socketio.ASGIApp(sio, fastapi_app)
 
+# Security headers middleware
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    """Add security headers to all responses"""
+    response = await call_next(request)
+
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+
+    if settings.ENVIRONMENT == "production":
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+
+    csp_directives = [
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' data: https:",
+        "font-src 'self' data:",
+        "connect-src 'self' https:",
+        "frame-ancestors 'none'",
+    ]
+    response.headers["Content-Security-Policy"] = "; ".join(csp_directives)
+
+    return response
+
 # Request logging middleware
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
