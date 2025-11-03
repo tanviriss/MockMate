@@ -27,8 +27,8 @@ class CreateInterviewRequest(BaseModel):
 @router.post("/", status_code=status.HTTP_201_CREATED)
 @limiter.limit("5/minute")
 async def create_interview(
-    http_request: Request,
-    request: CreateInterviewRequest,
+    request: Request,
+    interview_request: CreateInterviewRequest,
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
@@ -38,7 +38,7 @@ async def create_interview(
     try:
         # Get resume
         resume = db.query(Resume).filter(
-            Resume.id == request.resume_id,
+            Resume.id == interview_request.resume_id,
             Resume.user_id == current_user.id
         ).first()
 
@@ -49,31 +49,31 @@ async def create_interview(
             )
 
         # Analyze job description
-        jd_analysis = await analyze_job_description(request.job_description)
+        jd_analysis = await analyze_job_description(interview_request.job_description)
 
         # Generate interview questions (company-specific if provided)
-        if request.target_company and request.target_role:
+        if interview_request.target_company and interview_request.target_role:
             questions = await generate_company_specific_questions(
-                company_name=request.target_company,
-                role=request.target_role,
+                company_name=interview_request.target_company,
+                role=interview_request.target_role,
                 resume_data=resume.parsed_data,
                 jd_analysis=jd_analysis,
-                num_questions=request.num_questions
+                num_questions=interview_request.num_questions
             )
         else:
             questions = await generate_interview_questions(
                 resume.parsed_data,
                 jd_analysis,
-                request.num_questions
+                interview_request.num_questions
             )
 
         # Create interview record
         interview = Interview(
             user_id=current_user.id,
-            resume_id=request.resume_id,
-            job_description=request.job_description,
+            resume_id=interview_request.resume_id,
+            job_description=interview_request.job_description,
             jd_analysis=jd_analysis,
-            target_company=request.target_company,
+            target_company=interview_request.target_company,
             status=InterviewStatus.PENDING
         )
         db.add(interview)
