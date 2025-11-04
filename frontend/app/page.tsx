@@ -348,10 +348,10 @@ export default function Home() {
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.6, delay: i * 0.2 }}
                 whileHover={{ y: -10, scale: 1.02 }}
-                className="group relative"
+                className="group relative h-full"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-300" />
-                <div className="relative p-8 bg-white/5 backdrop-blur-2xl border border-white/20 rounded-3xl hover:border-white/30 transition-all duration-300 shadow-xl shadow-black/20 overflow-hidden">
+                <div className="relative h-full p-8 bg-white/5 backdrop-blur-2xl border border-white/20 rounded-3xl hover:border-white/30 transition-all duration-300 shadow-xl shadow-black/20 overflow-hidden flex flex-col">
                   {/* Glass shine effect */}
                   <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
                   <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -366,7 +366,7 @@ export default function Home() {
                     </svg>
                   </motion.div>
                   <h3 className="relative text-2xl font-bold text-white mb-4">{feature.title}</h3>
-                  <p className="relative text-gray-300 text-lg leading-relaxed">{feature.description}</p>
+                  <p className="relative text-gray-300 text-lg leading-relaxed flex-grow">{feature.description}</p>
                 </div>
               </motion.div>
             ))}
