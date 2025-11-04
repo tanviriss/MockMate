@@ -190,7 +190,7 @@ export default function Home() {
             </motion.button>
           </motion.div>
 
-          {/* Stats */}
+          {/* Key Features */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -198,12 +198,12 @@ export default function Home() {
             className="flex flex-wrap justify-center gap-8 pt-12"
           >
             {[
-              { label: 'Practice Questions', value: '10K+' },
-              { label: 'Success Rate', value: '94%' },
-              { label: 'Happy Users', value: '5K+' }
-            ].map((stat, i) => (
+              { label: 'AI-Powered Questions', icon: '🤖' },
+              { label: 'Voice Practice', icon: '🎤' },
+              { label: 'Instant Feedback', icon: '⚡' }
+            ].map((feature, i) => (
               <motion.div
-                key={stat.label}
+                key={feature.label}
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 1.6 + i * 0.1 }}
@@ -212,8 +212,8 @@ export default function Home() {
               >
                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative text-3xl md:text-4xl font-bold text-white">{stat.value}</div>
-                <div className="relative text-sm text-gray-300">{stat.label}</div>
+                <div className="relative text-4xl mb-2">{feature.icon}</div>
+                <div className="relative text-sm font-semibold text-gray-200">{feature.label}</div>
               </motion.div>
             ))}
           </motion.div>
