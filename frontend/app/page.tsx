@@ -198,9 +198,33 @@ export default function Home() {
             className="flex flex-wrap justify-center gap-8 pt-12"
           >
             {[
-              { label: 'AI-Powered Questions', icon: '🤖' },
-              { label: 'Voice Practice', icon: '🎤' },
-              { label: 'Instant Feedback', icon: '⚡' }
+              {
+                label: 'AI-Powered Questions',
+                gradient: 'from-blue-400 to-cyan-400',
+                icon: (
+                  <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                )
+              },
+              {
+                label: 'Voice Practice',
+                gradient: 'from-purple-400 to-pink-400',
+                icon: (
+                  <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                  </svg>
+                )
+              },
+              {
+                label: 'Instant Feedback',
+                gradient: 'from-yellow-400 to-orange-400',
+                icon: (
+                  <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                )
+              }
             ].map((feature, i) => (
               <motion.div
                 key={feature.label}
@@ -212,7 +236,37 @@ export default function Home() {
               >
                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative text-4xl mb-2">{feature.icon}</div>
+
+                <motion.div
+                  animate={{
+                    y: [0, -5, 0],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: i * 0.3
+                  }}
+                  className="relative mx-auto w-14 h-14 flex items-center justify-center mb-3"
+                >
+                  <motion.div
+                    animate={{
+                      scale: [1, 1.2, 1],
+                      opacity: [0.5, 0.8, 0.5]
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                      delay: i * 0.3
+                    }}
+                    className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} rounded-full blur-xl`}
+                  />
+                  <div className={`relative bg-gradient-to-br ${feature.gradient} rounded-xl p-2 text-white`}>
+                    {feature.icon}
+                  </div>
+                </motion.div>
+
                 <div className="relative text-sm font-semibold text-gray-200">{feature.label}</div>
               </motion.div>
             ))}
