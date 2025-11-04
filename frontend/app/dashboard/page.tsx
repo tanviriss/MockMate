@@ -15,11 +15,15 @@ interface DashboardStats {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, token, isAuthenticated, clearAuth } = useAuthStore();
+  const { user, token, isAuthenticated, clearAuth, _hasHydrated } = useAuthStore();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!_hasHydrated) {
+      return;
+    }
+
     if (!isAuthenticated) {
       router.push('/login');
       return;
@@ -40,7 +44,7 @@ export default function DashboardPage() {
     };
 
     fetchStats();
-  }, [isAuthenticated, token, router]);
+  }, [isAuthenticated, token, router, _hasHydrated]);
 
   const handleLogout = () => {
     clearAuth();
