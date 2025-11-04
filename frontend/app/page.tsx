@@ -69,26 +69,28 @@ export default function Home() {
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6 }}
-        className="relative z-50 flex items-center justify-between p-6 max-w-7xl mx-auto"
+        className="sticky top-0 z-50 backdrop-blur-2xl bg-white/5 border-b border-white/10 shadow-lg shadow-black/5"
       >
-        <Logo className="text-white" />
-        <div className="flex gap-4">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => router.push('/login')}
-            className="px-6 py-2 text-white hover:text-blue-400 transition font-medium"
-          >
-            Login
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => router.push('/signup')}
-            className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition"
-          >
-            Get Started
-          </motion.button>
+        <div className="flex items-center justify-between p-6 max-w-7xl mx-auto">
+          <Logo className="text-white" />
+          <div className="flex gap-4">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => router.push('/login')}
+              className="px-6 py-2 text-white hover:text-blue-400 transition font-medium"
+            >
+              Login
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => router.push('/signup')}
+              className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition"
+            >
+              Get Started
+            </motion.button>
+          </div>
         </div>
       </motion.nav>
 
@@ -109,7 +111,7 @@ export default function Home() {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="inline-block"
           >
-            <span className="px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-400 text-sm font-semibold backdrop-blur-sm">
+            <span className="px-4 py-2 bg-white/5 border border-white/20 rounded-full text-blue-300 text-sm font-semibold backdrop-blur-xl shadow-lg shadow-blue-500/10">
               🚀 AI-Powered Interview Coaching
             </span>
           </motion.div>
@@ -175,14 +177,16 @@ export default function Home() {
               />
             </motion.button>
             <motion.button
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.05, backgroundColor: "rgba(255, 255, 255, 0.1)" }}
               whileTap={{ scale: 0.95 }}
               onClick={() => {
                 document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="px-10 py-5 bg-white/10 backdrop-blur-sm text-white border border-white/20 rounded-xl font-bold text-lg hover:bg-white/20 transition"
+              className="relative px-10 py-5 bg-white/5 backdrop-blur-xl text-white border border-white/30 rounded-xl font-bold text-lg transition shadow-lg shadow-white/5 overflow-hidden group"
             >
-              Learn More
+              <span className="relative z-10">Learn More</span>
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
             </motion.button>
           </motion.div>
 
@@ -203,10 +207,13 @@ export default function Home() {
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 1.6 + i * 0.1 }}
-                className="text-center"
+                whileHover={{ scale: 1.05 }}
+                className="relative text-center px-8 py-6 bg-white/5 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg shadow-black/10 overflow-hidden group"
               >
-                <div className="text-3xl md:text-4xl font-bold text-white">{stat.value}</div>
-                <div className="text-sm text-gray-400">{stat.label}</div>
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative text-3xl md:text-4xl font-bold text-white">{stat.value}</div>
+                <div className="relative text-sm text-gray-300">{stat.label}</div>
               </motion.div>
             ))}
           </motion.div>
@@ -290,18 +297,22 @@ export default function Home() {
                 className="group relative"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-300" />
-                <div className="relative p-8 bg-slate-900/80 backdrop-blur-sm border border-white/10 rounded-3xl hover:border-white/20 transition-all duration-300">
+                <div className="relative p-8 bg-white/5 backdrop-blur-2xl border border-white/20 rounded-3xl hover:border-white/30 transition-all duration-300 shadow-xl shadow-black/20 overflow-hidden">
+                  {/* Glass shine effect */}
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
                   <motion.div
                     whileHover={{ rotate: 360 }}
                     transition={{ duration: 0.6 }}
-                    className={`w-16 h-16 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center mb-6 shadow-lg`}
+                    className={`relative w-16 h-16 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center mb-6 shadow-lg`}
                   >
                     <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       {feature.icon}
                     </svg>
                   </motion.div>
-                  <h3 className="text-2xl font-bold text-white mb-4">{feature.title}</h3>
-                  <p className="text-gray-400 text-lg leading-relaxed">{feature.description}</p>
+                  <h3 className="relative text-2xl font-bold text-white mb-4">{feature.title}</h3>
+                  <p className="relative text-gray-300 text-lg leading-relaxed">{feature.description}</p>
                 </div>
               </motion.div>
             ))}
@@ -359,15 +370,18 @@ export default function Home() {
                   item.direction === 'right' ? 'md:flex-row-reverse' : ''
                 }`}
               >
-                <div className="flex-1">
+                <div className="flex-1 flex justify-center">
                   <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: 0.2 }}
-                    className="text-8xl mb-4"
+                    whileHover={{ scale: 1.1, rotate: 5 }}
+                    className="relative w-48 h-48 bg-white/5 backdrop-blur-xl border border-white/20 rounded-3xl flex items-center justify-center text-8xl shadow-xl shadow-black/10 overflow-hidden group"
                   >
-                    {item.image}
+                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <span className="relative">{item.image}</span>
                   </motion.div>
                 </div>
                 <div className="flex-1">
@@ -376,10 +390,13 @@ export default function Home() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: 0.3 }}
+                    className="relative p-8 bg-white/5 backdrop-blur-xl border border-white/20 rounded-3xl shadow-xl shadow-black/10 overflow-hidden group"
                   >
-                    <div className="text-6xl font-bold text-purple-500/30 mb-4">{item.step}</div>
-                    <h3 className="text-4xl font-bold text-white mb-6">{item.title}</h3>
-                    <p className="text-xl text-gray-400 leading-relaxed">{item.description}</p>
+                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="relative text-6xl font-bold text-purple-400/40 mb-4">{item.step}</div>
+                    <h3 className="relative text-4xl font-bold text-white mb-6">{item.title}</h3>
+                    <p className="relative text-xl text-gray-300 leading-relaxed">{item.description}</p>
                   </motion.div>
                 </div>
               </motion.div>
@@ -398,25 +415,29 @@ export default function Home() {
           className="max-w-5xl mx-auto text-center relative"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl blur-3xl opacity-20" />
-          <div className="relative bg-gradient-to-br from-slate-900 to-slate-800 border border-white/10 rounded-3xl p-12 md:p-20">
-            <h2 className="text-5xl md:text-6xl font-bold text-white mb-8">
+          <div className="relative bg-white/5 backdrop-blur-2xl border border-white/20 rounded-3xl p-12 md:p-20 shadow-2xl shadow-black/20 overflow-hidden">
+            {/* Glass shine effects */}
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-purple-500/5" />
+
+            <h2 className="relative text-5xl md:text-6xl font-bold text-white mb-8">
               Ready to Land Your{' '}
               <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                 Dream Job?
               </span>
             </h2>
-            <p className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto">
+            <p className="relative text-xl text-gray-300 mb-12 max-w-2xl mx-auto">
               Join thousands of job seekers who improved their interview skills with MockMate
             </p>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => router.push('/signup')}
-              className="px-12 py-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-xl shadow-2xl shadow-purple-500/50 hover:shadow-purple-500/70 transition-all"
+              className="relative px-12 py-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-xl shadow-2xl shadow-purple-500/50 hover:shadow-purple-500/70 transition-all"
             >
               Start Practicing For Free →
             </motion.button>
-            <p className="text-gray-400 mt-6">No credit card required • Get started in 2 minutes</p>
+            <p className="relative text-gray-400 mt-6">No credit card required • Get started in 2 minutes</p>
           </div>
         </motion.div>
       </section>
