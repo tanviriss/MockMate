@@ -240,10 +240,29 @@ The live interview uses Socket.IO with these events:
 - Get connection string and API keys from project settings
 - Free tier: 500MB database, 1GB storage
 
+## Deployment
+
+Ready to deploy to production? See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for complete step-by-step instructions.
+
+**Quick overview:**
+- **Backend**: Railway (with Upstash Redis)
+- **Frontend**: Vercel
+- **Database**: Supabase (already production)
+- **Estimated time**: 1-2 hours
+- **Cost**: Free tier available
+
+Deployment includes:
+- Production environment configuration
+- Redis session management (with in-memory fallback)
+- Health check endpoints
+- CORS and security headers
+- Automatic deployments on git push
+
 ## Troubleshooting
 
 ### Backend won't start
 - Check Redis is running: `redis-cli ping` (should return "PONG")
+- App works without Redis (uses in-memory fallback with warning)
 - Verify DATABASE_URL is correct
 - Ensure all API keys are set in `.env`
 
@@ -251,6 +270,11 @@ The live interview uses Socket.IO with these events:
 - Verify backend is running on port 8000
 - Check NEXT_PUBLIC_API_URL in `.env.local`
 - Check CORS settings in backend
+
+### Logged out on page refresh
+- Fixed in latest version with Zustand hydration handling
+- Clear browser cache and try again
+- Check browser localStorage is enabled
 
 ### Audio recording not working
 - Use HTTPS or localhost (browser security requirement)
