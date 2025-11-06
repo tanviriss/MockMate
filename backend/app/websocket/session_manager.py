@@ -49,19 +49,26 @@ class InterviewSession:
 
 
 class SessionManager:
-    """Manages interview sessions in Redis"""
+    """Manages interview sessions in Redis with in-memory fallback"""
 
     def __init__(self):
-        """Initialize Redis connection"""
+        """Initialize Redis connection with fallback to in-memory storage"""
+        self.redis_client = None
+        self.memory_store: Dict[str, str] = {}
+
         try:
             self.redis_client = redis.from_url(
                 settings.REDIS_URL,
-                decode_responses=True
+                decode_responses=True,
+                socket_connect_timeout=5,
+                socket_timeout=5
             )
             # Test connection
             self.redis_client.ping()
+            logger.info("✓ Connected to Redis for session management")
         except Exception as e:
-            logger.warning(f"Redis connection failed: {e}")
+            logger.warning(f"⚠ Redis connection failed: {e}")
+            logger.warning("⚠ Using in-memory session storage (sessions will not persist across restarts)")
             self.redis_client = None
 
     def _get_session_key(self, session_id: str) -> str:
@@ -81,33 +88,35 @@ class SessionManager:
             InterviewSession object
         """
         session = InterviewSession(interview_id=interview_id, user_id=user_id)
+        key = self._get_session_key(session_id)
+        session_data = json.dumps(session.to_dict())
 
         if self.redis_client:
-            key = self._get_session_key(session_id)
-            # Store session with 2 hour TTL
-            self.redis_client.setex(
-                key,
-                7200,  # 2 hours in seconds
-                json.dumps(session.to_dict())
-            )
+            try:
+                # Store session with 2 hour TTL
+                self.redis_client.setex(key, 7200, session_data)
+            except Exception as e:
+                logger.warning(f"Redis setex failed, using memory: {e}")
+                self.memory_store[key] = session_data
+        else:
+            # Use in-memory fallback
+            self.memory_store[key] = session_data
 
         return session
 
     def get_session(self, session_id: str) -> Optional[InterviewSession]:
-        """
-        Get session by ID
-
-        Args:
-            session_id: Session identifier
-
-        Returns:
-            InterviewSession or None if not found
-        """
-        if not self.redis_client:
-            return None
-
+        """Get session by ID"""
         key = self._get_session_key(session_id)
-        data = self.redis_client.get(key)
+        data = None
+
+        if self.redis_client:
+            try:
+                data = self.redis_client.get(key)
+            except Exception as e:
+                logger.warning(f"Redis get failed, using memory: {e}")
+                data = self.memory_store.get(key)
+        else:
+            data = self.memory_store.get(key)
 
         if data:
             return InterviewSession.from_dict(json.loads(data))
@@ -115,36 +124,31 @@ class SessionManager:
         return None
 
     def update_session(self, session_id: str, session: InterviewSession):
-        """
-        Update session in Redis
-
-        Args:
-            session_id: Session identifier
-            session: InterviewSession object
-        """
-        if not self.redis_client:
-            return
-
+        """Update session in Redis"""
         key = self._get_session_key(session_id)
-        # Update with 2 hour TTL
-        self.redis_client.setex(
-            key,
-            7200,
-            json.dumps(session.to_dict())
-        )
+        session_data = json.dumps(session.to_dict())
+
+        if self.redis_client:
+            try:
+                self.redis_client.setex(key, 7200, session_data)
+            except Exception as e:
+                logger.warning(f"Redis update failed, using memory: {e}")
+                self.memory_store[key] = session_data
+        else:
+            self.memory_store[key] = session_data
 
     def delete_session(self, session_id: str):
-        """
-        Delete session from Redis
-
-        Args:
-            session_id: Session identifier
-        """
-        if not self.redis_client:
-            return
-
+        """Delete session from Redis"""
         key = self._get_session_key(session_id)
-        self.redis_client.delete(key)
+
+        if self.redis_client:
+            try:
+                self.redis_client.delete(key)
+            except Exception as e:
+                logger.warning(f"Redis delete failed, using memory: {e}")
+                self.memory_store.pop(key, None)
+        else:
+            self.memory_store.pop(key, None)
 
     def advance_question(self, session_id: str) -> bool:
         """
