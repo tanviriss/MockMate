@@ -4,22 +4,25 @@ WebSocket event handlers for real-time interview sessions
 import socketio
 import tempfile
 import os
+import base64
 from typing import Optional
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 from app.logging_config import logger
 
-from app.database import get_db
+from app.database import get_db, SessionLocal
 from app.models.interview import Interview
 from app.models.question import Question
 from app.models.answer import Answer
 from app.models.resume import Resume
-from app.services.text_to_speech import text_to_speech_service
-from app.services.speech_to_text import speech_to_text_service
+from app.services.text_to_speech import text_to_speech_service, TTSError
+from app.services.speech_to_text import speech_to_text_service, STTError
 from app.services.storage_service import StorageService
 from app.services.evaluation_service import evaluate_answer, calculate_overall_score
 from app.services.followup_service import should_ask_followup
 from app.websocket.session_manager import session_manager
 from app.config import settings
+from app.supabase_client import get_supabase
 
 # Configure CORS based on environment - NEVER use wildcard in production
 cors_origins = settings.ALLOWED_ORIGINS.split(',') if settings.ALLOWED_ORIGINS else []
@@ -32,15 +35,46 @@ sio = socketio.AsyncServer(
 )
 
 
+async def validate_token(token: str) -> Optional[dict]:
+    """
+    Validate JWT token with Supabase
+
+    Returns:
+        User data dict if valid, None otherwise
+    """
+    try:
+        supabase = get_supabase()
+        user_response = supabase.auth.get_user(token)
+
+        if user_response and user_response.user:
+            return {
+                'id': user_response.user.id,
+                'email': user_response.user.email
+            }
+        return None
+    except Exception as e:
+        logger.error(f"Token validation error: {e}")
+        return None
+
+
 @sio.event
 async def connect(sid, environ, auth):
-    """Handle client connection"""
-    logger.info(f"Client connected: {sid}")
+    """Handle client connection with authentication"""
+    logger.info(f"Client attempting to connect: {sid}")
 
-    if auth and 'token' in auth:
-        token = auth['token']
-        logger.info(f"Authenticated connection from {sid}")
+    # Validate authentication token
+    if not auth or 'token' not in auth:
+        logger.warning(f"Connection rejected for {sid}: No authentication token")
+        return False
 
+    token = auth['token']
+    user_data = await validate_token(token)
+
+    if not user_data:
+        logger.warning(f"Connection rejected for {sid}: Invalid token")
+        return False
+
+    logger.info(f"Authenticated connection from {sid} (user: {user_data['email']})")
     await sio.emit('connected', {'sid': sid}, room=sid)
     return True
 
@@ -66,6 +100,7 @@ async def start_interview(sid, data):
         "user_id": str
     }
     """
+    db: Session = next(get_db())
     try:
         interview_id = data.get('interview_id')
         user_id = data.get('user_id')
@@ -78,7 +113,6 @@ async def start_interview(sid, data):
 
         session = session_manager.create_session(sid, interview_id, user_id)
 
-        db: Session = next(get_db())
         interview = db.query(Interview).filter(Interview.id == interview_id).first()
 
         if not interview:
@@ -110,11 +144,19 @@ async def start_interview(sid, data):
 
         await send_question(sid, first_question, 0, len(questions))
 
+    except SQLAlchemyError as e:
+        logger.error(f"Database error starting interview: {e}")
+        db.rollback()
+        await sio.emit('error', {
+            'message': 'Database error starting interview. Please try again.'
+        }, room=sid)
     except Exception as e:
         logger.error(f"Error starting interview: {e}")
         await sio.emit('error', {
             'message': f'Error starting interview: {str(e)}'
         }, room=sid)
+    finally:
+        db.close()
 
 
 async def send_question(sid, question: Question, question_index: int, total_questions: int):
