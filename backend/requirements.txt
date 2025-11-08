@@ -9,6 +9,7 @@ attrs==24.3.0
 auth==0.5.3
 backoff==2.2.1
 bcrypt==4.1.2
+beautifulsoup4==4.12.3
 bidict==0.23.1
 billiard==4.2.2
 blinker==1.8.2
