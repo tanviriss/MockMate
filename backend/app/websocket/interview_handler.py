@@ -15,8 +15,8 @@ from app.models.interview import Interview
 from app.models.question import Question
 from app.models.answer import Answer
 from app.models.resume import Resume
-from app.services.text_to_speech import text_to_speech_service, TTSError
-from app.services.speech_to_text import speech_to_text_service, STTError
+from app.services.text_to_speech import text_to_speech_service
+from app.services.speech_to_text import speech_to_text_service
 from app.services.storage_service import StorageService
 from app.services.evaluation_service import evaluate_answer, calculate_overall_score
 from app.services.followup_service import should_ask_followup
@@ -160,8 +160,9 @@ async def start_interview(sid, data):
 
 
 async def send_question(sid, question: Question, question_index: int, total_questions: int):
-    """Send question to client with audio"""
+    """Send question to client with audio (with TTS fallback)"""
     try:
+        # Always send the question text first
         await sio.emit('question', {
             'question_id': question.id,
             'question_text': question.question_text,
@@ -170,18 +171,25 @@ async def send_question(sid, question: Question, question_index: int, total_ques
             'context': question.question_context
         }, room=sid)
 
-        audio_bytes = await text_to_speech_service.generate_speech(
-            text=question.question_text,
-            voice="professional_female"
-        )
+        # Try to generate audio, but continue if it fails
+        try:
+            audio_bytes = await text_to_speech_service.generate_speech(
+                text=question.question_text,
+                voice="professional_female"
+            )
 
-        import base64
-        audio_b64 = base64.b64encode(audio_bytes).decode('utf-8')
+            audio_b64 = base64.b64encode(audio_bytes).decode('utf-8')
 
-        await sio.emit('question_audio', {
-            'audio_data': audio_b64,
-            'format': 'mp3'
-        }, room=sid)
+            await sio.emit('question_audio', {
+                'audio_data': audio_b64,
+                'format': 'mp3'
+            }, room=sid)
+        except Exception as tts_error:
+            # Log TTS error but don't fail the entire question delivery
+            logger.warning(f"TTS failed for question {question.id}, continuing with text only: {tts_error}")
+            await sio.emit('tts_unavailable', {
+                'message': 'Audio generation unavailable, please read the question'
+            }, room=sid)
 
     except Exception as e:
         logger.error(f"Error sending question: {e}")
@@ -213,7 +221,6 @@ async def submit_answer(sid, data):
             }, room=sid)
             return
 
-        import base64
         audio_bytes = base64.b64decode(audio_data_b64)
 
         if len(audio_bytes) < 100:
@@ -229,6 +236,19 @@ async def submit_answer(sid, data):
             }, room=sid)
             return
 
+        # Upload audio to Supabase immediately to avoid memory issues
+        audio_url = None
+        try:
+            storage_service = StorageService()
+            file_name = f"answers/{session.interview_id}/q{question_id}_{sid}.{audio_format}"
+            audio_url = await storage_service.upload_audio(
+                audio_bytes=audio_bytes,
+                file_name=file_name
+            )
+            logger.info(f"Uploaded audio to Supabase: {audio_url}")
+        except Exception as upload_error:
+            logger.warning(f"Failed to upload audio to Supabase: {upload_error}. Continuing without audio storage.")
+
         with tempfile.NamedTemporaryFile(
             delete=True,
             suffix=f'.{audio_format}'
@@ -240,12 +260,18 @@ async def submit_answer(sid, data):
                 'message': 'Transcribing your answer...'
             }, room=sid)
 
-            transcription_result = await speech_to_text_service.transcribe_audio(
-                audio_file_path=temp_file.name,
-                language="en"
-            )
-
-            transcript = transcription_result['text']
+            try:
+                transcription_result = await speech_to_text_service.transcribe_audio(
+                    audio_file_path=temp_file.name,
+                    language="en"
+                )
+                transcript = transcription_result['text']
+            except Exception as stt_error:
+                logger.error(f"STT error: {stt_error}")
+                await sio.emit('error', {
+                    'message': 'Failed to transcribe audio. Please try recording again.'
+                }, room=sid)
+                return
 
             await sio.emit('transcript_ready', {
                 'question_id': question_id,
@@ -253,12 +279,18 @@ async def submit_answer(sid, data):
                 'duration': transcription_result.get('duration')
             }, room=sid)
 
+            # Store only transcript and audio URL (not the base64 data)
             session_manager.add_answer(sid, question_id, {
                 'transcript': transcript,
-                'audio_bytes': audio_data_b64,
+                'audio_url': audio_url,
                 'format': audio_format
             })
 
+    except ValueError as ve:
+        logger.error(f"Invalid input for answer submission: {ve}")
+        await sio.emit('error', {
+            'message': 'Invalid audio data format'
+        }, room=sid)
     except Exception as e:
         logger.error(f"Error submitting answer: {e}")
         await sio.emit('error', {
@@ -277,6 +309,7 @@ async def confirm_answer(sid, data):
         "transcript": str (can be edited by user)
     }
     """
+    db: Session = next(get_db())
     try:
         question_id = data.get('question_id')
         transcript = data.get('transcript')
@@ -287,8 +320,6 @@ async def confirm_answer(sid, data):
                 'message': 'Session not found'
             }, room=sid)
             return
-
-        db: Session = next(get_db())
 
         answer_data = None
         for ans in session.answers:
@@ -301,10 +332,6 @@ async def confirm_answer(sid, data):
                 'message': 'Answer not found in session'
             }, room=sid)
             return
-
-        import base64
-        audio_bytes = base64.b64decode(answer_data['audio_bytes'])
-
 
         current_question = db.query(Question).filter(Question.id == question_id).first()
 
@@ -352,42 +379,52 @@ async def confirm_answer(sid, data):
             session.pending_followup = None
             session_manager.update_session(sid, session)
         else:
-            needs_followup, followup_data = await should_ask_followup(
-                question_text=current_question.question_text,
-                answer_transcript=transcript,
-                question_context=current_question.question_context or {}
-            )
+            # Check if we already asked a follow-up for this question (max 1 per question)
+            followup_count = session.pending_followup.get('count', 0) if session.pending_followup else 0
+            max_followups = 1  # Limit to 1 follow-up per question
 
-            if needs_followup and followup_data:
-                followup_text = followup_data.get('followup_question', '')
+            if followup_count >= max_followups:
+                logger.info(f"Max follow-ups reached for question {question_id}, moving on")
+            else:
+                needs_followup, followup_data = await should_ask_followup(
+                    question_text=current_question.question_text,
+                    answer_transcript=transcript,
+                    question_context=current_question.question_context or {}
+                )
 
-                if not followup_text:
-                    logger.warning("Follow-up generated but no question text found")
-                else:
-                    await sio.emit('followup_question', {
-                        'question_id': question_id,
-                        'followup_text': followup_text,
-                        'reason': followup_data.get('reason', ''),
-                        'is_followup': True
-                    }, room=sid)
+                if needs_followup and followup_data:
+                    followup_text = followup_data.get('followup_question', '')
 
-                    followup_audio_bytes = await text_to_speech_service.generate_speech(followup_text)
+                    if not followup_text:
+                        logger.warning("Follow-up generated but no question text found")
+                    else:
+                        await sio.emit('followup_question', {
+                            'question_id': question_id,
+                            'followup_text': followup_text,
+                            'reason': followup_data.get('reason', ''),
+                            'is_followup': True
+                        }, room=sid)
 
-                    import base64
-                    followup_audio_base64 = base64.b64encode(followup_audio_bytes).decode('utf-8')
+                        # Try to generate TTS, but don't fail if it doesn't work
+                        try:
+                            followup_audio_bytes = await text_to_speech_service.generate_speech(followup_text)
+                            followup_audio_base64 = base64.b64encode(followup_audio_bytes).decode('utf-8')
 
-                    await sio.emit('question_audio', {
-                        'question_id': question_id,
-                        'audio_data': followup_audio_base64,
-                        'is_followup': True
-                    }, room=sid)
+                            await sio.emit('question_audio', {
+                                'question_id': question_id,
+                                'audio_data': followup_audio_base64,
+                                'is_followup': True
+                            }, room=sid)
+                        except Exception as tts_error:
+                            logger.warning(f"TTS failed for follow-up question: {tts_error}")
 
-                    session.pending_followup = {
-                        'parent_question_id': question_id,
-                        'followup_data': followup_data
-                    }
-                    session_manager.update_session(sid, session)
-                    return
+                        session.pending_followup = {
+                            'parent_question_id': question_id,
+                            'followup_data': followup_data,
+                            'count': followup_count + 1
+                        }
+                        session_manager.update_session(sid, session)
+                        return
 
         session.current_question_index += 1
         session_manager.update_session(sid, session)
@@ -406,11 +443,19 @@ async def confirm_answer(sid, data):
         else:
             await complete_interview(sid, session, db)
 
+    except SQLAlchemyError as e:
+        logger.error(f"Database error confirming answer: {e}")
+        db.rollback()
+        await sio.emit('error', {
+            'message': 'Database error. Please try again.'
+        }, room=sid)
     except Exception as e:
         logger.error(f"Error confirming answer: {e}")
         await sio.emit('error', {
             'message': f'Error confirming answer: {str(e)}'
         }, room=sid)
+    finally:
+        db.close()
 
 
 async def evaluate_interview_async(interview_id: int, db: Session):
@@ -523,10 +568,15 @@ async def complete_interview(sid, session, db: Session):
 @sio.event
 async def end_interview(sid, data=None):
     """End interview early"""
+    db: Session = next(get_db())
     try:
         session = session_manager.get_session(sid)
         if session:
-            db: Session = next(get_db())
             await complete_interview(sid, session, db)
+    except SQLAlchemyError as e:
+        logger.error(f"Database error ending interview: {e}")
+        db.rollback()
     except Exception as e:
         logger.error(f"Error ending interview: {e}")
+    finally:
+        db.close()
