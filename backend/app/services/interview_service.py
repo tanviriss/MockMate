@@ -92,103 +92,41 @@ async def generate_interview_questions(resume_data: dict, jd_analysis: dict, num
         for proj in projects[:2]:  # Top 2 projects
             project_context += f"\n- {proj.get('name', '')}: {', '.join(proj.get('description', [])[:1])}"
 
-    prompt = f"""You are interviewing a candidate for this SPECIFIC role: {jd_analysis.get('job_title', 'Software Engineer')} at {jd_analysis.get('company', 'the company')}.
+    prompt = f"""You're interviewing a candidate for: {jd_analysis.get('job_title', 'Software Engineer')} at {jd_analysis.get('company', 'the company')}.
 
-CRITICAL REQUIREMENT: Generate EXACTLY {num_questions} questions. No more, no less.
+Generate {num_questions} interview questions.
 
-JOB REQUIREMENTS (THE MOST IMPORTANT - BASE QUESTIONS ON THIS):
-- Role: {jd_analysis.get('job_title', 'Software Engineer')}
-- Level: {jd_analysis.get('experience_level', 'mid')}
-- Required Skills: {', '.join(jd_analysis.get('required_skills', [])[:10])}
-- Key Responsibilities: {', '.join(jd_analysis.get('key_responsibilities', [])[:5])}
+Job Requirements:
+{', '.join(jd_analysis.get('required_skills', [])[:8])}
 
-CANDIDATE'S BACKGROUND (only reference if it overlaps with JD requirements):
-- Skills: {', '.join(all_skills[:15])}
-- Recent Experience:{experience_context}
-- Projects:{project_context}
+Candidate Background:
+{', '.join(all_skills[:10])}{experience_context[:200]}
 
-QUESTION STRATEGY:
-1. PRIMARY FOCUS (70%): Ask about the JOB REQUIREMENTS - the technologies, skills, and responsibilities mentioned in the job description
-2. SECONDARY FOCUS (30%): Connect candidate's background to job requirements ONLY if there's overlap
+Keep questions simple and conversational. Examples:
+- "Tell me about your experience with Python."
+- "Have you worked with REST APIs before?"
+- "Walk me through a project you're proud of."
+- "What challenges did you face in your last role?"
 
-Examples of GOOD questions for this role:
-- "Have you worked with {jd_analysis.get('required_skills', ['Python'])[0] if jd_analysis.get('required_skills') else 'the required technologies'}? Tell me about your experience."
-- "This role involves {jd_analysis.get('key_responsibilities', ['building software'])[0] if jd_analysis.get('key_responsibilities') else 'software development'}. Walk me through a similar project you've done."
-- "What's your experience with {jd_analysis.get('required_skills', ['cloud platforms'])[1] if len(jd_analysis.get('required_skills', [])) > 1 else 'the tech stack'}?"
+Mix question types:
+- 40% Technical (about skills they'll use)
+- 40% Behavioral (past experiences)
+- 20% Role-specific (why this job, their goals)
 
-CRITICAL RULES:
-- Questions MUST be SHORT (1-2 sentences max)
-- ONLY ask about technologies/skills mentioned in the JOB DESCRIPTION
-- DON'T ask about random technologies from their resume that aren't in the JD
-- Focus on what the COMPANY needs, not just what the candidate has done
-- DO NOT create long hypothetical scenarios
-
-✅ GOOD QUESTIONS for THIS specific job (keep them this simple):
-- "Have you used AWS before? Tell me about your experience." (if AWS is in JD)
-- "This role uses Python a lot. What Python projects have you built?"
-- "Tell me about your experience with REST APIs."
-- "Have you worked in an Agile environment? What was that like?"
-- "What do you know about Delta's technology challenges?" (company-specific)
-- "Walk me through a time you debugged a production issue."
-- "This internship involves Java development. What's your Java experience?"
-
-❌ BAD QUESTIONS (asking about irrelevant tech NOT in the JD):
-- "I see you used Redis in MockMate. How did you use it?" (if Redis is NOT mentioned in JD)
-- "Tell me about your MongoDB experience." (if JD only mentions Oracle/SQL)
-- Asking about ANY technology that's NOT in the job description
-- Long hypothetical scenarios: "Let's say you're building a feature that..."
-
-QUESTION TYPES ({num_questions} total) - MIX THEM THROUGHOUT, DON'T GROUP BY TYPE:
-1. JD-FOCUSED TECHNICAL (35%) - Ask about technologies/skills IN THE JOB DESCRIPTION
-   - "Have you worked with [JD technology]? Tell me about it."
-   - "This role uses [JD technology]. What's your experience with it?"
-   - "Walk me through how you'd approach [JD responsibility]."
-
-2. BEHAVIORAL (40%) - Past experience questions relevant to the role
-   - "Tell me about a time you [did something from JD responsibilities]."
-   - "Describe a project where you used [JD technology]."
-   - "Have you worked in [JD environment like Agile]? What was that like?"
-   - "Tell me about a technical challenge you overcame."
-   - "Describe a time you had to learn something quickly."
-
-3. PROJECT DEEP-DIVE (15%) - ONLY if project uses technologies from JD
-   - "I saw you used [JD tech] in your [project]. Tell me about that."
-   - "How would you apply your [project] experience to this role?"
-
-4. ROLE-SPECIFIC (10%) - Questions about the actual job
-   - "Why do you want to work at [company]?"
-   - "What interests you about this role?"
-   - "How would you handle [common scenario from JD]?"
-
-DIFFICULTY MIX:
-- First 3 questions: Easy-Medium (warm up)
-- Middle questions: Medium-Hard (core skills)
-- Last 2-3 questions: Hard (stretch)
-
-RULES:
-- Each question should be 1-2 sentences MAX
-- Reference their actual resume/projects when possible
-- Sound conversational, not robotic
-- NO long hypothetical scenarios
-- NO compound questions (asking 3 things in one question)
-- Focus on ONE thing per question
-
-Return a JSON array with EXACTLY {num_questions} questions:
+Return JSON array with {num_questions} questions:
 [
     {{
         "question_number": 1,
-        "question_text": "Short, natural question here",
-        "question_type": "technical|behavioral|project_deepdive|system_design",
+        "question_text": "simple question here",
+        "question_type": "technical|behavioral|project_deepdive",
         "difficulty": "easy|medium|hard",
-        "category": "Specific skill (e.g., 'FastAPI', 'Team Collaboration', 'React')",
-        "expected_topics": ["topic1", "topic2", "topic3"],
-        "skill_tags": ["skill1", "skill2"]
-    }},
-    ... (continue until you have EXACTLY {num_questions} questions)
+        "category": "skill name",
+        "expected_topics": ["topic1", "topic2"],
+        "skill_tags": ["skill1"]
+    }}
 ]
 
-REMINDER: Return EXACTLY {num_questions} questions in the array.
-Return ONLY valid JSON, no markdown, no explanations."""
+Return ONLY valid JSON."""
 
     response = model.generate_content(prompt)
 
