@@ -10,10 +10,10 @@ class TextToSpeechService:
     """Service for generating speech from text using ElevenLabs"""
 
     VOICES = {
-        "professional_female": "EXAVITQu4vr4xnSDxMaL",  # Sarah - Professional
-        "professional_male": "VR6AewLTigWG4xSOukaG",    # Arnold - Professional
+        "professional_female": "21m00Tcm4TlvDq8ikWAM",  # Rachel - Natural & Conversational
+        "professional_male": "pNInz6obpgDQGcFmaJgB",    # Adam - Natural Male
         "friendly": "21m00Tcm4TlvDq8ikWAM",              # Rachel - Friendly
-        "default": "EXAVITQu4vr4xnSDxMaL"                # Default to Sarah
+        "default": "21m00Tcm4TlvDq8ikWAM"                # Default to Rachel (most natural)
     }
 
     def __init__(self):
@@ -24,7 +24,7 @@ class TextToSpeechService:
         self,
         text: str,
         voice: str = "default",
-        model: str = "eleven_turbo_v2"
+        model: str = "eleven_multilingual_v2"
     ) -> bytes:
         """
         Generate speech from text using ElevenLabs
@@ -32,7 +32,7 @@ class TextToSpeechService:
         Args:
             text: Text to convert to speech
             voice: Voice persona to use (key from VOICES dict or voice_id)
-            model: ElevenLabs model to use (eleven_turbo_v2 for speed)
+            model: ElevenLabs model to use (eleven_multilingual_v2 for quality)
 
         Returns:
             Audio data as bytes (MP3 format)
@@ -40,12 +40,18 @@ class TextToSpeechService:
         try:
             voice_id = self.VOICES.get(voice, voice)
 
-            # Generate audio using ElevenLabs
+            # Generate audio using ElevenLabs with voice settings for natural sound
             audio_generator = self.client.text_to_speech.convert(
                 voice_id=voice_id,
                 text=text,
                 model_id=model,
-                output_format="mp3_44100_128"
+                output_format="mp3_44100_128",
+                voice_settings={
+                    "stability": 0.5,
+                    "similarity_boost": 0.75,
+                    "style": 0.0,
+                    "use_speaker_boost": True
+                }
             )
 
             audio_bytes = b""
@@ -62,7 +68,7 @@ class TextToSpeechService:
         self,
         text: str,
         voice: str = "default",
-        model: str = "eleven_turbo_v2"
+        model: str = "eleven_multilingual_v2"
     ):
         """
         Generate speech from text with streaming (for real-time playback)
@@ -78,12 +84,18 @@ class TextToSpeechService:
         try:
             voice_id = self.VOICES.get(voice, voice)
 
-            # Generate audio stream
+            # Generate audio stream with voice settings
             audio_generator = self.client.text_to_speech.convert(
                 voice_id=voice_id,
                 text=text,
                 model_id=model,
-                output_format="mp3_44100_128"
+                output_format="mp3_44100_128",
+                voice_settings={
+                    "stability": 0.5,
+                    "similarity_boost": 0.75,
+                    "style": 0.0,
+                    "use_speaker_boost": True
+                }
             )
 
             for chunk in audio_generator:
@@ -102,23 +114,23 @@ class TextToSpeechService:
         """
         return {
             "professional_female": {
-                "name": "Sarah",
-                "description": "Professional female voice, clear and articulate",
+                "name": "Rachel",
+                "description": "Natural, conversational female voice - sounds human",
                 "voice_id": self.VOICES["professional_female"]
             },
             "professional_male": {
-                "name": "Arnold",
-                "description": "Professional male voice, authoritative and clear",
+                "name": "Adam",
+                "description": "Natural, warm male voice - sounds human",
                 "voice_id": self.VOICES["professional_male"]
             },
             "friendly": {
                 "name": "Rachel",
-                "description": "Friendly and warm voice",
+                "description": "Friendly and natural voice",
                 "voice_id": self.VOICES["friendly"]
             },
             "default": {
-                "name": "Sarah (Default)",
-                "description": "Default professional female voice",
+                "name": "Rachel (Default)",
+                "description": "Default natural voice - most human-sounding",
                 "voice_id": self.VOICES["default"]
             }
         }
