@@ -147,9 +147,19 @@ export default function InterviewDetailsPage() {
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Interview Questions
-            </h1>
+            <div className="flex items-center gap-3 mb-4">
+              <h1 className="text-4xl md:text-5xl font-bold text-white">
+                Interview Questions
+              </h1>
+              <span className={`px-4 py-2 text-sm font-semibold rounded-full ${
+                interview.status === 'pending' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
+                interview.status === 'in_progress' ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30' :
+                interview.status === 'completed' ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
+                'bg-gray-500/20 text-gray-300 border border-gray-500/30'
+              }`}>
+                {interview.status === 'in_progress' ? 'In Progress' : interview.status.charAt(0).toUpperCase() + interview.status.slice(1)}
+              </span>
+            </div>
             <p className="text-xl text-gray-300">
               {interview.jd_analysis?.job_title || 'Interview'} - {questions.length} Questions
             </p>
@@ -165,6 +175,31 @@ export default function InterviewDetailsPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Start Interview
+            </button>
+          )}
+
+          {interview.status === 'in_progress' && (
+            <button
+              onClick={() => router.push(`/interviews/${params.id}/live`)}
+              className="px-8 py-4 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all flex items-center gap-3"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Continue Interview
+            </button>
+          )}
+
+          {interview.status === 'completed' && (
+            <button
+              onClick={() => router.push(`/interviews/${params.id}/results`)}
+              className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all flex items-center gap-3"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              View Results
             </button>
           )}
         </div>
