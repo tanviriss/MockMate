@@ -26,37 +26,56 @@ async def analyze_answer_quality(
     # Quick checks first
     word_count = len(answer_transcript.split())
 
-    # If answer is very short, definitely needs follow-up
-    if word_count < 20:
+    # If answer is very short (< 15 words), likely incomplete
+    if word_count < 15:
         return {
             "needs_followup": True,
             "reason": "answer_too_short",
             "word_count": word_count
         }
 
-    # Use AI for deeper analysis
-    prompt = f"""Analyze this interview answer QUICKLY and determine if it needs a follow-up question.
+    # If answer is decent length (50+ words), probably good enough
+    if word_count >= 50:
+        return {
+            "needs_followup": False,
+            "reason": "answer_adequate_length",
+            "word_count": word_count
+        }
+
+    # Use AI for borderline cases (15-50 words)
+    prompt = f"""You're interviewing a candidate. Determine if their answer is GOOD ENOUGH to move on, or if you need a follow-up.
 
 Question: {question_text}
-Question Type: {question_context.get('question_type', 'general')}
+Their Answer: {answer_transcript}
 
-Answer: {answer_transcript}
+Ask yourself:
+1. Did they genuinely TRY to answer the question? (even if not perfect)
+2. Did they provide ANY specific detail, example, or concrete information?
+3. Does the answer show they understand what was asked?
+4. Did they address the core of the question, even briefly?
 
-Does this answer need a follow-up question? Consider:
-1. Is it too vague or generic?
-2. Missing specific examples or details?
-3. Didn't use STAR method (for behavioral)?
-4. Avoided the actual question?
-5. Too short (< 50 words)?
+ONLY ask follow-up if:
+- They completely dodged/avoided the question
+- Answer is just generic fluff with ZERO specifics (e.g., "I'm good at that" with no explanation)
+- They only answered a tiny part of the question and ignored the rest
+- For behavioral: They gave zero example/situation at all
+
+DON'T ask follow-up if:
+- They made a genuine attempt to answer with some detail
+- They provided at least one specific example or fact
+- Answer shows effort and understanding (even if could be better)
+- They addressed most/all parts of the question
+- It sounds like they tried but just gave a shorter answer
+
+Think: "Is this answer good enough for an interview, or does it need clarification?"
 
 Return JSON:
 {{
     "needs_followup": true/false,
-    "reason": "brief explanation why",
-    "missing_elements": ["what's missing from the answer"]
+    "reason": "1-2 sentence explanation"
 }}
 
-Return ONLY JSON, no markdown."""
+Return ONLY JSON."""
 
     try:
         response = model.generate_content(prompt)
@@ -97,38 +116,27 @@ async def generate_followup_question(
         Dict with followup_question (str) and focus (str)
     """
 
-    question_type = question_context.get('question_type', 'general')
-    missing = ', '.join(missing_elements) if missing_elements else 'specifics and details'
+    prompt = f"""Generate a brief follow-up question. The candidate's answer was incomplete.
 
-    prompt = f"""You are conducting a live interview. The candidate just gave an incomplete answer. Generate a natural, conversational follow-up question.
-
-Original Question: {original_question}
-Type: {question_type}
-
+Question: {original_question}
 Their Answer: {answer_transcript}
 
-Missing: {missing}
+Generate a SHORT (1 sentence), natural follow-up that asks for what's MISSING without repeating what they already said.
 
-Generate ONE follow-up question that:
-1. Sounds natural and conversational (like a real interviewer)
-2. Encourages them to add more detail
-3. Is specific about what you want to hear
-4. For behavioral: Probe for STAR elements they missed
-5. For technical: Ask for examples or deeper explanation
+Good examples:
+- "Can you give me a specific example of when you did that?"
+- "What was the outcome or result?"
+- "Walk me through your approach to that."
+- "Tell me more about the technical challenges you faced."
 
-Examples of GOOD follow-ups:
-- "Can you walk me through the specific steps you took to solve that problem?"
-- "What metrics did you use to measure the success of that project?"
-- "Tell me more about how you handled the technical challenges you mentioned."
-- "What was the actual outcome or result of that situation?"
+Keep it conversational and focus on the gap in their answer.
 
 Return JSON:
 {{
-    "followup_question": "The natural follow-up question",
-    "focus": "brief note on what we're probing for"
+    "followup_question": "short, natural follow-up question"
 }}
 
-Return ONLY JSON, no markdown."""
+Return ONLY JSON."""
 
     try:
         response = model.generate_content(prompt)
