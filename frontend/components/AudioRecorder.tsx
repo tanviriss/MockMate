@@ -4,12 +4,14 @@ import React, { useState, useRef, useEffect } from "react";
 
 interface AudioRecorderProps {
   onRecordingComplete: (audioBlob: Blob) => void;
-  maxDuration?: number; // in seconds
+  maxDuration?: number;
+  onRecordingStateChange?: (isRecording: boolean) => void;
 }
 
 export default function AudioRecorder({
   onRecordingComplete,
-  maxDuration = 300, // 5 minutes default
+  maxDuration = 300,
+  onRecordingStateChange,
 }: AudioRecorderProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -159,7 +161,10 @@ export default function AudioRecorder({
     }
   };
 
-  // Cleanup on unmount
+  useEffect(() => {
+    onRecordingStateChange?.(isRecording && !isPaused);
+  }, [isRecording, isPaused, onRecordingStateChange]);
+
   useEffect(() => {
     return () => {
       if (timerRef.current) {

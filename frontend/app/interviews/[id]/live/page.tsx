@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/store";
 import AudioRecorder from "@/components/AudioRecorder";
 import AudioPlayer from "@/components/AudioPlayer";
+import VideoFeed from "@/components/VideoFeed";
+import InterviewerAvatar from "@/components/InterviewerAvatar";
 import { useInterview } from "@/lib/useInterview";
 
 export default function LiveInterviewPage({
@@ -18,6 +20,8 @@ export default function LiveInterviewPage({
   const { user, token } = useAuthStore();
   const [hasStarted, setHasStarted] = useState(false);
   const [editedTranscript, setEditedTranscript] = useState("");
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
 
   const {
     isConnected,
@@ -75,6 +79,13 @@ export default function LiveInterviewPage({
     if (confirm("Are you sure you want to end the interview early?")) {
       endInterview();
     }
+  };
+
+  // Determine interviewer avatar state
+  const getAvatarState = (): 'idle' | 'talking' | 'listening' => {
+    if (isAudioPlaying) return 'talking';
+    if (isRecording) return 'listening';
+    return 'idle';
   };
 
   if (!user) {
@@ -165,6 +176,14 @@ export default function LiveInterviewPage({
         {/* Interview In Progress */}
         {isStarted && currentQuestion && !isCompleted && (
           <div className="space-y-8">
+            {/* Interviewer Avatar */}
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8">
+              <InterviewerAvatar
+                state={getAvatarState()}
+                audioPlaying={isAudioPlaying}
+              />
+            </div>
+
             {/* Question Display */}
             <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8">
               <div className="flex items-start gap-4 mb-6">
@@ -178,10 +197,13 @@ export default function LiveInterviewPage({
                     {currentQuestion.question_text}
                   </h2>
 
-                  {/* Question Audio Player */}
                   {questionAudio && (
                     <div className="mt-4">
-                      <AudioPlayer audioData={questionAudio} autoPlay={true} />
+                      <AudioPlayer
+                        audioData={questionAudio}
+                        autoPlay={true}
+                        onPlayStateChange={setIsAudioPlaying}
+                      />
                     </div>
                   )}
                 </div>
@@ -197,6 +219,7 @@ export default function LiveInterviewPage({
                 <AudioRecorder
                   onRecordingComplete={handleRecordingComplete}
                   maxDuration={300}
+                  onRecordingStateChange={setIsRecording}
                 />
               </div>
             )}
@@ -287,6 +310,9 @@ export default function LiveInterviewPage({
           </div>
         )}
       </div>
+
+      {/* User Video Feed */}
+      {isStarted && !isCompleted && <VideoFeed isVisible={true} />}
     </div>
   );
 }

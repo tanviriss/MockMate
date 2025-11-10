@@ -3,15 +3,17 @@
 import React, { useState, useRef, useEffect } from "react";
 
 interface AudioPlayerProps {
-  audioData: string; // base64 encoded audio
+  audioData: string;
   format?: string;
   autoPlay?: boolean;
+  onPlayStateChange?: (isPlaying: boolean) => void;
 }
 
 export default function AudioPlayer({
   audioData,
   format = "mp3",
   autoPlay = false,
+  onPlayStateChange,
 }: AudioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -40,13 +42,16 @@ export default function AudioPlayer({
     }
   }, [audioData, format]);
 
-  // Auto play
   useEffect(() => {
     if (autoPlay && audioRef.current && audioURL) {
       audioRef.current.play();
       setIsPlaying(true);
     }
   }, [audioURL, autoPlay]);
+
+  useEffect(() => {
+    onPlayStateChange?.(isPlaying);
+  }, [isPlaying, onPlayStateChange]);
 
   // Update time
   useEffect(() => {
