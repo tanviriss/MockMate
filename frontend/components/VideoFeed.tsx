@@ -11,43 +11,85 @@ export default function VideoFeed({ isVisible = true }: VideoFeedProps) {
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [error, setError] = useState<string>('');
   const [isHidden, setIsHidden] = useState(false);
+  const [hasPermission, setHasPermission] = useState(false);
+  const [isRequesting, setIsRequesting] = useState(false);
+
+  const startCamera = async () => {
+    try {
+      setIsRequesting(true);
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          width: { ideal: 640 },
+          height: { ideal: 480 },
+          facingMode: 'user',
+        },
+        audio: false,
+      });
+
+      setStream(mediaStream);
+      setHasPermission(true);
+      setIsRequesting(false);
+      setError('');
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+      }
+    } catch (err) {
+      console.error('Error accessing camera:', err);
+      setError('Camera access denied');
+      setIsRequesting(false);
+      setHasPermission(false);
+    }
+  };
+
+  const stopCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+      setStream(null);
+    }
+  };
+
+  const handleShowCamera = async () => {
+    setIsHidden(false);
+    if (!stream) {
+      await startCamera();
+    }
+  };
 
   useEffect(() => {
-    let currentStream: MediaStream | null = null;
-
-    const startCamera = async () => {
-      try {
-        const mediaStream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            width: { ideal: 640 },
-            height: { ideal: 480 },
-            facingMode: 'user',
-          },
-          audio: false,
-        });
-
-        currentStream = mediaStream;
-        setStream(mediaStream);
-
-        if (videoRef.current) {
-          videoRef.current.srcObject = mediaStream;
-        }
-      } catch (err) {
-        console.error('Error accessing camera:', err);
-        setError('Camera access denied');
-      }
-    };
-
-    if (isVisible) {
-      startCamera();
-    }
-
     return () => {
-      if (currentStream) {
-        currentStream.getTracks().forEach((track) => track.stop());
-      }
+      stopCamera();
     };
+  }, []);
+
+  // Stop camera when component becomes invisible
+  useEffect(() => {
+    if (!isVisible && stream) {
+      stopCamera();
+    }
   }, [isVisible]);
+
+  if (!isVisible) {
+    return null;
+  }
+
+  // Show permission request button
+  if (!hasPermission && !error) {
+    return (
+      <div className="fixed bottom-6 right-6 z-50">
+        <button
+          onClick={startCamera}
+          disabled={isRequesting}
+          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white rounded-full font-semibold flex items-center gap-2 shadow-lg transition-all transform hover:scale-105 disabled:scale-100"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+          {isRequesting ? 'Requesting...' : 'Enable Camera'}
+        </button>
+      </div>
+    );
+  }
 
   if (error) {
     return (
@@ -63,10 +105,10 @@ export default function VideoFeed({ isVisible = true }: VideoFeedProps) {
     );
   }
 
-  if (!isVisible || isHidden) {
+  if (isHidden) {
     return (
       <button
-        onClick={() => setIsHidden(false)}
+        onClick={handleShowCamera}
         className="fixed bottom-6 right-6 p-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-full hover:bg-white/20 transition z-50"
         title="Show camera"
       >
@@ -90,7 +132,9 @@ export default function VideoFeed({ isVisible = true }: VideoFeedProps) {
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
         <div className="absolute bottom-2 right-2 flex gap-2">
           <button
-            onClick={() => setIsHidden(true)}
+            onClick={() => {
+              setIsHidden(true);
+            }}
             className="p-2 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition"
             title="Hide camera"
           >
