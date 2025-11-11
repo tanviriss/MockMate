@@ -34,11 +34,19 @@ export default function InterviewerAvatar({ state, audioPlaying = false }: Inter
         }
 
         const response = await fetch(url);
+
+        // Check if response is OK and content-type is JSON
+        if (!response.ok || !response.headers.get('content-type')?.includes('application/json')) {
+          // Silently fail and use fallback
+          setLoading(false);
+          return;
+        }
+
         const data = await response.json();
         setAnimationData(data);
         setLoading(false);
       } catch (error) {
-        console.error('Error loading animation:', error);
+        // Silently fail and use fallback avatar
         setLoading(false);
       }
     };
