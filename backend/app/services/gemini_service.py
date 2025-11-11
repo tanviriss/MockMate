@@ -7,7 +7,7 @@ from app.logging_config import logger
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
 
-model = genai.GenerativeModel('gemini-2.0-flash-exp')
+model = genai.GenerativeModel('gemini-2.0-flash')
 
 
 # Retry decorator for AI service calls
