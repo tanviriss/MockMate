@@ -133,6 +133,7 @@ export default function VideoFeed({ isVisible = true }: VideoFeedProps) {
         <div className="absolute bottom-2 right-2 flex gap-2">
           <button
             onClick={() => {
+              stopCamera();
               setIsHidden(true);
             }}
             className="p-2 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition"
