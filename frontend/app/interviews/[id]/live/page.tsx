@@ -4,7 +4,6 @@ import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/store";
 import AudioRecorder from "@/components/AudioRecorder";
-import AudioPlayer from "@/components/AudioPlayer";
 import VideoFeed from "@/components/VideoFeed";
 import InterviewerAvatar from "@/components/InterviewerAvatar";
 import { useInterview } from "@/lib/useInterview";
@@ -20,7 +19,6 @@ export default function LiveInterviewPage({
   const { user, token } = useAuthStore();
   const [hasStarted, setHasStarted] = useState(false);
   const [editedTranscript, setEditedTranscript] = useState("");
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
 
   const {
@@ -83,7 +81,6 @@ export default function LiveInterviewPage({
 
   // Determine interviewer avatar state
   const getAvatarState = (): 'idle' | 'talking' | 'listening' => {
-    if (isAudioPlaying) return 'talking';
     if (isRecording) return 'listening';
     return 'idle';
   };
@@ -180,7 +177,7 @@ export default function LiveInterviewPage({
             <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8">
               <InterviewerAvatar
                 state={getAvatarState()}
-                audioPlaying={isAudioPlaying}
+                audioPlaying={false}
               />
             </div>
 
@@ -196,16 +193,6 @@ export default function LiveInterviewPage({
                   <h2 className="text-2xl font-bold text-white mb-4">
                     {currentQuestion.question_text}
                   </h2>
-
-                  {questionAudio && (
-                    <div className="mt-4">
-                      <AudioPlayer
-                        audioData={questionAudio}
-                        autoPlay={true}
-                        onPlayStateChange={setIsAudioPlaying}
-                      />
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
