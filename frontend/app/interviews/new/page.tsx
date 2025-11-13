@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/lib/store';
+import { useClerkAuth } from '@/hooks/useClerkAuth';
 import { api } from '@/lib/api';
 import Logo from '@/components/Logo';
 
@@ -14,7 +14,7 @@ interface Resume {
 
 export default function NewInterviewPage() {
   const router = useRouter();
-  const { token } = useAuthStore();
+  const { isReady, getToken } = useClerkAuth();
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -27,17 +27,17 @@ export default function NewInterviewPage() {
   });
 
   useEffect(() => {
-    if (!token) {
-      router.push('/sign-in');
-      return;
+    if (isReady) {
+      fetchResumes();
     }
-    fetchResumes();
-  }, [token, router]);
+  }, [isReady]);
 
   const fetchResumes = async () => {
     try {
-      setLoading(false);
-      const data = await api.getResumes(token!);
+      setLoading(true);
+      const token = await getToken();
+      if (!token) return;
+      const data = await api.getResumes(token);
       setResumes(data.resumes || []);
 
       // Auto-select first resume if available
@@ -68,13 +68,16 @@ export default function NewInterviewPage() {
       setCreating(true);
       setError('');
 
+      const token = await getToken();
+      if (!token) return;
+
       const response = await api.createInterview(
         {
           resume_id: parseInt(formData.resume_id),
           job_description: formData.job_description,
           num_questions: formData.num_questions
         },
-        token!
+        token
       );
 
       // Store interview data in session storage for details page
