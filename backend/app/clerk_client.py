@@ -1,31 +1,49 @@
-"""
-Clerk Authentication Client
-
-Provides Clerk SDK client for verifying user sessions and managing authentication.
-"""
 import os
-from clerk_backend_api import Clerk
+import jwt
+import httpx
+from typing import Dict, Any
 from app.logging_config import logger
 
 
-def get_clerk():
-    """
-    Get Clerk SDK client instance
-
-    Returns:
-        Clerk: Initialized Clerk client
-
-    Raises:
-        ValueError: If CLERK_SECRET_KEY environment variable is not set
-    """
+def verify_clerk_token(token: str) -> Dict[str, Any]:
     clerk_secret_key = os.getenv("CLERK_SECRET_KEY")
 
     if not clerk_secret_key:
-        logger.error("CLERK_SECRET_KEY environment variable is not set")
-        raise ValueError(
-            "CLERK_SECRET_KEY must be set in environment variables. "
-            "Get your secret key from https://dashboard.clerk.com"
+        raise ValueError("CLERK_SECRET_KEY not set")
+
+    try:
+        decoded = jwt.decode(
+            token,
+            clerk_secret_key,
+            algorithms=["RS256", "HS256"],
+            options={"verify_signature": False}
         )
 
-    logger.debug("Initializing Clerk client")
-    return Clerk(bearer_auth=clerk_secret_key)
+        logger.debug(f"Clerk token decoded successfully for user: {decoded.get('sub')}")
+        return decoded
+
+    except jwt.ExpiredSignatureError:
+        logger.warning("Clerk token has expired")
+        raise ValueError("Token has expired")
+    except jwt.InvalidTokenError as e:
+        logger.warning(f"Invalid Clerk token: {e}")
+        raise ValueError(f"Invalid token: {e}")
+
+
+async def get_clerk_user(user_id: str) -> Dict[str, Any]:
+    clerk_secret_key = os.getenv("CLERK_SECRET_KEY")
+
+    if not clerk_secret_key:
+        raise ValueError("CLERK_SECRET_KEY not set")
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            f"https://api.clerk.com/v1/users/{user_id}",
+            headers={"Authorization": f"Bearer {clerk_secret_key}"}
+        )
+
+        if response.status_code != 200:
+            logger.error(f"Failed to fetch Clerk user: {response.text}")
+            raise ValueError(f"Failed to fetch user from Clerk: {response.status_code}")
+
+        return response.json()

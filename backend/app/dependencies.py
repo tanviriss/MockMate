@@ -3,7 +3,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import OperationalError, TimeoutError as SQLTimeoutError
 from app.supabase_client import get_supabase
-from app.clerk_client import get_clerk
+from app.clerk_client import verify_clerk_token, get_clerk_user
 from app.database import get_db
 from app.models.user import User
 from app.logging_config import logger
@@ -44,62 +44,69 @@ async def get_current_user(
     if os.getenv("CLERK_SECRET_KEY"):
         try:
             logger.debug("Attempting Clerk authentication")
-            clerk = get_clerk()
 
-            # Verify the session token with Clerk
-            jwt_verification = clerk.verifyToken(token)
+            # Verify the JWT token
+            jwt_payload = verify_clerk_token(token)
+            clerk_user_id = jwt_payload.get("sub")
 
-            if jwt_verification and jwt_verification.get("sub"):
-                clerk_user_id = jwt_verification["sub"]
-                logger.debug(f"Clerk token verified for user: {clerk_user_id}")
+            if not clerk_user_id:
+                raise ValueError("No user ID in token")
 
-                # Get full user details from Clerk
-                clerk_user = clerk.users.get(user_id=clerk_user_id)
+            logger.debug(f"Clerk token verified for user: {clerk_user_id}")
 
-                if not clerk_user:
-                    raise HTTPException(
-                        status_code=status.HTTP_401_UNAUTHORIZED,
-                        detail="User not found in Clerk",
+            # Get full user details from Clerk API
+            clerk_user_data = await get_clerk_user(clerk_user_id)
+
+            if not clerk_user_data:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="User not found in Clerk",
+                )
+
+            # Extract email
+            email_addresses = clerk_user_data.get("email_addresses", [])
+            primary_email = next(
+                (e["email_address"] for e in email_addresses if e.get("id") == clerk_user_data.get("primary_email_address_id")),
+                email_addresses[0]["email_address"] if email_addresses else None
+            )
+
+            logger.info(f"User authenticated via Clerk: {primary_email}")
+
+            # Create a simplified user object for compatibility
+            class ClerkUserAdapter:
+                def __init__(self, user_data):
+                    self.id = user_data.get("id")
+                    self.email = primary_email
+                    self.user_metadata = {
+                        "full_name": f"{user_data.get('first_name', '')} {user_data.get('last_name', '')}".strip()
+                    }
+                    self.created_at = user_data.get("created_at")
+
+            clerk_user_adapted = ClerkUserAdapter(clerk_user_data)
+
+            # Try to sync user to local database
+            try:
+                local_user = db.query(User).filter(User.id == clerk_user_adapted.id).first()
+
+                if not local_user:
+                    logger.info(f"Creating new local user from Clerk: {clerk_user_adapted.email}")
+                    local_user = User(
+                        id=clerk_user_adapted.id,
+                        email=clerk_user_adapted.email,
+                        full_name=clerk_user_adapted.user_metadata.get("full_name")
                     )
+                    db.add(local_user)
+                    db.commit()
+                    db.refresh(local_user)
+                    logger.info("Local user created successfully")
+                else:
+                    logger.debug(f"Local user found: {local_user.email}")
+            except (OperationalError, SQLTimeoutError) as db_error:
+                logger.warning(f"Database unavailable during auth (user will be authenticated without local sync): {db_error}")
+            except Exception as db_error:
+                logger.error(f"Unexpected database error during auth: {db_error}")
 
-                logger.info(f"User authenticated via Clerk: {clerk_user.email_addresses[0].email_address if clerk_user.email_addresses else 'No email'}")
-
-                # Create a simplified user object for compatibility
-                class ClerkUserAdapter:
-                    def __init__(self, clerk_user_data):
-                        self.id = clerk_user_data.id
-                        email_obj = clerk_user_data.email_addresses[0] if clerk_user_data.email_addresses else None
-                        self.email = email_obj.email_address if email_obj else None
-                        self.user_metadata = {
-                            "full_name": f"{clerk_user_data.first_name or ''} {clerk_user_data.last_name or ''}".strip()
-                        }
-                        self.created_at = clerk_user_data.created_at
-
-                clerk_user_adapted = ClerkUserAdapter(clerk_user)
-
-                # Try to sync user to local database
-                try:
-                    local_user = db.query(User).filter(User.id == clerk_user_adapted.id).first()
-
-                    if not local_user:
-                        logger.info(f"Creating new local user from Clerk: {clerk_user_adapted.email}")
-                        local_user = User(
-                            id=clerk_user_adapted.id,
-                            email=clerk_user_adapted.email,
-                            full_name=clerk_user_adapted.user_metadata.get("full_name")
-                        )
-                        db.add(local_user)
-                        db.commit()
-                        db.refresh(local_user)
-                        logger.info("Local user created successfully")
-                    else:
-                        logger.debug(f"Local user found: {local_user.email}")
-                except (OperationalError, SQLTimeoutError) as db_error:
-                    logger.warning(f"Database unavailable during auth (user will be authenticated without local sync): {db_error}")
-                except Exception as db_error:
-                    logger.error(f"Unexpected database error during auth: {db_error}")
-
-                return AuthenticatedUser(clerk_user_adapted, token)
+            return AuthenticatedUser(clerk_user_adapted, token)
 
         except HTTPException:
             raise
