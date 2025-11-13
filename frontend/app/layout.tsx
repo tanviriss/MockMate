@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ClerkProvider } from '@clerk/nextjs';
-import { dark } from '@clerk/themes';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,7 +27,6 @@ export default function RootLayout({
   return (
     <ClerkProvider
       appearance={{
-        baseTheme: dark,
         variables: {
           colorPrimary: '#8b5cf6',
           colorBackground: '#0f172a',
@@ -36,6 +34,7 @@ export default function RootLayout({
           colorInputText: '#ffffff',
           colorText: '#ffffff',
           colorTextSecondary: '#d1d5db',
+          colorNeutral: '#ffffff',
           borderRadius: '0.75rem',
           fontFamily: `${geistSans.variable}, system-ui, sans-serif`,
         },
@@ -47,11 +46,16 @@ export default function RootLayout({
           headerSubtitle: 'text-gray-300',
           socialButtonsBlockButton:
             'bg-white/5 border border-white/10 text-white hover:bg-white/10 transition',
+          socialButtonsBlockButtonText: 'text-white',
           formFieldInput:
             'bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-blue-500',
+          formFieldLabel: 'text-gray-200',
           footerActionLink: 'text-blue-400 hover:text-blue-300',
           identityPreviewText: 'text-white',
           identityPreviewEditButton: 'text-blue-400 hover:text-blue-300',
+          formFieldInputShowPasswordButton: 'text-gray-300 hover:text-white',
+          dividerLine: 'bg-white/20',
+          dividerText: 'text-gray-300',
         },
       }}
     >
