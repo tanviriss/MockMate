@@ -25,6 +25,11 @@ export default function InterviewsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Search and filter states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<string>('recent');
+
   useEffect(() => {
     if (isReady) {
       fetchInterviews();
@@ -70,6 +75,43 @@ export default function InterviewsPage() {
         return 'bg-gray-500/20 border-gray-500/30 text-gray-300';
     }
   };
+
+  // Filter and sort interviews
+  const filteredAndSortedInterviews = interviews
+    .filter(interview => {
+      // Status filter
+      if (statusFilter !== 'all' && interview.status.toLowerCase() !== statusFilter) {
+        return false;
+      }
+
+      // Search filter
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        const jobTitle = interview.jd_analysis?.job_title?.toLowerCase() || '';
+        const company = interview.jd_analysis?.company?.toLowerCase() || '';
+        const description = interview.job_description.toLowerCase();
+
+        return jobTitle.includes(query) ||
+               company.includes(query) ||
+               description.includes(query);
+      }
+
+      return true;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'recent':
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        case 'oldest':
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        case 'score-high':
+          return (b.overall_score || 0) - (a.overall_score || 0);
+        case 'score-low':
+          return (a.overall_score || 0) - (b.overall_score || 0);
+        default:
+          return 0;
+      }
+    });
 
   if (loading) {
     return (
@@ -163,11 +205,113 @@ export default function InterviewsPage() {
           </div>
         )}
 
+        {/* Search and Filters */}
+        {interviews.length > 0 && (
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 mb-6">
+            {/* Search Bar */}
+            <div className="relative mb-4">
+              <svg
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Search by job title, company, or description..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+
+            {/* Status Filters and Sort */}
+            <div className="flex flex-wrap items-center gap-4">
+              {/* Status Filter Pills */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  onClick={() => setStatusFilter('all')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                    statusFilter === 'all'
+                      ? 'bg-white/20 text-white border border-white/30'
+                      : 'bg-white/5 text-gray-300 hover:bg-white/10'
+                  }`}
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => setStatusFilter('pending')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                    statusFilter === 'pending'
+                      ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
+                      : 'bg-white/5 text-gray-300 hover:bg-white/10'
+                  }`}
+                >
+                  Pending
+                </button>
+                <button
+                  onClick={() => setStatusFilter('in_progress')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                    statusFilter === 'in_progress'
+                      ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                      : 'bg-white/5 text-gray-300 hover:bg-white/10'
+                  }`}
+                >
+                  In Progress
+                </button>
+                <button
+                  onClick={() => setStatusFilter('completed')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                    statusFilter === 'completed'
+                      ? 'bg-green-500/20 text-green-300 border border-green-500/30'
+                      : 'bg-white/5 text-gray-300 hover:bg-white/10'
+                  }`}
+                >
+                  Completed
+                </button>
+              </div>
+
+              {/* Sort Dropdown */}
+              <div className="ml-auto">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                >
+                  <option value="recent" className="bg-slate-800">Most Recent</option>
+                  <option value="oldest" className="bg-slate-800">Oldest First</option>
+                  <option value="score-high" className="bg-slate-800">Highest Score</option>
+                  <option value="score-low" className="bg-slate-800">Lowest Score</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Results count */}
+            {(searchQuery || statusFilter !== 'all') && (
+              <div className="mt-4 text-sm text-gray-400">
+                Showing {filteredAndSortedInterviews.length} of {interviews.length} interviews
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Interviews List */}
         <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden">
           <div className="p-6 border-b border-white/10">
             <h2 className="text-2xl font-bold text-white">
-              All Interviews ({interviews.length})
+              {searchQuery || statusFilter !== 'all' ? 'Filtered Interviews' : 'All Interviews'} ({filteredAndSortedInterviews.length})
             </h2>
           </div>
 
@@ -187,9 +331,28 @@ export default function InterviewsPage() {
                 Create Interview
               </button>
             </div>
+          ) : filteredAndSortedInterviews.length === 0 ? (
+            <div className="p-12 text-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-white/5 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <p className="text-gray-400">No interviews match your filters.</p>
+              <p className="text-gray-500 text-sm mt-2">Try adjusting your search or filters.</p>
+              <button
+                onClick={() => {
+                  setSearchQuery('');
+                  setStatusFilter('all');
+                }}
+                className="mt-6 px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg font-semibold transition"
+              >
+                Clear Filters
+              </button>
+            </div>
           ) : (
             <div className="divide-y divide-white/10">
-              {interviews.map((interview) => (
+              {filteredAndSortedInterviews.map((interview) => (
                 <div key={interview.id} className="p-6 hover:bg-white/5 transition group">
                   <div className="flex gap-6">
                     <div className="flex-shrink-0">
