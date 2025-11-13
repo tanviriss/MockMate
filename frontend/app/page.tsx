@@ -4,6 +4,9 @@ import { useRouter } from 'next/navigation';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import Logo from '@/components/Logo';
+import { ContainerScroll } from '@/components/ui/container-scroll-animation';
+import { DotScreenShader } from '@/components/ui/dot-shader-background';
+import AnimatedShaderHero from '@/components/ui/animated-shader-hero';
 
 export default function Home() {
   const router = useRouter();
@@ -18,51 +21,8 @@ export default function Home() {
 
   return (
     <div ref={containerRef} className="bg-slate-950">
-      {/* Animated Background Grid */}
-      <div className="fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:64px_64px]" />
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900" />
-
-        {/* Floating orbs */}
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl"
-        />
-        <motion.div
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 1
-          }}
-          className="absolute top-1/3 right-1/4 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl"
-        />
-        <motion.div
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.2, 0.4, 0.2],
-          }}
-          transition={{
-            duration: 12,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 2
-          }}
-          className="absolute bottom-1/4 left-1/2 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl"
-        />
-      </div>
+      {/* Background for non-hero sections */}
+      <div className="fixed inset-0 z-0 bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900" />
 
       {/* Navigation */}
       <motion.nav
@@ -97,13 +57,17 @@ export default function Home() {
       {/* Hero Section */}
       <motion.section
         style={{ opacity, scale }}
-        className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 text-center"
+        className="relative min-h-screen flex flex-col items-center justify-center px-6 text-center overflow-hidden"
       >
+        {/* Dot Shader Background */}
+        <div className="absolute inset-0 z-0">
+          <DotScreenShader />
+        </div>
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="max-w-5xl space-y-8"
+          className="relative z-10 max-w-5xl space-y-8"
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.5 }}
@@ -278,7 +242,7 @@ export default function Home() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 2 }}
-          className="absolute bottom-10"
+          className="absolute bottom-10 z-10"
         >
           <motion.div
             animate={{ y: [0, 10, 0] }}
@@ -457,6 +421,122 @@ export default function Home() {
             ))}
           </div>
         </div>
+
+        {/* Animated Shader Hero Section */}
+        <div className="mt-32">
+          <AnimatedShaderHero
+            trustBadge={{
+              text: "🎯 AI-Powered Interview Practice",
+              icons: ["✨"]
+            }}
+            headline={{
+              line1: "Master Your",
+              line2: "Interview Skills"
+            }}
+            subtitle="Get personalized AI feedback on your answers in real-time. Practice with confidence and land your dream job."
+            buttons={{
+              primary: {
+                text: "Start Practicing Now",
+                onClick: () => router.push('/sign-up')
+              },
+              secondary: {
+                text: "See How It Works",
+                onClick: () => {
+                  document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                }
+              }
+            }}
+          />
+        </div>
+      </section>
+
+      {/* Scroll Animation Showcase */}
+      <section className="relative z-10">
+        <ContainerScroll
+          titleComponent={
+            <div className="space-y-4">
+              <h2 className="text-5xl md:text-7xl font-bold text-white">
+                Experience Real{' '}
+                <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  Interview Scenarios
+                </span>
+              </h2>
+              <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto">
+                Practice with AI-powered interviews that adapt to your resume and target role
+              </p>
+            </div>
+          }
+        >
+          <div className="h-full w-full bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8 overflow-auto">
+            {/* Mock Interview Interface */}
+            <div className="space-y-6">
+              {/* Question Section */}
+              <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                    <span className="text-2xl">💼</span>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400">Question 3 of 5</p>
+                    <p className="text-white font-semibold">Behavioral - Leadership</p>
+                  </div>
+                </div>
+                <p className="text-xl text-white leading-relaxed">
+                  "Tell me about a time when you had to lead a team through a difficult project deadline. How did you handle the pressure and ensure success?"
+                </p>
+              </div>
+
+              {/* Answer Section */}
+              <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-gray-300 font-medium">Your Answer</p>
+                  <div className="flex gap-2">
+                    <button className="px-4 py-2 bg-red-500/20 text-red-300 rounded-lg text-sm">
+                      🎤 Recording...
+                    </button>
+                    <button className="px-4 py-2 bg-blue-500/20 text-blue-300 rounded-lg text-sm">
+                      ⏸️ Pause
+                    </button>
+                  </div>
+                </div>
+                <div className="bg-slate-800/50 rounded-lg p-4 min-h-[120px]">
+                  <p className="text-gray-300 leading-relaxed">
+                    "In my previous role as a senior developer, we faced a critical product launch with only two weeks remaining..."
+                  </p>
+                </div>
+              </div>
+
+              {/* AI Feedback Section */}
+              <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 backdrop-blur-md border border-blue-400/20 rounded-xl p-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-2xl">🤖</span>
+                  <p className="text-white font-semibold">AI Analysis</p>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="text-green-400">✓</div>
+                    <p className="text-gray-300 text-sm">Strong STAR method structure</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-green-400">✓</div>
+                    <p className="text-gray-300 text-sm">Clear demonstration of leadership</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-yellow-400">⚠</div>
+                    <p className="text-gray-300 text-sm">Consider adding more specific metrics</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Score Badge */}
+              <div className="flex justify-center">
+                <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-full px-8 py-3">
+                  <p className="text-white font-bold text-lg">Score: 8.5/10</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ContainerScroll>
       </section>
 
       {/* CTA Section */}
