@@ -6,6 +6,7 @@ import { useRef } from 'react';
 import Logo from '@/components/Logo';
 import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import { DotScreenShader } from '@/components/ui/dot-shader-background';
+import AnimatedShaderHero from '@/components/ui/animated-shader-hero';
 
 export default function Home() {
   const router = useRouter();
@@ -419,6 +420,33 @@ export default function Home() {
               </motion.div>
             ))}
           </div>
+        </div>
+
+        {/* Animated Shader Hero Section */}
+        <div className="mt-32">
+          <AnimatedShaderHero
+            trustBadge={{
+              text: "🎯 AI-Powered Interview Practice",
+              icons: ["✨"]
+            }}
+            headline={{
+              line1: "Master Your",
+              line2: "Interview Skills"
+            }}
+            subtitle="Get personalized AI feedback on your answers in real-time. Practice with confidence and land your dream job."
+            buttons={{
+              primary: {
+                text: "Start Practicing Now",
+                onClick: () => router.push('/sign-up')
+              },
+              secondary: {
+                text: "See How It Works",
+                onClick: () => {
+                  document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                }
+              }
+            }}
+          />
         </div>
       </section>
 
