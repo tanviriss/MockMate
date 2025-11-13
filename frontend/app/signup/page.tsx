@@ -1,3 +1,5 @@
+'use client';
+
 import { SignUp } from '@clerk/nextjs';
 import Logo from '@/components/Logo';
 
