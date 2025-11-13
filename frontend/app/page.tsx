@@ -5,7 +5,6 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import Logo from '@/components/Logo';
 import { ContainerScroll } from '@/components/ui/container-scroll-animation';
-import Image from 'next/image';
 
 export default function Home() {
   const router = useRouter();
@@ -478,14 +477,75 @@ export default function Home() {
             </div>
           }
         >
-          <Image
-            src="/mockmate-interview-demo.png"
-            alt="MockMate Interview Interface"
-            width={1400}
-            height={900}
-            className="mx-auto rounded-2xl object-cover h-full object-left-top"
-            draggable={false}
-          />
+          <div className="h-full w-full bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8 overflow-auto">
+            {/* Mock Interview Interface */}
+            <div className="space-y-6">
+              {/* Question Section */}
+              <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                    <span className="text-2xl">💼</span>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400">Question 3 of 5</p>
+                    <p className="text-white font-semibold">Behavioral - Leadership</p>
+                  </div>
+                </div>
+                <p className="text-xl text-white leading-relaxed">
+                  "Tell me about a time when you had to lead a team through a difficult project deadline. How did you handle the pressure and ensure success?"
+                </p>
+              </div>
+
+              {/* Answer Section */}
+              <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-gray-300 font-medium">Your Answer</p>
+                  <div className="flex gap-2">
+                    <button className="px-4 py-2 bg-red-500/20 text-red-300 rounded-lg text-sm">
+                      🎤 Recording...
+                    </button>
+                    <button className="px-4 py-2 bg-blue-500/20 text-blue-300 rounded-lg text-sm">
+                      ⏸️ Pause
+                    </button>
+                  </div>
+                </div>
+                <div className="bg-slate-800/50 rounded-lg p-4 min-h-[120px]">
+                  <p className="text-gray-300 leading-relaxed">
+                    "In my previous role as a senior developer, we faced a critical product launch with only two weeks remaining..."
+                  </p>
+                </div>
+              </div>
+
+              {/* AI Feedback Section */}
+              <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 backdrop-blur-md border border-blue-400/20 rounded-xl p-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-2xl">🤖</span>
+                  <p className="text-white font-semibold">AI Analysis</p>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="text-green-400">✓</div>
+                    <p className="text-gray-300 text-sm">Strong STAR method structure</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-green-400">✓</div>
+                    <p className="text-gray-300 text-sm">Clear demonstration of leadership</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-yellow-400">⚠</div>
+                    <p className="text-gray-300 text-sm">Consider adding more specific metrics</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Score Badge */}
+              <div className="flex justify-center">
+                <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-full px-8 py-3">
+                  <p className="text-white font-bold text-lg">Score: 8.5/10</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </ContainerScroll>
       </section>
 
