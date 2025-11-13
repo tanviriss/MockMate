@@ -25,7 +25,7 @@ export default function DashboardPage() {
     }
 
     if (!isAuthenticated) {
-      router.push('/login');
+      router.push('/sign-in');
       return;
     }
 

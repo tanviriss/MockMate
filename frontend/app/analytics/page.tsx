@@ -38,7 +38,7 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     if (!token) {
-      router.push('/login');
+      router.push('/sign-in');
       return;
     }
     fetchAnalytics();

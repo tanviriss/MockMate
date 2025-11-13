@@ -77,7 +77,7 @@ export default function Home() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => router.push('/login')}
+              onClick={() => router.push('/sign-in')}
               className="px-6 py-2 text-white hover:text-blue-400 transition font-medium"
             >
               Login
@@ -85,7 +85,7 @@ export default function Home() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => router.push('/signup')}
+              onClick={() => router.push('/sign-up')}
               className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition"
             >
               Get Started
@@ -157,7 +157,7 @@ export default function Home() {
             <motion.button
               whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(168, 85, 247, 0.6)" }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => router.push('/signup')}
+              onClick={() => router.push('/sign-up')}
               className="group px-10 py-5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-lg hover:shadow-2xl transition relative overflow-hidden"
             >
               <span className="relative z-10 flex items-center justify-center gap-2">
@@ -486,7 +486,7 @@ export default function Home() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => router.push('/signup')}
+              onClick={() => router.push('/sign-up')}
               className="relative px-12 py-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-xl shadow-2xl shadow-purple-500/50 hover:shadow-purple-500/70 transition-all"
             >
               Start Practicing For Free →

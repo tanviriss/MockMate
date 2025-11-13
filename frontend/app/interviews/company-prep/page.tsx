@@ -29,7 +29,7 @@ export default function CompanyPrepPage() {
 
   useEffect(() => {
     if (!token) {
-      router.push('/login');
+      router.push('/sign-in');
       return;
     }
     fetchResumes();

@@ -54,7 +54,7 @@ export default function InterviewDetailsPage() {
 
   useEffect(() => {
     if (!token) {
-      router.push('/login');
+      router.push('/sign-in');
       return;
     }
 

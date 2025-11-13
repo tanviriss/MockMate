@@ -27,7 +27,7 @@ export default function InterviewsPage() {
 
   useEffect(() => {
     if (!token) {
-      router.push('/login');
+      router.push('/sign-in');
       return;
     }
     fetchInterviews();
@@ -41,7 +41,7 @@ export default function InterviewsPage() {
     } catch (err: unknown) {
       if (err.message.includes('401') || err.message.includes('Unauthorized')) {
         useAuthStore.getState().clearAuth();
-        router.push('/login');
+        router.push('/sign-in');
       } else {
         setError(err.message);
       }

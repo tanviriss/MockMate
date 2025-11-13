@@ -41,7 +41,7 @@ export default function ResumesPage() {
 
   useEffect(() => {
     if (!token) {
-      router.push('/login');
+      router.push('/sign-in');
       return;
     }
     fetchResumes();
