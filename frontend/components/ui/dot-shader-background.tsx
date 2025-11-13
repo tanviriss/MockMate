@@ -76,16 +76,16 @@ const DotMaterial = shaderMaterial(
       // Mouse trail effect
       float mouseInfluence = texture2D(mouseTrail, gridUvCenterInScreenCoords).r;
 
-      float scaleInfluence = max(mouseInfluence * 0.8, circleAnimatedMask * 0.3);
+      float scaleInfluence = max(mouseInfluence * 0.5, circleAnimatedMask * 0.3);
 
       // Create dots with animated scale, influenced by mouse
       float dotSize = min(pow(circleMaskCenter, 2.0) * 0.3, 0.3);
 
-      float sdfDot = sdfCircle(gridUv, dotSize * (1.0 + scaleInfluence * 0.6));
+      float sdfDot = sdfCircle(gridUv, dotSize * (1.0 + scaleInfluence * 0.5));
 
       float smoothDot = smoothstep(0.05, 0.0, sdfDot);
 
-      float opacityInfluence = max(mouseInfluence * 30.0, circleAnimatedMask * 0.5);
+      float opacityInfluence = max(mouseInfluence * 50.0, circleAnimatedMask * 0.5);
 
       // Mix background color with dot color, using animated opacity to increase visibility
       vec3 composition = mix(bgColor, dotColor, smoothDot * combinedMask * dotOpacity * (1.0 + opacityInfluence));
@@ -133,9 +133,9 @@ function Scene() {
 
   const [trail, onMove] = useTrailTexture({
     size: 512,
-    radius: 0.05,
-    maxAge: 300,
-    interpolate: 0.5,
+    radius: 0.1,
+    maxAge: 400,
+    interpolate: 1,
     ease: function easeInOutCirc(x) {
       return x < 0.5 ? (1 - Math.sqrt(1 - Math.pow(2 * x, 2))) / 2 : (Math.sqrt(1 - Math.pow(-2 * x + 2, 2)) + 1) / 2
     }
