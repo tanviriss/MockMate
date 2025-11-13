@@ -2,7 +2,7 @@
 
 import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/lib/store";
+import { useClerkAuth } from "@/hooks/useClerkAuth";
 import { api } from "@/lib/api";
 
 interface IdealAnswer {
@@ -24,7 +24,7 @@ export default function InterviewResultsPage({
   const resolvedParams = use(params);
   const interviewId = parseInt(resolvedParams.id);
   const router = useRouter();
-  const { token } = useAuthStore();
+  const { isReady, getToken } = useClerkAuth();
   const [results, setResults] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -32,18 +32,17 @@ export default function InterviewResultsPage({
   const [loadingIdeal, setLoadingIdeal] = useState<{ [key: number]: boolean }>({});
 
   useEffect(() => {
-    if (!token) {
-      router.push("/login");
-      return;
+    if (isReady) {
+      fetchResults();
     }
-
-    fetchResults();
-  }, [token, interviewId]);
+  }, [isReady, interviewId]);
 
   const fetchResults = async () => {
     try {
       setLoading(true);
-      const data = await api.getInterviewResults(interviewId, token!);
+      const token = await getToken();
+      if (!token) return;
+      const data = await api.getInterviewResults(interviewId, token);
       setResults(data);
     } catch (err: unknown) {
       setError(err.message);
@@ -57,7 +56,9 @@ export default function InterviewResultsPage({
 
     try {
       setLoadingIdeal(prev => ({ ...prev, [questionId]: true }));
-      const data = await api.getIdealAnswer(questionId, token!);
+      const token = await getToken();
+      if (!token) return;
+      const data = await api.getIdealAnswer(questionId, token);
       setIdealAnswers(prev => ({ ...prev, [questionId]: data.ideal_answer }));
     } catch (err: unknown) {
       console.error('Failed to fetch ideal answer:', err);
