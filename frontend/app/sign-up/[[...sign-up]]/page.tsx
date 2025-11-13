@@ -3,7 +3,7 @@
 import { SignUp } from '@clerk/nextjs';
 import Logo from '@/components/Logo';
 
-export default function SignupPage() {
+export default function SignUpPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-6">
       {/* Animated background */}
@@ -22,9 +22,8 @@ export default function SignupPage() {
 
         {/* Clerk Sign Up Component */}
         <SignUp
-          routing="path"
-          path="/signup"
-          signInUrl="/login"
+          path="/sign-up"
+          signInUrl="/sign-in"
           forceRedirectUrl="/dashboard"
         />
       </div>
