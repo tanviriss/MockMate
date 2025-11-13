@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/lib/store';
+import { useClerkAuth } from '@/hooks/useClerkAuth';
 import { api } from '@/lib/api';
 import Logo from '@/components/Logo';
 import { SkeletonInterview } from '@/components/Skeleton';
@@ -20,31 +20,26 @@ interface Interview {
 
 export default function InterviewsPage() {
   const router = useRouter();
-  const { token } = useAuthStore();
+  const { isReady, getToken } = useClerkAuth();
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!token) {
-      router.push('/sign-in');
-      return;
+    if (isReady) {
+      fetchInterviews();
     }
-    fetchInterviews();
-  }, [token, router]);
+  }, [isReady]);
 
   const fetchInterviews = async () => {
     try {
       setLoading(true);
-      const data = await api.getInterviews(token!);
+      const token = await getToken();
+      if (!token) return;
+      const data = await api.getInterviews(token);
       setInterviews(data.interviews || []);
     } catch (err: unknown) {
-      if (err.message.includes('401') || err.message.includes('Unauthorized')) {
-        useAuthStore.getState().clearAuth();
-        router.push('/sign-in');
-      } else {
-        setError(err.message);
-      }
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -54,7 +49,9 @@ export default function InterviewsPage() {
     if (!confirm('Are you sure you want to delete this interview?')) return;
 
     try {
-      await api.deleteInterview(interviewId, token!);
+      const token = await getToken();
+      if (!token) return;
+      await api.deleteInterview(interviewId, token);
       fetchInterviews();
     } catch (err: unknown) {
       setError(err.message);
