@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { useAuthStore } from '@/lib/store';
+import { useClerkAuth } from '@/hooks/useClerkAuth';
 import { api } from '@/lib/api';
 import Logo from '@/components/Logo';
 
@@ -33,7 +33,7 @@ interface InterviewData {
 export default function InterviewDetailsPage() {
   const router = useRouter();
   const params = useParams();
-  const { token } = useAuthStore();
+  const { isReady, getToken } = useClerkAuth();
   const [interview, setInterview] = useState<InterviewData | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,7 +42,9 @@ export default function InterviewDetailsPage() {
   const fetchInterview = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await api.getInterview(parseInt(params.id as string), token!);
+      const token = await getToken();
+      if (!token) return;
+      const data = await api.getInterview(parseInt(params.id as string), token);
       setInterview(data);
       setQuestions(data.questions || []);
     } catch (err: unknown) {
@@ -50,13 +52,10 @@ export default function InterviewDetailsPage() {
     } finally {
       setLoading(false);
     }
-  }, [params.id, token]);
+  }, [params.id, getToken]);
 
   useEffect(() => {
-    if (!token) {
-      router.push('/sign-in');
-      return;
-    }
+    if (!isReady) return;
 
     const cachedData = sessionStorage.getItem(`interview_${params.id}`);
     if (cachedData) {
@@ -67,7 +66,7 @@ export default function InterviewDetailsPage() {
     } else {
       fetchInterview();
     }
-  }, [token, params.id, router, fetchInterview]);
+  }, [isReady, params.id, fetchInterview]);
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty.toLowerCase()) {
