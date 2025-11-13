@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import Logo from '@/components/Logo';
+import { ContainerScroll } from '@/components/ui/container-scroll-animation';
+import Image from 'next/image';
 
 export default function Home() {
   const router = useRouter();
@@ -457,6 +459,34 @@ export default function Home() {
             ))}
           </div>
         </div>
+      </section>
+
+      {/* Scroll Animation Showcase */}
+      <section className="relative z-10">
+        <ContainerScroll
+          titleComponent={
+            <div className="space-y-4">
+              <h2 className="text-5xl md:text-7xl font-bold text-white">
+                Experience Real{' '}
+                <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  Interview Scenarios
+                </span>
+              </h2>
+              <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto">
+                Practice with AI-powered interviews that adapt to your resume and target role
+              </p>
+            </div>
+          }
+        >
+          <Image
+            src="/mockmate-interview-demo.png"
+            alt="MockMate Interview Interface"
+            width={1400}
+            height={900}
+            className="mx-auto rounded-2xl object-cover h-full object-left-top"
+            draggable={false}
+          />
+        </ContainerScroll>
       </section>
 
       {/* CTA Section */}
