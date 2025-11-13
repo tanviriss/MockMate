@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/lib/store';
+import { useAuth, useUser, UserButton } from '@clerk/nextjs';
 import { api } from '@/lib/api';
 import Logo from '@/components/Logo';
 
@@ -15,25 +15,24 @@ interface DashboardStats {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, token, isAuthenticated, clearAuth, _hasHydrated } = useAuthStore();
+  const { isLoaded, isSignedIn, getToken } = useAuth();
+  const { user } = useUser();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!_hasHydrated) {
-      return;
-    }
+    if (!isLoaded) return;
 
-    if (!isAuthenticated) {
+    if (!isSignedIn) {
       router.push('/sign-in');
       return;
     }
 
-    // Fetch dashboard stats
     const fetchStats = async () => {
-      if (!token) return;
-
       try {
+        const token = await getToken();
+        if (!token) return;
+
         const data = await api.getDashboardStats(token);
         setStats(data);
       } catch (error) {
@@ -44,14 +43,9 @@ export default function DashboardPage() {
     };
 
     fetchStats();
-  }, [isAuthenticated, token, router, _hasHydrated]);
+  }, [isLoaded, isSignedIn, router, getToken]);
 
-  const handleLogout = () => {
-    clearAuth();
-    router.push('/');
-  };
-
-  if (!isAuthenticated || !user) {
+  if (!isLoaded || !isSignedIn || !user) {
     return null;
   }
 
@@ -71,14 +65,16 @@ export default function DashboardPage() {
             <Logo />
             <div className="flex items-center gap-6">
               <span className="text-gray-300 text-sm">
-                {user.full_name || user.email}
+                {user.fullName || user.primaryEmailAddress?.emailAddress}
               </span>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 text-gray-300 hover:text-white transition font-medium"
-              >
-                Logout
-              </button>
+              <UserButton
+                afterSignOutUrl="/"
+                appearance={{
+                  elements: {
+                    avatarBox: "w-10 h-10"
+                  }
+                }}
+              />
             </div>
           </div>
         </div>
@@ -89,7 +85,7 @@ export default function DashboardPage() {
         {/* Welcome Section */}
         <div className="mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Welcome back, {user.full_name?.split(' ')[0] || 'there'}! 👋
+            Welcome back, {user.firstName || 'there'}! 👋
           </h1>
           <p className="text-xl text-gray-300">
             Ready to practice and ace your next interview?
