@@ -1,5 +1,4 @@
 import { SignIn } from '@clerk/nextjs';
-import { useRouter } from 'next/navigation';
 import Logo from '@/components/Logo';
 
 export default function LoginPage() {
@@ -24,7 +23,7 @@ export default function LoginPage() {
           routing="path"
           path="/login"
           signUpUrl="/signup"
-          afterSignInUrl="/dashboard"
+          forceRedirectUrl="/dashboard"
         />
       </div>
 

@@ -1,80 +1,7 @@
-'use client';
-
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { api } from '@/lib/api';
-import { useAuthStore } from '@/lib/store';
+import { SignUp } from '@clerk/nextjs';
 import Logo from '@/components/Logo';
 
 export default function SignupPage() {
-  const router = useRouter();
-  const setAuth = useAuthStore((state) => state.setAuth);
-
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    full_name: '',
-  });
-  const [error, setError] = useState('');
-  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
-  const [loading, setLoading] = useState(false);
-
-  const validateForm = () => {
-    const errors: {[key: string]: string} = {};
-
-    // Email validation
-    if (!formData.email) {
-      errors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errors.email = 'Please enter a valid email address';
-    }
-
-    // Password validation
-    if (!formData.password) {
-      errors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      errors.password = 'Password must be at least 6 characters long';
-    } else if (!/(?=.*[a-z])/.test(formData.password)) {
-      errors.password = 'Password must contain at least one lowercase letter';
-    } else if (!/(?=.*[A-Z])/.test(formData.password)) {
-      errors.password = 'Password must contain at least one uppercase letter';
-    } else if (!/(?=.*\d)/.test(formData.password)) {
-      errors.password = 'Password must contain at least one number';
-    }
-
-    // Name validation
-    if (!formData.full_name.trim()) {
-      errors.full_name = 'Full name is required';
-    } else if (formData.full_name.trim().length < 2) {
-      errors.full_name = 'Name must be at least 2 characters long';
-    }
-
-    setValidationErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setValidationErrors({});
-
-    if (!validateForm()) {
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const response = await api.signup(formData);
-      setAuth(response.user, response.access_token);
-      router.push('/dashboard');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Signup failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-6">
       {/* Animated background */}
@@ -86,113 +13,18 @@ export default function SignupPage() {
       <div className="relative z-10 w-full max-w-md">
         {/* Logo */}
         <div className="flex justify-center mb-8">
-          <button onClick={() => router.push('/')}>
+          <a href="/">
             <Logo />
-          </button>
+          </a>
         </div>
 
-        {/* Signup Card */}
-        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">
-              Create Account
-            </h1>
-            <p className="text-gray-300">
-              Start practicing for your dream job
-            </p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <div className="bg-red-500/10 border border-red-500/50 text-red-200 px-4 py-3 rounded-lg backdrop-blur-sm">
-                {error}
-              </div>
-            )}
-
-            <div>
-              <label htmlFor="full_name" className="block text-sm font-medium text-gray-200 mb-2">
-                Full Name
-              </label>
-              <input
-                id="full_name"
-                type="text"
-                value={formData.full_name}
-                onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                className={`w-full px-4 py-3 bg-white/5 border ${validationErrors.full_name ? 'border-red-500/50' : 'border-white/10'} rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 ${validationErrors.full_name ? 'focus:ring-red-500' : 'focus:ring-blue-500'} focus:border-transparent transition`}
-                placeholder="John Doe"
-              />
-              {validationErrors.full_name && (
-                <p className="mt-2 text-sm text-red-400">{validationErrors.full_name}</p>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-200 mb-2">
-                Email Address
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className={`w-full px-4 py-3 bg-white/5 border ${validationErrors.email ? 'border-red-500/50' : 'border-white/10'} rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 ${validationErrors.email ? 'focus:ring-red-500' : 'focus:ring-blue-500'} focus:border-transparent transition`}
-                placeholder="you@example.com"
-              />
-              {validationErrors.email && (
-                <p className="mt-2 text-sm text-red-400">{validationErrors.email}</p>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-200 mb-2">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className={`w-full px-4 py-3 bg-white/5 border ${validationErrors.password ? 'border-red-500/50' : 'border-white/10'} rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 ${validationErrors.password ? 'focus:ring-red-500' : 'focus:ring-blue-500'} focus:border-transparent transition`}
-                placeholder="••••••••"
-              />
-              {validationErrors.password && (
-                <p className="mt-2 text-sm text-red-400">{validationErrors.password}</p>
-              )}
-              <p className="mt-2 text-xs text-gray-400">
-                Must be at least 6 characters with uppercase, lowercase, and number
-              </p>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-            >
-              {loading ? (
-                <span className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Creating account...
-                </span>
-              ) : (
-                'Create Account'
-              )}
-            </button>
-
-            <p className="text-center text-sm text-gray-300">
-              Already have an account?{' '}
-              <button
-                type="button"
-                onClick={() => router.push('/login')}
-                className="font-semibold text-blue-400 hover:text-blue-300 transition"
-              >
-                Log in
-              </button>
-            </p>
-          </form>
-        </div>
+        {/* Clerk Sign Up Component */}
+        <SignUp
+          routing="path"
+          path="/signup"
+          signInUrl="/login"
+          forceRedirectUrl="/dashboard"
+        />
       </div>
 
       <style jsx global>{`
