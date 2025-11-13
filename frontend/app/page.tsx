@@ -20,6 +20,9 @@ export default function Home() {
 
   return (
     <div ref={containerRef} className="bg-slate-950">
+      {/* Background for non-hero sections */}
+      <div className="fixed inset-0 z-0 bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900" />
+
       {/* Navigation */}
       <motion.nav
         initial={{ y: -100, opacity: 0 }}
