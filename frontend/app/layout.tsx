@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ClerkProvider } from '@clerk/nextjs';
+import { dark } from '@clerk/themes';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,14 +26,44 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ErrorBoundary>
-          {children}
-        </ErrorBoundary>
-      </body>
-    </html>
+    <ClerkProvider
+      appearance={{
+        baseTheme: dark,
+        variables: {
+          colorPrimary: '#8b5cf6',
+          colorBackground: '#0f172a',
+          colorInputBackground: 'rgba(255, 255, 255, 0.05)',
+          colorInputText: '#ffffff',
+          colorText: '#ffffff',
+          colorTextSecondary: '#d1d5db',
+          borderRadius: '0.75rem',
+          fontFamily: `${geistSans.variable}, system-ui, sans-serif`,
+        },
+        elements: {
+          formButtonPrimary:
+            'bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-lg hover:shadow-purple-500/50 transition transform hover:scale-105',
+          card: 'bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl',
+          headerTitle: 'text-white',
+          headerSubtitle: 'text-gray-300',
+          socialButtonsBlockButton:
+            'bg-white/5 border border-white/10 text-white hover:bg-white/10 transition',
+          formFieldInput:
+            'bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-blue-500',
+          footerActionLink: 'text-blue-400 hover:text-blue-300',
+          identityPreviewText: 'text-white',
+          identityPreviewEditButton: 'text-blue-400 hover:text-blue-300',
+        },
+      }}
+    >
+      <html lang="en">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
