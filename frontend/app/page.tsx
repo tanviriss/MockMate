@@ -20,11 +20,6 @@ export default function Home() {
 
   return (
     <div ref={containerRef} className="bg-slate-950">
-      {/* Dot Shader Background */}
-      <div className="fixed inset-0 z-0">
-        <DotScreenShader />
-      </div>
-
       {/* Navigation */}
       <motion.nav
         initial={{ y: -100, opacity: 0 }}
@@ -58,13 +53,17 @@ export default function Home() {
       {/* Hero Section */}
       <motion.section
         style={{ opacity, scale }}
-        className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 text-center"
+        className="relative min-h-screen flex flex-col items-center justify-center px-6 text-center overflow-hidden"
       >
+        {/* Dot Shader Background */}
+        <div className="absolute inset-0 z-0">
+          <DotScreenShader />
+        </div>
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="max-w-5xl space-y-8"
+          className="relative z-10 max-w-5xl space-y-8"
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.5 }}
@@ -239,7 +238,7 @@ export default function Home() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 2 }}
-          className="absolute bottom-10"
+          className="absolute bottom-10 z-10"
         >
           <motion.div
             animate={{ y: [0, 10, 0] }}
