@@ -17,14 +17,14 @@ class StorageService:
             file: Binary file content (bytes)
             filename: Original filename
             user_id: User ID for organizing files
-            user_token: JWT token for authenticated user
+            user_token: JWT token for authenticated user (not used for storage - kept for backward compatibility)
 
         Returns:
             Public URL of uploaded file
         """
-        # Create authenticated Supabase client with user's token
-        supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
-        supabase.auth.set_session(user_token, user_token)
+        # Create Supabase client with service key for storage operations
+        # This allows storage to work with both Clerk and Supabase authenticated users
+        supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
 
         file_ext = filename.split('.')[-1]
         unique_filename = f"{user_id}/{uuid.uuid4()}.{file_ext}"
@@ -46,14 +46,14 @@ class StorageService:
 
         Args:
             file_url: Public URL of the file
-            user_token: JWT token for authenticated user
+            user_token: JWT token for authenticated user (not used for storage - kept for backward compatibility)
 
         Returns:
             True if deleted successfully
         """
-        # Create authenticated Supabase client with user's token
-        supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
-        supabase.auth.set_session(user_token, user_token)
+        # Create Supabase client with service key for storage operations
+        # This allows storage to work with both Clerk and Supabase authenticated users
+        supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
 
         try:
             path = file_url.split(f"/object/public/{StorageService.BUCKET_NAME}/")[1]
