@@ -2,7 +2,7 @@
 
 import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/lib/store";
+import { useAuth, useUser } from "@clerk/nextjs";
 import AudioRecorder from "@/components/AudioRecorder";
 import VideoFeed from "@/components/VideoFeed";
 import InterviewerAvatar from "@/components/InterviewerAvatar";
@@ -16,10 +16,23 @@ export default function LiveInterviewPage({
   const resolvedParams = use(params);
   const interviewId = parseInt(resolvedParams.id);
   const router = useRouter();
-  const { user, token } = useAuthStore();
+  const { isLoaded, isSignedIn, getToken } = useAuth();
+  const { user } = useUser();
   const [hasStarted, setHasStarted] = useState(false);
   const [editedTranscript, setEditedTranscript] = useState("");
   const [isRecording, setIsRecording] = useState(false);
+  const [token, setToken] = useState<string>("");
+
+  // Get token when auth is ready
+  useEffect(() => {
+    const fetchToken = async () => {
+      if (isSignedIn) {
+        const tkn = await getToken();
+        if (tkn) setToken(tkn);
+      }
+    };
+    fetchToken();
+  }, [isSignedIn, getToken]);
 
   const {
     isConnected,
@@ -37,7 +50,7 @@ export default function LiveInterviewPage({
     confirmAnswer,
     endInterview,
     resetTranscript,
-  } = useInterview(interviewId, user?.id || "", token || "");
+  } = useInterview(interviewId, user?.id || "", token);
 
   // Update edited transcript when new transcript arrives
   useEffect(() => {
@@ -85,10 +98,10 @@ export default function LiveInterviewPage({
     return 'idle';
   };
 
-  if (!user) {
+  if (!isLoaded || !isSignedIn) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-white">Please log in to continue.</div>
+        <div className="text-white">Loading...</div>
       </div>
     );
   }
