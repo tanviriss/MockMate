@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/lib/store';
+import { useClerkAuth } from '@/hooks/useClerkAuth';
 import { api } from '@/lib/api';
 import Logo from '@/components/Logo';
 import { SkeletonStats, SkeletonChart } from '@/components/Skeleton';
@@ -19,7 +19,7 @@ interface AnalyticsData {
 
 export default function AnalyticsPage() {
   const router = useRouter();
-  const { token } = useAuthStore();
+  const { isReady, getToken } = useClerkAuth();
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -27,22 +27,22 @@ export default function AnalyticsPage() {
   const fetchAnalytics = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await api.getAnalytics(token!);
+      const token = await getToken();
+      if (!token) return;
+      const data = await api.getAnalytics(token);
       setAnalytics(data);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to fetch analytics');
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [getToken]);
 
   useEffect(() => {
-    if (!token) {
-      router.push('/sign-in');
-      return;
+    if (isReady) {
+      fetchAnalytics();
     }
-    fetchAnalytics();
-  }, [token, router, fetchAnalytics]);
+  }, [isReady, fetchAnalytics]);
 
   if (loading) {
     return (
