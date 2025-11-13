@@ -7,7 +7,7 @@ from app.clerk_client import verify_clerk_token, get_clerk_user
 from app.database import get_db
 from app.models.user import User
 from app.logging_config import logger
-import os
+from app.config import settings
 
 security = HTTPBearer()
 
@@ -40,13 +40,16 @@ async def get_current_user(
     token = credentials.credentials
     logger.debug("Authenticating user request")
 
+    clerk_key = settings.CLERK_SECRET_KEY
+    logger.info(f"CLERK_SECRET_KEY present: {bool(clerk_key)}")
+
     # Try Clerk authentication first (if CLERK_SECRET_KEY is set)
-    if os.getenv("CLERK_SECRET_KEY"):
+    if clerk_key:
         try:
-            logger.debug("Attempting Clerk authentication")
+            logger.info("=== Attempting Clerk authentication ===")
 
             # Verify the JWT token
-            jwt_payload = verify_clerk_token(token)
+            jwt_payload = await verify_clerk_token(token)
             clerk_user_id = jwt_payload.get("sub")
 
             if not clerk_user_id:
@@ -111,7 +114,8 @@ async def get_current_user(
         except HTTPException:
             raise
         except Exception as clerk_error:
-            logger.warning(f"Clerk authentication failed: {clerk_error}, falling back to Supabase")
+            logger.error(f"Clerk authentication failed: {type(clerk_error).__name__}: {clerk_error}", exc_info=True)
+            logger.warning("Falling back to Supabase authentication")
 
     # Fallback to Supabase authentication (legacy)
     try:

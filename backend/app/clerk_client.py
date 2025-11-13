@@ -1,25 +1,82 @@
-import os
 import jwt
 import httpx
+import base64
 from typing import Dict, Any
 from app.logging_config import logger
+from app.config import settings
+from jwt.algorithms import RSAAlgorithm
 
 
-def verify_clerk_token(token: str) -> Dict[str, Any]:
-    clerk_secret_key = os.getenv("CLERK_SECRET_KEY")
+_jwks_cache = None
 
-    if not clerk_secret_key:
+
+async def get_jwks():
+    global _jwks_cache
+    if _jwks_cache is not None:
+        return _jwks_cache
+
+    publishable_key = settings.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY or ""
+
+    if publishable_key.startswith("pk_test_"):
+        encoded_domain = publishable_key.replace("pk_test_", "")
+        try:
+            decoded_bytes = base64.b64decode(encoded_domain + "==")
+            domain = decoded_bytes.decode('utf-8').rstrip('$')
+        except Exception as e:
+            logger.error(f"Failed to decode Clerk domain: {e}")
+            domain = encoded_domain.rstrip('$')
+        jwks_url = f"https://{domain}/.well-known/jwks.json"
+    else:
+        encoded_domain = publishable_key.replace("pk_live_", "")
+        try:
+            decoded_bytes = base64.b64decode(encoded_domain + "==")
+            domain = decoded_bytes.decode('utf-8').rstrip('$')
+        except Exception:
+            domain = encoded_domain.rstrip('$')
+        jwks_url = f"https://{domain}/.well-known/jwks.json"
+
+    logger.info(f"Fetching JWKS from: {jwks_url}")
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(jwks_url)
+        if response.status_code != 200:
+            raise ValueError(f"Failed to fetch JWKS: {response.status_code}")
+
+        _jwks_cache = response.json()
+        return _jwks_cache
+
+
+async def verify_clerk_token(token: str) -> Dict[str, Any]:
+    if not settings.CLERK_SECRET_KEY:
         raise ValueError("CLERK_SECRET_KEY not set")
 
     try:
+        unverified_header = jwt.get_unverified_header(token)
+        kid = unverified_header.get("kid")
+
+        if not kid:
+            raise ValueError("No kid in token header")
+
+        jwks = await get_jwks()
+        keys = jwks.get("keys", [])
+
+        signing_key = None
+        for key in keys:
+            if key.get("kid") == kid:
+                signing_key = RSAAlgorithm.from_jwk(key)
+                break
+
+        if not signing_key:
+            raise ValueError(f"No matching key found for kid: {kid}")
+
         decoded = jwt.decode(
             token,
-            clerk_secret_key,
-            algorithms=["RS256", "HS256"],
-            options={"verify_signature": False}
+            signing_key,
+            algorithms=["RS256"],
+            options={"verify_signature": True, "verify_aud": False}
         )
 
-        logger.debug(f"Clerk token decoded successfully for user: {decoded.get('sub')}")
+        logger.info(f"Clerk token verified for user: {decoded.get('sub')}")
         return decoded
 
     except jwt.ExpiredSignatureError:
@@ -28,10 +85,13 @@ def verify_clerk_token(token: str) -> Dict[str, Any]:
     except jwt.InvalidTokenError as e:
         logger.warning(f"Invalid Clerk token: {e}")
         raise ValueError(f"Invalid token: {e}")
+    except Exception as e:
+        logger.error(f"Error verifying Clerk token: {e}")
+        raise ValueError(f"Token verification failed: {e}")
 
 
 async def get_clerk_user(user_id: str) -> Dict[str, Any]:
-    clerk_secret_key = os.getenv("CLERK_SECRET_KEY")
+    clerk_secret_key = settings.CLERK_SECRET_KEY
 
     if not clerk_secret_key:
         raise ValueError("CLERK_SECRET_KEY not set")

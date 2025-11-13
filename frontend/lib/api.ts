@@ -256,7 +256,9 @@ export const api = {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch dashboard stats');
+      const errorText = await response.text();
+      console.error('Dashboard stats error:', response.status, errorText);
+      throw new Error(`Failed to fetch dashboard stats: ${response.status} - ${errorText}`);
     }
 
     return response.json();

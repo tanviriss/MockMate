@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/lib/store';
+import { useClerkAuth } from '@/hooks/useClerkAuth';
 import { api } from '@/lib/api';
 import Logo from '@/components/Logo';
 import Modal from '@/components/Modal';
 import { SkeletonResume } from '@/components/Skeleton';
+import { UserButton } from '@clerk/nextjs';
 
 interface Resume {
   id: number;
@@ -17,7 +18,7 @@ interface Resume {
 
 export default function ResumesPage() {
   const router = useRouter();
-  const { token, user } = useAuthStore();
+  const { isReady, getToken, user } = useClerkAuth();
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -40,20 +41,20 @@ export default function ResumesPage() {
   });
 
   useEffect(() => {
-    if (!token) {
-      router.push('/sign-in');
-      return;
-    }
+    if (!isReady) return;
     fetchResumes();
-  }, [token, router]);
+  }, [isReady]);
 
   const fetchResumes = async () => {
     try {
       setLoading(true);
-      const data = await api.getResumes(token!);
+      const token = await getToken();
+      if (!token) return;
+
+      const data = await api.getResumes(token);
       setResumes(data.resumes || []);
     } catch (err: unknown) {
-      setError(err.message);
+      setError((err as Error).message);
     } finally {
       setLoading(false);
     }
@@ -93,24 +94,25 @@ export default function ResumesPage() {
   };
 
   const handleUpload = async () => {
-    if (!selectedFile || !token) return;
+    if (!selectedFile) return;
 
     try {
       setUploading(true);
       setError('');
+      const token = await getToken();
+      if (!token) return;
+
       await api.uploadResume(selectedFile, token);
       setSelectedFile(null);
       fetchResumes();
     } catch (err: unknown) {
-      setError(err.message);
+      setError((err as Error).message);
     } finally {
       setUploading(false);
     }
   };
 
   const handleDelete = async (resumeId: number) => {
-    if (!token) return;
-
     setModalState({
       isOpen: true,
       type: 'warning',
@@ -119,6 +121,9 @@ export default function ResumesPage() {
       showCancel: true,
       onConfirm: async () => {
         try {
+          const token = await getToken();
+          if (!token) return;
+
           const result = await api.deleteResume(resumeId, token);
 
           // Show success message
