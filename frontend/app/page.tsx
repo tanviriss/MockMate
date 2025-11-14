@@ -7,6 +7,7 @@ import Logo from '@/components/Logo';
 import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import { DotScreenShader } from '@/components/ui/dot-shader-background';
 import AnimatedShaderHero from '@/components/ui/animated-shader-hero';
+import TargetCursor from '@/components/ui/TargetCursor';
 
 export default function Home() {
   const router = useRouter();
@@ -21,6 +22,9 @@ export default function Home() {
 
   return (
     <div ref={containerRef} className="bg-slate-950">
+      {/* Target Cursor */}
+      <TargetCursor spinDuration={2} hideDefaultCursor={true} parallaxOn={true} />
+
       {/* Background for non-hero sections */}
       <div className="fixed inset-0 z-0 bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900" />
 
@@ -38,7 +42,7 @@ export default function Home() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => router.push('/sign-in')}
-              className="px-6 py-2 text-white hover:text-blue-400 transition font-medium"
+              className="cursor-target px-6 py-2 text-white hover:text-blue-400 transition font-medium"
             >
               Login
             </motion.button>
@@ -46,7 +50,7 @@ export default function Home() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => router.push('/sign-up')}
-              className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition"
+              className="cursor-target px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition"
             >
               Get Started
             </motion.button>
@@ -122,7 +126,7 @@ export default function Home() {
               whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(168, 85, 247, 0.6)" }}
               whileTap={{ scale: 0.95 }}
               onClick={() => router.push('/sign-up')}
-              className="group px-10 py-5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-lg hover:shadow-2xl transition relative overflow-hidden"
+              className="cursor-target group px-10 py-5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-lg hover:shadow-2xl transition relative overflow-hidden"
             >
               <span className="relative z-10 flex items-center justify-center gap-2">
                 Start Practicing Free
@@ -146,7 +150,7 @@ export default function Home() {
               onClick={() => {
                 document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="relative px-10 py-5 bg-white/5 backdrop-blur-xl text-white border border-white/30 rounded-xl font-bold text-lg transition shadow-lg shadow-white/5 overflow-hidden group"
+              className="cursor-target relative px-10 py-5 bg-white/5 backdrop-blur-xl text-white border border-white/30 rounded-xl font-bold text-lg transition shadow-lg shadow-white/5 overflow-hidden group"
             >
               <span className="relative z-10">Learn More</span>
               <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -312,7 +316,7 @@ export default function Home() {
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.6, delay: i * 0.2 }}
                 whileHover={{ y: -10, scale: 1.02 }}
-                className="group relative h-full"
+                className="cursor-target group relative h-full"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-300" />
                 <div className="relative h-full p-8 bg-white/5 backdrop-blur-2xl border border-white/20 rounded-3xl hover:border-white/30 transition-all duration-300 shadow-xl shadow-black/20 overflow-hidden flex flex-col">
@@ -360,21 +364,34 @@ export default function Home() {
                 step: '01',
                 title: 'Upload Your Resume',
                 description: 'Our AI analyzes your resume to understand your unique background, skills, and experience.',
-                image: '📄',
+                icon: (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                ),
+                gradient: 'from-blue-500 to-cyan-500',
                 direction: 'left'
               },
               {
                 step: '02',
                 title: 'Paste Job Description',
                 description: 'Add the job description you&apos;re targeting. We&apos;ll generate questions that match the role perfectly.',
-                image: '🎯',
+                icon: (
+                  <>
+                    <circle cx="12" cy="12" r="10" strokeWidth={2} />
+                    <circle cx="12" cy="12" r="6" strokeWidth={2} />
+                    <circle cx="12" cy="12" r="2" strokeWidth={2} fill="currentColor" />
+                  </>
+                ),
+                gradient: 'from-purple-500 to-pink-500',
                 direction: 'right'
               },
               {
                 step: '03',
                 title: 'Practice & Improve',
                 description: 'Answer questions with your voice, get instant feedback, and track your progress over time.',
-                image: '🚀',
+                icon: (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                ),
+                gradient: 'from-pink-500 to-red-500',
                 direction: 'left'
               }
             ].map((item, i) => (
@@ -395,11 +412,19 @@ export default function Home() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: 0.2 }}
                     whileHover={{ scale: 1.1, rotate: 5 }}
-                    className="relative w-48 h-48 bg-white/5 backdrop-blur-xl border border-white/20 rounded-3xl flex items-center justify-center text-8xl shadow-xl shadow-black/10 overflow-hidden group"
+                    className="cursor-target relative w-48 h-48 bg-white/5 backdrop-blur-xl border border-white/20 rounded-3xl flex items-center justify-center shadow-xl shadow-black/10 overflow-hidden group"
                   >
                     <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <span className="relative">{item.image}</span>
+                    <motion.div
+                      whileHover={{ rotate: 360 }}
+                      transition={{ duration: 0.6 }}
+                      className={`relative w-24 h-24 bg-gradient-to-br ${item.gradient} rounded-2xl flex items-center justify-center shadow-lg`}
+                    >
+                      <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        {item.icon}
+                      </svg>
+                    </motion.div>
                   </motion.div>
                 </div>
                 <div className="flex-1">
@@ -408,7 +433,7 @@ export default function Home() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: 0.3 }}
-                    className="relative p-8 bg-white/5 backdrop-blur-xl border border-white/20 rounded-3xl shadow-xl shadow-black/10 overflow-hidden group"
+                    className="cursor-target relative p-8 bg-white/5 backdrop-blur-xl border border-white/20 rounded-3xl shadow-xl shadow-black/10 overflow-hidden group"
                   >
                     <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -567,7 +592,7 @@ export default function Home() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => router.push('/sign-up')}
-              className="relative px-12 py-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-xl shadow-2xl shadow-purple-500/50 hover:shadow-purple-500/70 transition-all"
+              className="cursor-target relative px-12 py-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-xl shadow-2xl shadow-purple-500/50 hover:shadow-purple-500/70 transition-all"
             >
               Start Practicing For Free →
             </motion.button>

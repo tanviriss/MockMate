@@ -439,7 +439,7 @@ const Hero: React.FC<HeroProps> = ({
               {buttons.primary && (
                 <button
                   onClick={buttons.primary.onClick}
-                  className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/25"
+                  className="cursor-target px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/25"
                 >
                   {buttons.primary.text}
                 </button>
@@ -447,7 +447,7 @@ const Hero: React.FC<HeroProps> = ({
               {buttons.secondary && (
                 <button
                   onClick={buttons.secondary.onClick}
-                  className="px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/20 hover:border-white/30 text-white rounded-full font-semibold text-lg transition-all duration-300 hover:scale-105 backdrop-blur-sm"
+                  className="cursor-target px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/20 hover:border-white/30 text-white rounded-full font-semibold text-lg transition-all duration-300 hover:scale-105 backdrop-blur-sm"
                 >
                   {buttons.secondary.text}
                 </button>

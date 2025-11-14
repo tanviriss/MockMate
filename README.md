@@ -19,6 +19,7 @@ MockMate is a real-time voice-based AI interview coaching platform that helps yo
 - **Framework**: Next.js 15 with App Router
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
+- **Authentication**: Clerk
 - **State Management**: Zustand
 - **Audio**: RecordRTC, Howler.js
 - **WebSocket**: Socket.io-client
@@ -27,7 +28,7 @@ MockMate is a real-time voice-based AI interview coaching platform that helps yo
 - **Framework**: FastAPI (Python 3.12+)
 - **Database**: PostgreSQL (Supabase)
 - **Cache**: Redis
-- **Authentication**: JWT
+- **Authentication**: Clerk (JWT validation)
 - **WebSocket**: Python-SocketIO
 
 ### AI Services
@@ -67,9 +68,11 @@ mockmate/
 
 - Python 3.12+
 - Node.js 18+
+- Clerk account (for authentication) - https://clerk.com
 - Supabase account (for PostgreSQL database and storage)
 - Redis instance (required for WebSocket session management)
 - API keys for:
+  - Clerk API
   - Google Gemini API
   - Groq API (Whisper)
   - ElevenLabs API
@@ -99,7 +102,10 @@ cp .env.example .env
 
 5. Configure environment variables in `.env`:
 ```env
-# Supabase
+# Clerk Authentication
+CLERK_SECRET_KEY=your_clerk_secret_key
+
+# Supabase (Database & Storage only, NOT for auth)
 SUPABASE_URL=your_supabase_project_url
 SUPABASE_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_KEY=your_supabase_service_role_key
@@ -109,9 +115,6 @@ DATABASE_URL=postgresql://postgres:[password]@[host]/postgres
 
 # Redis
 REDIS_URL=redis://localhost:6379/0
-
-# JWT
-JWT_SECRET=your_random_secret_key_here
 
 # AI Services
 GEMINI_API_KEY=your_gemini_api_key
@@ -124,7 +127,7 @@ ELEVENLABS_API_KEY=your_elevenlabs_api_key
    - Create two buckets:
      - `resumes` (public: false)
      - `audio-answers` (public: false)
-   - Set RLS policies to allow authenticated users access
+   - Note: No RLS policies needed - backend handles authorization via Clerk
 
 7. Start Redis (if running locally):
 ```bash
@@ -158,9 +161,18 @@ npm install
 
 3. Create `.env.local` file:
 ```env
+# Backend API
 NEXT_PUBLIC_API_URL=http://localhost:8000
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Clerk Authentication
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+CLERK_SECRET_KEY=your_clerk_secret_key
+
+# Clerk Sign-in/Sign-up URLs (optional, for customization)
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/dashboard
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/dashboard
 ```
 
 4. Start development server:
@@ -218,26 +230,37 @@ The live interview uses Socket.IO with these events:
 
 ## API Keys Setup
 
-### 1. Google Gemini API
+### 1. Clerk (Authentication)
+- Visit https://clerk.com/
+- Create a free account
+- Create a new application
+- Get your publishable key and secret key from the API Keys section
+- **Frontend**: Add `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` to `.env.local`
+- **Backend**: Add `CLERK_SECRET_KEY` to `.env`
+- Free tier: 10,000 monthly active users
+
+### 2. Google Gemini API
 - Visit https://ai.google.dev/
 - Create account and get API key
 - Free tier: 15 requests/minute, 1500/day
 
-### 2. Groq API (Whisper)
+### 3. Groq API (Whisper)
 - Visit https://console.groq.com/
 - Create account and get API key
 - Free tier: Very generous limits
 
-### 3. ElevenLabs API
+### 4. ElevenLabs API
 - Visit https://elevenlabs.io/
 - Create account
 - Free tier: 10,000 characters/month
 - Paid tiers: Creator ($22/month) for more usage
 
-### 4. Supabase
+### 5. Supabase (Database & Storage)
 - Visit https://supabase.com/
 - Create new project
 - Get connection string and API keys from project settings
+- Create storage buckets: `resumes` and `audio-answers` (set to private)
+- **Note**: We use Supabase only for PostgreSQL database and file storage, NOT for authentication
 - Free tier: 500MB database, 1GB storage
 
 ## Deployment
@@ -271,10 +294,11 @@ Deployment includes:
 - Check NEXT_PUBLIC_API_URL in `.env.local`
 - Check CORS settings in backend
 
-### Logged out on page refresh
-- Fixed in latest version with Zustand hydration handling
-- Clear browser cache and try again
-- Check browser localStorage is enabled
+### Authentication issues
+- Ensure Clerk keys are properly set in both frontend and backend
+- Check that CLERK_SECRET_KEY matches in both `.env` files
+- Verify Clerk application is active in Clerk dashboard
+- Clear browser cache and cookies, then try signing in again
 
 ### Audio recording not working
 - Use HTTPS or localhost (browser security requirement)
