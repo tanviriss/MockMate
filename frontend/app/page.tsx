@@ -7,6 +7,7 @@ import Logo from '@/components/Logo';
 import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import { DotScreenShader } from '@/components/ui/dot-shader-background';
 import AnimatedShaderHero from '@/components/ui/animated-shader-hero';
+import TargetCursor from '@/components/ui/TargetCursor';
 
 export default function Home() {
   const router = useRouter();
@@ -21,6 +22,9 @@ export default function Home() {
 
   return (
     <div ref={containerRef} className="bg-slate-950">
+      {/* Target Cursor */}
+      <TargetCursor spinDuration={2} hideDefaultCursor={true} parallaxOn={true} />
+
       {/* Background for non-hero sections */}
       <div className="fixed inset-0 z-0 bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900" />
 
@@ -395,7 +399,7 @@ export default function Home() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: 0.2 }}
                     whileHover={{ scale: 1.1, rotate: 5 }}
-                    className="relative w-48 h-48 bg-white/5 backdrop-blur-xl border border-white/20 rounded-3xl flex items-center justify-center text-8xl shadow-xl shadow-black/10 overflow-hidden group"
+                    className="cursor-target relative w-48 h-48 bg-white/5 backdrop-blur-xl border border-white/20 rounded-3xl flex items-center justify-center text-8xl shadow-xl shadow-black/10 overflow-hidden group"
                   >
                     <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -408,7 +412,7 @@ export default function Home() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: 0.3 }}
-                    className="relative p-8 bg-white/5 backdrop-blur-xl border border-white/20 rounded-3xl shadow-xl shadow-black/10 overflow-hidden group"
+                    className="cursor-target relative p-8 bg-white/5 backdrop-blur-xl border border-white/20 rounded-3xl shadow-xl shadow-black/10 overflow-hidden group"
                   >
                     <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
