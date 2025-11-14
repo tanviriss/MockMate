@@ -364,21 +364,34 @@ export default function Home() {
                 step: '01',
                 title: 'Upload Your Resume',
                 description: 'Our AI analyzes your resume to understand your unique background, skills, and experience.',
-                image: '📄',
+                icon: (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                ),
+                gradient: 'from-blue-500 to-cyan-500',
                 direction: 'left'
               },
               {
                 step: '02',
                 title: 'Paste Job Description',
                 description: 'Add the job description you&apos;re targeting. We&apos;ll generate questions that match the role perfectly.',
-                image: '🎯',
+                icon: (
+                  <>
+                    <circle cx="12" cy="12" r="10" strokeWidth={2} />
+                    <circle cx="12" cy="12" r="6" strokeWidth={2} />
+                    <circle cx="12" cy="12" r="2" strokeWidth={2} fill="currentColor" />
+                  </>
+                ),
+                gradient: 'from-purple-500 to-pink-500',
                 direction: 'right'
               },
               {
                 step: '03',
                 title: 'Practice & Improve',
                 description: 'Answer questions with your voice, get instant feedback, and track your progress over time.',
-                image: '🚀',
+                icon: (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                ),
+                gradient: 'from-pink-500 to-red-500',
                 direction: 'left'
               }
             ].map((item, i) => (
@@ -399,11 +412,19 @@ export default function Home() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: 0.2 }}
                     whileHover={{ scale: 1.1, rotate: 5 }}
-                    className="cursor-target relative w-48 h-48 bg-white/5 backdrop-blur-xl border border-white/20 rounded-3xl flex items-center justify-center text-8xl shadow-xl shadow-black/10 overflow-hidden group"
+                    className="cursor-target relative w-48 h-48 bg-white/5 backdrop-blur-xl border border-white/20 rounded-3xl flex items-center justify-center shadow-xl shadow-black/10 overflow-hidden group"
                   >
                     <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <span className="relative">{item.image}</span>
+                    <motion.div
+                      whileHover={{ rotate: 360 }}
+                      transition={{ duration: 0.6 }}
+                      className={`relative w-24 h-24 bg-gradient-to-br ${item.gradient} rounded-2xl flex items-center justify-center shadow-lg`}
+                    >
+                      <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        {item.icon}
+                      </svg>
+                    </motion.div>
                   </motion.div>
                 </div>
                 <div className="flex-1">
