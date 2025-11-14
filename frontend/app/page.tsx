@@ -42,7 +42,7 @@ export default function Home() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => router.push('/sign-in')}
-              className="px-6 py-2 text-white hover:text-blue-400 transition font-medium"
+              className="cursor-target px-6 py-2 text-white hover:text-blue-400 transition font-medium"
             >
               Login
             </motion.button>
@@ -50,7 +50,7 @@ export default function Home() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => router.push('/sign-up')}
-              className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition"
+              className="cursor-target px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition"
             >
               Get Started
             </motion.button>
@@ -126,7 +126,7 @@ export default function Home() {
               whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(168, 85, 247, 0.6)" }}
               whileTap={{ scale: 0.95 }}
               onClick={() => router.push('/sign-up')}
-              className="group px-10 py-5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-lg hover:shadow-2xl transition relative overflow-hidden"
+              className="cursor-target group px-10 py-5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-lg hover:shadow-2xl transition relative overflow-hidden"
             >
               <span className="relative z-10 flex items-center justify-center gap-2">
                 Start Practicing Free
@@ -150,7 +150,7 @@ export default function Home() {
               onClick={() => {
                 document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="relative px-10 py-5 bg-white/5 backdrop-blur-xl text-white border border-white/30 rounded-xl font-bold text-lg transition shadow-lg shadow-white/5 overflow-hidden group"
+              className="cursor-target relative px-10 py-5 bg-white/5 backdrop-blur-xl text-white border border-white/30 rounded-xl font-bold text-lg transition shadow-lg shadow-white/5 overflow-hidden group"
             >
               <span className="relative z-10">Learn More</span>
               <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -316,7 +316,7 @@ export default function Home() {
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.6, delay: i * 0.2 }}
                 whileHover={{ y: -10, scale: 1.02 }}
-                className="group relative h-full"
+                className="cursor-target group relative h-full"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-300" />
                 <div className="relative h-full p-8 bg-white/5 backdrop-blur-2xl border border-white/20 rounded-3xl hover:border-white/30 transition-all duration-300 shadow-xl shadow-black/20 overflow-hidden flex flex-col">
@@ -571,7 +571,7 @@ export default function Home() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => router.push('/sign-up')}
-              className="relative px-12 py-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-xl shadow-2xl shadow-purple-500/50 hover:shadow-purple-500/70 transition-all"
+              className="cursor-target relative px-12 py-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-xl shadow-2xl shadow-purple-500/50 hover:shadow-purple-500/70 transition-all"
             >
               Start Practicing For Free →
             </motion.button>
