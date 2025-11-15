@@ -73,7 +73,8 @@ async def verify_clerk_token(token: str) -> Dict[str, Any]:
             token,
             signing_key,
             algorithms=["RS256"],
-            options={"verify_signature": True, "verify_aud": False}
+            options={"verify_signature": True, "verify_aud": False},
+            leeway=60  # Allow 60 seconds of clock skew
         )
 
         logger.info(f"Clerk token verified for user: {decoded.get('sub')}")

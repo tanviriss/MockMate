@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useEffect } from "react";
+import { use, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth, useUser } from "@clerk/nextjs";
 import AudioRecorder from "@/components/AudioRecorder";
@@ -21,7 +21,9 @@ export default function LiveInterviewPage({
   const [hasStarted, setHasStarted] = useState(false);
   const [editedTranscript, setEditedTranscript] = useState("");
   const [isRecording, setIsRecording] = useState(false);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [token, setToken] = useState<string>("");
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Get token when auth is ready
   useEffect(() => {
@@ -59,6 +61,40 @@ export default function LiveInterviewPage({
     }
   }, [transcript]);
 
+  // Auto-play question audio in background
+  useEffect(() => {
+    if (questionAudio) {
+      // Convert base64 to blob
+      const byteCharacters = atob(questionAudio);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'audio/mp3' });
+      const url = URL.createObjectURL(blob);
+
+      // Create and play audio
+      const audio = new Audio(url);
+      audioRef.current = audio;
+
+      audio.onplay = () => setIsAudioPlaying(true);
+      audio.onended = () => setIsAudioPlaying(false);
+      audio.onpause = () => setIsAudioPlaying(false);
+
+      audio.play().catch(err => {
+        console.error('Error playing audio:', err);
+        setIsAudioPlaying(false);
+      });
+
+      return () => {
+        audio.pause();
+        URL.revokeObjectURL(url);
+        setIsAudioPlaying(false);
+      };
+    }
+  }, [questionAudio]);
+
   // Redirect if completed
   useEffect(() => {
     if (isCompleted) {
@@ -95,6 +131,7 @@ export default function LiveInterviewPage({
   // Determine interviewer avatar state
   const getAvatarState = (): 'idle' | 'talking' | 'listening' => {
     if (isRecording) return 'listening';
+    if (isAudioPlaying) return 'talking';
     return 'idle';
   };
 
@@ -190,7 +227,7 @@ export default function LiveInterviewPage({
             <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8">
               <InterviewerAvatar
                 state={getAvatarState()}
-                audioPlaying={false}
+                audioPlaying={isAudioPlaying}
               />
             </div>
 
@@ -206,6 +243,14 @@ export default function LiveInterviewPage({
                   <h2 className="text-2xl font-bold text-white mb-4">
                     {currentQuestion.question_text}
                   </h2>
+                  {isAudioPlaying && (
+                    <div className="flex items-center gap-2 text-blue-400 text-sm">
+                      <svg className="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                      </svg>
+                      <span>Interviewer is speaking...</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
