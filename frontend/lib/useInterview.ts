@@ -41,11 +41,13 @@ export function useInterview(interviewId: number, userId: string, token: string)
   // Initialize WebSocket connection
   useEffect(() => {
     if (!token || !userId) {
-      console.log("Waiting for token and userId...");
+      console.log("Waiting for token and userId...", { hasToken: !!token, hasUserId: !!userId, token: token?.substring(0, 10), userId });
       return;
     }
 
+    console.log("Initializing WebSocket connection...", { userId, hasToken: !!token });
     const WS_URL = process.env.NEXT_PUBLIC_WS_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    console.log("WebSocket URL:", WS_URL);
 
     const socket = io(WS_URL, {
       auth: {
