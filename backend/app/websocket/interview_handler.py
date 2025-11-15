@@ -22,7 +22,7 @@ from app.services.evaluation_service import evaluate_answer, calculate_overall_s
 from app.services.followup_service import should_ask_followup
 from app.websocket.session_manager import session_manager
 from app.config import settings
-from app.supabase_client import get_supabase
+from app.clerk_client import verify_clerk_token
 
 # Configure CORS based on environment - NEVER use wildcard in production
 cors_origins = settings.ALLOWED_ORIGINS.split(',') if settings.ALLOWED_ORIGINS else []
@@ -37,19 +37,18 @@ sio = socketio.AsyncServer(
 
 async def validate_token(token: str) -> Optional[dict]:
     """
-    Validate JWT token with Supabase
+    Validate JWT token with Clerk
 
     Returns:
         User data dict if valid, None otherwise
     """
     try:
-        supabase = get_supabase()
-        user_response = supabase.auth.get_user(token)
+        decoded = await verify_clerk_token(token)
 
-        if user_response and user_response.user:
+        if decoded and decoded.get('sub'):
             return {
-                'id': user_response.user.id,
-                'email': user_response.user.email
+                'id': decoded.get('sub'),
+                'email': decoded.get('email', decoded.get('primary_email_address', ''))
             }
         return None
     except Exception as e:
