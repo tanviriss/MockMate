@@ -45,7 +45,7 @@ export function useInterview(interviewId: number, userId: string, token: string)
       return;
     }
 
-    const WS_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    const WS_URL = process.env.NEXT_PUBLIC_WS_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
     const socket = io(WS_URL, {
       auth: {
