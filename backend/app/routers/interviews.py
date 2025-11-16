@@ -6,10 +6,10 @@ from slowapi.util import get_remote_address
 
 from app.database import get_db
 from app.dependencies import get_current_user
-from app.models.interview import Interview, InterviewStatus
+from app.models.interview import Interview, InterviewStatus, InterviewType
 from app.models.resume import Resume
 from app.models.question import Question
-from app.services.interview_service import analyze_job_description, generate_interview_questions
+from app.services.interview_service import analyze_job_description, generate_interview_questions, generate_resume_grill_questions
 from app.services.company_research_service import generate_company_specific_questions
 
 router = APIRouter(prefix="/interviews", tags=["Interviews"])
@@ -219,3 +219,95 @@ async def delete_interview(
     db.commit()
 
     return {"message": "Interview deleted successfully"}
+
+
+class CreateResumeGrillRequest(BaseModel):
+    resume_id: int
+    num_questions: int = 10
+
+
+@router.post("/resume-grill", status_code=status.HTTP_201_CREATED)
+@limiter.limit("5/minute")
+async def create_resume_grill(
+    request: Request,
+    grill_request: CreateResumeGrillRequest,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """
+    Create a Resume Grill interview - tests if candidate knows their resume
+    No job description needed - purely based on resume content
+    """
+    try:
+        # Get resume
+        resume = db.query(Resume).filter(
+            Resume.id == grill_request.resume_id,
+            Resume.user_id == current_user.id
+        ).first()
+
+        if not resume:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Resume not found"
+            )
+
+        # Generate resume grill questions
+        questions = await generate_resume_grill_questions(
+            resume.parsed_data,
+            grill_request.num_questions
+        )
+
+        # Create interview record
+        interview = Interview(
+            user_id=current_user.id,
+            resume_id=grill_request.resume_id,
+            interview_type=InterviewType.RESUME_GRILL,
+            job_description=None,  # No JD for resume grill
+            jd_analysis=None,
+            status=InterviewStatus.PENDING
+        )
+        db.add(interview)
+        db.commit()
+        db.refresh(interview)
+
+        # Save questions to database
+        try:
+            for idx, question_data in enumerate(questions):
+                question_text = question_data.get("question_text") if isinstance(question_data, dict) else str(question_data)
+
+                if not question_text:
+                    raise ValueError(f"Question {idx} missing question_text: {question_data}")
+
+                question = Question(
+                    interview_id=interview.id,
+                    question_text=question_text,
+                    question_context=question_data if isinstance(question_data, dict) else {"question_text": question_text},
+                    order_number=idx
+                )
+                db.add(question)
+
+            db.commit()
+
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to save questions: {str(e)}"
+            )
+
+        return {
+            "id": interview.id,
+            "interview_type": interview.interview_type,
+            "resume_id": interview.resume_id,
+            "status": interview.status,
+            "num_questions": len(questions),
+            "created_at": interview.created_at
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create resume grill: {str(e)}"
+        )
