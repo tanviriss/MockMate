@@ -23,7 +23,20 @@ def upgrade() -> None:
     op.create_index(op.f('ix_answers_question_id'), 'answers', ['question_id'], unique=False)
     op.drop_column('answers', 'audio_url')
     op.drop_column('answers', 'audio_duration_seconds')
-    op.add_column('interviews', sa.Column('interview_type', sa.Enum('STANDARD', 'RESUME_GRILL', 'COMPANY_PREP', name='interviewtype'), nullable=False))
+
+    # Create ENUM type
+    interview_type_enum = sa.Enum('STANDARD', 'RESUME_GRILL', 'COMPANY_PREP', name='interviewtype')
+    interview_type_enum.create(op.get_bind(), checkfirst=True)
+
+    # Add column as nullable first
+    op.add_column('interviews', sa.Column('interview_type', interview_type_enum, nullable=True))
+
+    # Update existing rows to have STANDARD type
+    op.execute("UPDATE interviews SET interview_type = 'STANDARD' WHERE interview_type IS NULL")
+
+    # Now make it not nullable
+    op.alter_column('interviews', 'interview_type', nullable=False)
+
     op.alter_column('interviews', 'job_description',
                existing_type=sa.VARCHAR(),
                nullable=True)
