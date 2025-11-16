@@ -8,8 +8,8 @@ import Logo from '@/components/Logo';
 
 interface Resume {
   id: number;
-  filename: string;
-  uploaded_at: string;
+  file_url: string;
+  created_at: string;
   parsed_data: {
     name?: string;
     [key: string]: any;
@@ -31,12 +31,21 @@ export default function ResumeGrillPage() {
   const fetchResumes = async () => {
     try {
       const token = await getToken();
-      if (!token) return;
+      if (!token) {
+        console.error('No token available');
+        setResumes([]);
+        setLoading(false);
+        return;
+      }
 
       const data = await api.getResumes(token);
-      setResumes(data);
+
+      // Backend returns { count, resumes }
+      const resumeList = data.resumes || [];
+      setResumes(resumeList);
     } catch (error) {
       console.error('Failed to fetch resumes:', error);
+      setResumes([]);
     } finally {
       setLoading(false);
     }
@@ -152,10 +161,11 @@ export default function ResumeGrillPage() {
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-white font-semibold">{resume.filename}</p>
+                        <p className="text-white font-semibold">
+                          {resume.parsed_data?.name || 'Resume'}
+                        </p>
                         <p className="text-gray-400 text-sm">
-                          {resume.parsed_data?.name || 'Unknown'} • Uploaded{' '}
-                          {new Date(resume.uploaded_at).toLocaleDateString()}
+                          Uploaded {new Date(resume.created_at).toLocaleDateString()}
                         </p>
                       </div>
                       {selectedResume === resume.id && (
