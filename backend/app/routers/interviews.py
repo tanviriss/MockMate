@@ -257,13 +257,11 @@ async def create_resume_grill(
             grill_request.num_questions
         )
 
-        # Create interview record
+        # Create interview record (no job_description or jd_analysis for resume grill)
         interview = Interview(
             user_id=current_user.id,
             resume_id=grill_request.resume_id,
             interview_type=InterviewType.RESUME_GRILL,
-            job_description=None,  # No JD for resume grill
-            jd_analysis=None,
             status=InterviewStatus.PENDING
         )
         db.add(interview)

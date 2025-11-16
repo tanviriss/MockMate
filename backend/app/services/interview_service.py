@@ -322,59 +322,93 @@ async def generate_resume_grill_questions(resume_data: dict, num_questions: int 
 Generate {num_questions} SHORT, PUNCHY questions that test their deep knowledge of what they wrote.
 
 **CRITICAL RULES:**
-1. Keep questions SHORT (under 20 words) - no long explanations or context
-2. Be DIRECT and SKEPTICAL - assume they might be exaggerating
-3. Questions should be ONE specific thing - don't ask 3 things in one question
-4. Make them PROVE they did the work with specifics
-5. Test understanding of technologies they claim to know
-6. Challenge metrics they claim (e.g., "80% reduction" - HOW did you measure it?)
+1. Keep questions SHORT (under 15 words) - be ruthlessly concise
+2. Remove ALL filler words - get straight to the point
+3. Be DIRECT and SKEPTICAL - assume they might be exaggerating
+4. ONE question = ONE specific thing to prove
+5. Use simple, conversational language - avoid formal/academic tone
+6. Questions should sound like a skeptical interviewer challenging claims
 
 **Question Types to Mix:**
 
-**A) Metric Challenges (30%)** - Make them prove their numbers:
-- "How did you measure that 95% accuracy?"
-- "What does '80% reduction' actually mean? Show the math."
-- "How did you benchmark that performance improvement?"
-- "What's your definition of 'success' for that metric?"
+**A) Metric Challenges (30%)** - Make them prove numbers:
+Good examples:
+✓ "How did you measure the 80% reduction?"
+✓ "What's your definition of '95% accuracy'?"
+✓ "How did you benchmark that improvement?"
 
-**B) Technology Depth (30%)** - Test if they know the tools:
-- "Why Redis over Memcached?"
-- "Explain how Celery task routing works."
-- "What's the latency of Groq Whisper in your app?"
-- "Why use PostgreSQL AND DynamoDB?"
+Bad examples (too long/formal):
+✗ "Can you walk me through how you measured and validated the 95% accuracy metric?"
+✗ "What constitutes a successful data fetch in your accuracy calculation?"
 
-**C) Implementation Specifics (25%)** - Make them explain HOW:
-- "Walk through your 3-step fallback system."
-- "How did you handle race conditions in Redis?"
-- "Explain your error handling for failed API calls."
-- "What's your retry logic for Celery tasks?"
+**B) Technology Choices (30%)** - Challenge their stack:
+Good examples:
+✓ "Why Celery + Redis over AWS SQS?"
+✓ "Why use both PostgreSQL AND DynamoDB?"
+✓ "What's Groq Whisper's latency in your app?"
 
-**D) Decision Justification (15%)** - Challenge their choices:
-- "Why Gemini over GPT-4?"
-- "Why not use AWS SQS instead of Celery?"
-- "What made you pick ElevenLabs for TTS?"
-- "Why WebSocket instead of polling?"
+Bad examples:
+✗ "What specific advantages did Celery offer over simpler asynchronous task queues?"
+✗ "Can you elaborate on why you selected Redis as the message broker?"
 
-**IMPORTANT:**
-- Questions MUST be under 20 words - be ruthlessly concise
-- Every question ties to SPECIFIC details from their resume
-- One question = one thing to prove
-- No multi-part questions
-- Short, sharp, and skeptical
+**C) Implementation Details (25%)** - Make them explain HOW:
+Good examples:
+✓ "Explain your 3-step fallback system."
+✓ "What Selenium selectors did you use?"
+✓ "How does Next.js handle WebSocket connections?"
+
+Bad examples:
+✗ "Walk me through the technical implementation of your fallback mechanism."
+✗ "Can you describe the dataflow and processing pipeline in detail?"
+
+**D) Tech Understanding (15%)** - Test if they know their tools:
+Good examples:
+✓ "How does Celery task routing work?"
+✓ "Explain Redis pub/sub."
+✓ "What's the difference between RDB and AOF in Redis?"
+
+Bad examples:
+✗ "What specific Redis data structures did you leverage for managing tasks?"
+✗ "Elaborate on the architectural considerations you made when implementing..."
+
+**FINAL CHECKLIST - Every question MUST:**
+- Be under 15 words (ruthlessly cut filler)
+- Reference SPECIFIC project/tech from their resume
+- Ask ONE thing only (no "and" or multiple parts)
+- Use simple language (avoid: "elaborate", "articulate", "walk me through")
+- Sound like a skeptical interviewer, not a chatbot
+
+**GOOD question structure:**
+- "Why [tech A] over [tech B]?"
+- "How did you measure [metric]?"
+- "What [specific implementation detail]?"
+- "Explain [technology concept]."
+
+**BAD question patterns to AVOID:**
+- DON'T prefix with project/company names ("OpenGym:", "ClinicSense:", "Cognizant:")
+- DON'T start with "Can you..." or "Could you..."
+- DON'T use formal language ("elaborate", "describe in detail", "walk me through")
+- DON'T ask multiple things in one question
+- DON'T add context/setup - get straight to the question
 
 Return JSON array with {num_questions} questions:
 [
     {{
         "question_number": 1,
-        "question_text": "Specific probing question about their resume",
-        "question_type": "technology_deepdive|implementation_detail|critical_thinking",
+        "question_text": "Short direct question - NO project prefix, just the question",
+        "question_type": "technology_deepdive|implementation_detail|metric_challenge|critical_thinking",
         "difficulty": "medium|hard",
-        "category": "Technology or Project name from resume",
+        "category": "Technology or skill being tested (NOT project name)",
         "expected_topics": ["topic1", "topic2"],
         "skill_tags": ["specific_technology"],
         "resume_reference": "What part of resume this tests"
     }}
 ]
+
+CRITICAL: The question_text should NEVER start with a project name. Just ask the question directly.
+Examples:
+✓ "Why Celery + Redis over AWS SQS?"
+✗ "ClinicSense: Why Celery + Redis over AWS SQS?"
 
 Return ONLY valid JSON, no markdown."""
 
