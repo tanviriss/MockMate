@@ -21,6 +21,7 @@ export default function ResumeGrillPage() {
   const { getToken } = useAuth();
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [selectedResume, setSelectedResume] = useState<number | null>(null);
+  const [numQuestions, setNumQuestions] = useState<number>(10);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
 
@@ -67,7 +68,7 @@ export default function ResumeGrillPage() {
         },
         body: JSON.stringify({
           resume_id: selectedResume,
-          num_questions: 10
+          num_questions: numQuestions
         })
       });
 
@@ -182,9 +183,30 @@ export default function ResumeGrillPage() {
             )}
           </div>
 
+          {/* Number of Questions Slider */}
+          {resumes.length > 0 && (
+            <div className="mt-8">
+              <label className="block text-white font-semibold text-lg mb-2">
+                Number of Questions: {numQuestions}
+              </label>
+              <input
+                type="range"
+                min="1"
+                max="10"
+                value={numQuestions}
+                onChange={(e) => setNumQuestions(parseInt(e.target.value))}
+                className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-orange-500"
+              />
+              <div className="flex justify-between text-xs text-gray-400 mt-1">
+                <span>1 question</span>
+                <span>10 questions</span>
+              </div>
+            </div>
+          )}
+
           {/* Start Button */}
           {resumes.length > 0 && (
-            <div className="mt-8 pt-8 border-t border-white/10">
+            <div className="mt-6 pt-6 border-t border-white/10">
               <button
                 onClick={handleStartGrill}
                 disabled={!selectedResume || creating}
@@ -207,7 +229,7 @@ export default function ResumeGrillPage() {
                 )}
               </button>
               <p className="text-center text-gray-400 text-sm mt-3">
-                This will generate 10 tough questions about your resume
+                This will generate {numQuestions} tough {numQuestions === 1 ? 'question' : 'questions'} about your resume
               </p>
             </div>
           )}
