@@ -11,13 +11,20 @@ class InterviewStatus(str, enum.Enum):
     COMPLETED = "completed"
 
 
+class InterviewType(str, enum.Enum):
+    STANDARD = "standard"  # Regular interview with JD
+    RESUME_GRILL = "resume_grill"  # Resume-only grilling
+    COMPANY_PREP = "company_prep"  # Company-specific prep
+
+
 class Interview(Base):
     __tablename__ = "interviews"
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)  # UUID string
     resume_id = Column(Integer, ForeignKey("resumes.id"), nullable=False)
-    job_description = Column(String, nullable=False)
+    interview_type = Column(Enum(InterviewType), default=InterviewType.STANDARD, nullable=False, index=True)
+    job_description = Column(String, nullable=True)  # Nullable for resume_grill type
     jd_analysis = Column(JSON, nullable=True)  # AI-analyzed JD requirements
     target_company = Column(String, nullable=True)  # Target company for prep (e.g., "Google", "Amazon")
     status = Column(Enum(InterviewStatus), default=InterviewStatus.PENDING, index=True)
