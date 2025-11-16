@@ -32,17 +32,36 @@ async def research_company_interview_questions(
     try:
         logger.info(f"Generating {company_name} {role} interview questions...")
 
-        search_prompt = f"""Generate {num_questions} realistic interview questions that are commonly asked at {company_name} for {role} positions.
+        search_prompt = f"""Generate {num_questions} realistic interview questions that match ACTUAL questions asked at {company_name} for {role} positions.
 
-Based on common interview patterns at {company_name}, provide questions that are:
-- Realistic for {company_name}'s interview process
-- Appropriate for {role} level
-- Mix of technical, behavioral, and situational
+**CRITICAL RULES:**
+1. Questions must match REAL interview patterns (direct, concise, no fluff)
+2. Use exact phrasing that real interviewers use
+3. NO personalized/conversational style ("You mentioned...", "That's interesting...")
+4. Based on known {company_name} interview patterns from Glassdoor/Blind/LeetCode
+
+**Question Types for {company_name}:**
+- Technical concept questions (50%): "What's the difference between X and Y?", "Explain how X works"
+- Behavioral questions (30%): "Tell me about a time...", "Describe a situation..."
+- System design (10%): "Design a [system]", "How would you build..."
+- Experience questions (10%): "Walk me through a project", "What's the most challenging..."
+
+**Examples of GOOD questions:**
+✓ "What's the difference between a process and a thread?"
+✓ "Explain how garbage collection works in Java"
+✓ "Tell me about a time you disagreed with your manager"
+✓ "Design a URL shortening service like bit.ly"
+✓ "How would you optimize a slow database query?"
+
+**AVOID these patterns:**
+✗ "I see you've worked with Python. Can you tell me about..."
+✗ "Your background is quite impressive! Let's talk about..."
+✗ "You mentioned in your resume..."
 
 Return ONLY a JSON array of questions:
 ["Question 1?", "Question 2?", "Question 3?"]
 
-Return ONLY the JSON array, no markdown or explanation."""
+Return ONLY the JSON array, no markdown."""
 
         response = model.generate_content(search_prompt)
 

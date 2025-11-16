@@ -92,41 +92,85 @@ async def generate_interview_questions(resume_data: dict, jd_analysis: dict, num
         for proj in projects[:2]:  # Top 2 projects
             project_context += f"\n- {proj.get('name', '')}: {', '.join(proj.get('description', [])[:1])}"
 
-    prompt = f"""You're interviewing a candidate for: {jd_analysis.get('job_title', 'Software Engineer')} at {jd_analysis.get('company', 'the company')}.
+    prompt = f"""You are generating realistic interview questions for a {jd_analysis.get('job_title', 'Software Engineer')} position.
 
-Generate {num_questions} interview questions.
+**Job Requirements:** {', '.join(jd_analysis.get('required_skills', [])[:8])}
+**Key Responsibilities:** {', '.join(jd_analysis.get('key_responsibilities', [])[:3])}
+**Company/Role:** {jd_analysis.get('company', 'Not specified')}
 
-Job Requirements:
-{', '.join(jd_analysis.get('required_skills', [])[:8])}
+**Candidate Skills:** {', '.join(all_skills[:10])}
+**Candidate Experience:**{experience_context}
+**Candidate Projects:**{project_context}
+**Experience Level:** {jd_analysis.get('experience_level', 'mid')}
 
-Candidate Background:
-{', '.join(all_skills[:10])}{experience_context[:200]}
+Generate {num_questions} interview questions that match REAL interview patterns AND are RELEVANT to both the job requirements and the candidate's background.
 
-Keep questions simple and conversational. Examples:
-- "Tell me about your experience with Python."
-- "Have you worked with REST APIs before?"
-- "Walk me through a project you're proud of."
-- "What challenges did you face in your last role?"
+**CRITICAL RULES:**
+1. Questions must be DIRECT and CONCISE (no conversational fluff)
+2. NO personalized references like "You mentioned..." or "Your project..."
+3. NO compliments or narrative style ("sounds fascinating!")
+4. Ask questions a HUMAN interviewer would actually ask
+5. Use industry-standard phrasing
 
-Mix question types:
-- 40% Technical (about skills they'll use)
-- 40% Behavioral (past experiences)
-- 20% Role-specific (why this job, their goals)
+**Question Type Distribution:**
+- 50% Technical Definition/Concept Questions (direct, knowledge-based)
+- 30% Behavioral Questions (STAR method, past experiences)
+- 20% Experience/Project Questions (open-ended but brief)
+
+**TECHNICAL QUESTIONS - Examples of GOOD patterns:**
+✓ "What's the difference between LEFT JOIN and RIGHT JOIN in SQL?"
+✓ "Explain how closures work in JavaScript"
+✓ "What is normalization in databases?"
+✓ "How does the event loop work in Node.js?"
+✓ "What are the main differences between REST and GraphQL?"
+✓ "Explain the virtual DOM in React"
+✓ "What is dependency injection?"
+✓ "How would you optimize a slow-running SQL query?"
+
+**BEHAVIORAL QUESTIONS - Examples of GOOD patterns:**
+✓ "Tell me about a time you had a conflict with a coworker"
+✓ "Describe a situation where you had to meet a tight deadline"
+✓ "Tell me about the most difficult bug you've fixed recently"
+✓ "How do you handle receiving criticism on your work?"
+✓ "Describe a time you had to learn a new technology quickly"
+
+**EXPERIENCE QUESTIONS - Examples of GOOD patterns:**
+✓ "Walk me through a project you're most proud of"
+✓ "What's the most challenging technical problem you've solved?"
+✓ "Tell me about your experience with [specific technology from resume]"
+✓ "What challenges have you faced working in a team?"
+
+**AVOID these patterns:**
+✗ "You mentioned working with SQL. Can you describe a time..."
+✗ "Your OpenGym project sounds fascinating! Can you walk me through..."
+✗ "I see you have experience with Python..."
+✗ "That's interesting! Tell me more about..."
+
+**Question Selection Strategy:**
+- **RELEVANCE IS KEY**: Questions MUST connect the candidate's actual experience to the job requirements
+- For technical questions: Ask about technologies/concepts that appear in BOTH the JD and the candidate's background
+  - Example: If candidate has AWS experience and JD mentions cloud → ask about specific AWS services
+  - Example: If candidate built AI tools and JD needs ML → ask about their AI/ML approach
+- For experience questions: Reference their actual project domains (healthcare AI, wildfire detection, etc.) in relation to the job
+  - Example: If they built medical AI and JD is healthcare → ask how they'd apply that experience
+- For behavioral: Tailor to the role's key responsibilities (if JD emphasizes teamwork, ask about collaboration)
+- Difficulty should match: entry=easy/medium, mid=medium, senior=medium/hard
+- **AVOID generic textbook questions** - every question should feel relevant to THIS specific interview
 
 Return JSON array with {num_questions} questions:
 [
     {{
         "question_number": 1,
-        "question_text": "simple question here",
-        "question_type": "technical|behavioral|project_deepdive",
+        "question_text": "Direct question here - no fluff",
+        "question_type": "technical_concept|technical_coding|behavioral|experience|system_design",
         "difficulty": "easy|medium|hard",
-        "category": "skill name",
+        "category": "specific skill or topic",
         "expected_topics": ["topic1", "topic2"],
-        "skill_tags": ["skill1"]
+        "skill_tags": ["relevant_skill"]
     }}
 ]
 
-Return ONLY valid JSON."""
+Return ONLY valid JSON, no markdown."""
 
     response = model.generate_content(prompt)
 
