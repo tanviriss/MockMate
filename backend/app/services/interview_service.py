@@ -3,6 +3,7 @@ Interview generation service using Gemini AI
 """
 import google.generativeai as genai
 from app.config import settings
+import json
 
 genai.configure(api_key=settings.GEMINI_API_KEY)
 model = genai.GenerativeModel('gemini-2.0-flash')
@@ -256,12 +257,149 @@ Return ONLY JSON, no markdown."""
     response = model.generate_content(prompt)
     import json
     result_text = response.text.strip()
-    
+
     if result_text.startswith('```json'):
         result_text = result_text[7:]
     if result_text.startswith('```'):
         result_text = result_text[3:]
     if result_text.endswith('```'):
         result_text = result_text[:-3]
-    
+
+    return json.loads(result_text.strip())
+
+
+async def generate_resume_grill_questions(resume_data: dict, num_questions: int = 10) -> list:
+    """
+    Generate CRITICAL questions that grill the candidate on their resume
+    No job description - purely testing if they know what they wrote
+
+    Args:
+        resume_data: Parsed resume data
+        num_questions: Number of questions to generate (default 10)
+
+    Returns:
+        List of tough, probing questions about their resume
+    """
+
+    # Extract all resume details
+    skills = resume_data.get('technical_skills', {})
+    all_skills = []
+    if skills:
+        all_skills.extend(skills.get('languages', []))
+        all_skills.extend(skills.get('frameworks_libraries', []))
+        all_skills.extend(skills.get('cloud_databases', []))
+        all_skills.extend(skills.get('ai_tools', []))
+        all_skills.extend(skills.get('developer_tools', []))
+
+    experiences = resume_data.get('experience', [])
+    projects = resume_data.get('projects', [])
+
+    # Build detailed context for grilling
+    experience_details = ""
+    if experiences:
+        for exp in experiences:
+            experience_details += f"\n- {exp.get('title', '')} at {exp.get('company', '')}"
+            for resp in exp.get('responsibilities', []):
+                experience_details += f"\n  • {resp}"
+
+    project_details = ""
+    if projects:
+        for proj in projects:
+            project_details += f"\n- {proj.get('name', '')} ({', '.join(proj.get('technologies', [])[:5])})"
+            for desc in proj.get('description', []):
+                project_details += f"\n  • {desc}"
+
+    prompt = f"""You are conducting a RESUME GRILL interview. Your job is to test if the candidate ACTUALLY knows what they put on their resume.
+
+**Candidate's Resume:**
+
+**Technical Skills:** {', '.join(all_skills)}
+
+**Experience:**{experience_details}
+
+**Projects:**{project_details}
+
+Generate {num_questions} TOUGH, PROBING questions that test their deep knowledge of what they wrote.
+
+**CRITICAL RULES:**
+1. Be SKEPTICAL - assume they might be exaggerating
+2. Ask for SPECIFIC technical details about their accomplishments
+3. Question the "how" and "why" behind their claims
+4. Test their understanding of the technologies they listed
+5. Make them explain metrics they claimed (e.g., "80% reduction" - HOW?)
+6. Questions should be DIRECT and make them prove they did the work
+
+**Question Categories (Mix these):**
+
+**A) Technology Deep-Dive Questions (40%)**
+Test if they actually know the technologies they listed:
+- "Explain how [specific technology from their resume] works internally"
+- "What's the difference between [tech A] and [tech B] that you used?"
+- "Why did you choose [technology] over alternatives for [project]?"
+- "Walk me through the architecture of [specific tech stack they claim]"
+
+Examples:
+✓ "You list Redis in your skills. Explain how Redis persistence works (RDB vs AOF)"
+✓ "Explain the difference between Next.js and React - why use both?"
+✓ "How does AWS Transcribe Medical differ from standard Transcribe?"
+
+**B) Project Implementation Questions (40%)**
+Make them prove they built what they claim:
+- "How exactly did you achieve [specific metric/result]?"
+- "Walk me through the technical implementation of [feature]"
+- "What challenges did you face when building [X] and how did you solve them?"
+- "Explain your architecture decisions for [project]"
+
+Examples:
+✓ "You claim 80% reduction in form completion time. Walk me through how you measured and achieved this"
+✓ "Explain the 3-step fallback system in your AI Autofill. Why three steps?"
+✓ "How did you integrate ElevenLabs and Groq Whisper together? What was the data flow?"
+
+**C) Critical Thinking Questions (20%)**
+Test their understanding and decision-making:
+- "What would you do differently if you rebuilt [project] today?"
+- "Why did you choose [approach A] over [approach B]?"
+- "What trade-offs did you consider when implementing [feature]?"
+- "How did you handle [specific technical challenge]?"
+
+Examples:
+✓ "Why use Celery + Redis for async processing instead of AWS SQS?"
+✓ "You used both PostgreSQL and DynamoDB. Why not just one database?"
+✓ "What's the purpose of using Gemini 2.0 Flash instead of GPT-4?"
+
+**IMPORTANT:**
+- Every question should reference SPECIFIC details from their resume
+- Don't ask generic questions - tie everything to what THEY wrote
+- Be tough but fair - these questions should make them think
+- If they mention a metric, make them explain it
+- If they mention a technology, test their understanding of it
+
+Return JSON array with {num_questions} questions:
+[
+    {{
+        "question_number": 1,
+        "question_text": "Specific probing question about their resume",
+        "question_type": "technology_deepdive|implementation_detail|critical_thinking",
+        "difficulty": "medium|hard",
+        "category": "Technology or Project name from resume",
+        "expected_topics": ["topic1", "topic2"],
+        "skill_tags": ["specific_technology"],
+        "resume_reference": "What part of resume this tests"
+    }}
+]
+
+Return ONLY valid JSON, no markdown."""
+
+    response = model.generate_content(prompt)
+
+    # Parse JSON from response
+    result_text = response.text.strip()
+
+    if result_text.startswith('```json'):
+        result_text = result_text[7:]
+    if result_text.startswith('```'):
+        result_text = result_text[3:]
+    if result_text.endswith('```'):
+        result_text = result_text[:-3]
+
     return json.loads(result_text.strip())
