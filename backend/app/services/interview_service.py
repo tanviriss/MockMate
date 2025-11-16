@@ -319,60 +319,48 @@ async def generate_resume_grill_questions(resume_data: dict, num_questions: int 
 
 **Projects:**{project_details}
 
-Generate {num_questions} TOUGH, PROBING questions that test their deep knowledge of what they wrote.
+Generate {num_questions} SHORT, PUNCHY questions that test their deep knowledge of what they wrote.
 
 **CRITICAL RULES:**
-1. Be SKEPTICAL - assume they might be exaggerating
-2. Ask for SPECIFIC technical details about their accomplishments
-3. Question the "how" and "why" behind their claims
-4. Test their understanding of the technologies they listed
-5. Make them explain metrics they claimed (e.g., "80% reduction" - HOW?)
-6. Questions should be DIRECT and make them prove they did the work
+1. Keep questions SHORT (under 20 words) - no long explanations or context
+2. Be DIRECT and SKEPTICAL - assume they might be exaggerating
+3. Questions should be ONE specific thing - don't ask 3 things in one question
+4. Make them PROVE they did the work with specifics
+5. Test understanding of technologies they claim to know
+6. Challenge metrics they claim (e.g., "80% reduction" - HOW did you measure it?)
 
-**Question Categories (Mix these):**
+**Question Types to Mix:**
 
-**A) Technology Deep-Dive Questions (40%)**
-Test if they actually know the technologies they listed:
-- "Explain how [specific technology from their resume] works internally"
-- "What's the difference between [tech A] and [tech B] that you used?"
-- "Why did you choose [technology] over alternatives for [project]?"
-- "Walk me through the architecture of [specific tech stack they claim]"
+**A) Metric Challenges (30%)** - Make them prove their numbers:
+- "How did you measure that 95% accuracy?"
+- "What does '80% reduction' actually mean? Show the math."
+- "How did you benchmark that performance improvement?"
+- "What's your definition of 'success' for that metric?"
 
-Examples:
-✓ "You list Redis in your skills. Explain how Redis persistence works (RDB vs AOF)"
-✓ "Explain the difference between Next.js and React - why use both?"
-✓ "How does AWS Transcribe Medical differ from standard Transcribe?"
+**B) Technology Depth (30%)** - Test if they know the tools:
+- "Why Redis over Memcached?"
+- "Explain how Celery task routing works."
+- "What's the latency of Groq Whisper in your app?"
+- "Why use PostgreSQL AND DynamoDB?"
 
-**B) Project Implementation Questions (40%)**
-Make them prove they built what they claim:
-- "How exactly did you achieve [specific metric/result]?"
-- "Walk me through the technical implementation of [feature]"
-- "What challenges did you face when building [X] and how did you solve them?"
-- "Explain your architecture decisions for [project]"
+**C) Implementation Specifics (25%)** - Make them explain HOW:
+- "Walk through your 3-step fallback system."
+- "How did you handle race conditions in Redis?"
+- "Explain your error handling for failed API calls."
+- "What's your retry logic for Celery tasks?"
 
-Examples:
-✓ "You claim 80% reduction in form completion time. Walk me through how you measured and achieved this"
-✓ "Explain the 3-step fallback system in your AI Autofill. Why three steps?"
-✓ "How did you integrate ElevenLabs and Groq Whisper together? What was the data flow?"
-
-**C) Critical Thinking Questions (20%)**
-Test their understanding and decision-making:
-- "What would you do differently if you rebuilt [project] today?"
-- "Why did you choose [approach A] over [approach B]?"
-- "What trade-offs did you consider when implementing [feature]?"
-- "How did you handle [specific technical challenge]?"
-
-Examples:
-✓ "Why use Celery + Redis for async processing instead of AWS SQS?"
-✓ "You used both PostgreSQL and DynamoDB. Why not just one database?"
-✓ "What's the purpose of using Gemini 2.0 Flash instead of GPT-4?"
+**D) Decision Justification (15%)** - Challenge their choices:
+- "Why Gemini over GPT-4?"
+- "Why not use AWS SQS instead of Celery?"
+- "What made you pick ElevenLabs for TTS?"
+- "Why WebSocket instead of polling?"
 
 **IMPORTANT:**
-- Every question should reference SPECIFIC details from their resume
-- Don't ask generic questions - tie everything to what THEY wrote
-- Be tough but fair - these questions should make them think
-- If they mention a metric, make them explain it
-- If they mention a technology, test their understanding of it
+- Questions MUST be under 20 words - be ruthlessly concise
+- Every question ties to SPECIFIC details from their resume
+- One question = one thing to prove
+- No multi-part questions
+- Short, sharp, and skeptical
 
 Return JSON array with {num_questions} questions:
 [
