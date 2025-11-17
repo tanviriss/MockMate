@@ -85,7 +85,7 @@ export default function DashboardPage() {
         {/* Welcome Section */}
         <div className="mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Welcome back, {user.firstName || 'there'}! 👋
+            Welcome back, {user.firstName || 'there'}!
           </h1>
           <p className="text-xl text-gray-300">
             Ready to practice and ace your next interview?
