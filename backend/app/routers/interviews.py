@@ -144,7 +144,11 @@ async def list_interviews(
                 "status": i.status,
                 "overall_score": i.overall_score,
                 "created_at": i.created_at,
-                "completed_at": i.completed_at
+                "completed_at": i.completed_at,
+                "resume": {
+                    "id": i.resume.id,
+                    "parsed_data": i.resume.parsed_data
+                } if i.resume else None
             }
             for i in interviews
         ]

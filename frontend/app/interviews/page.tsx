@@ -17,6 +17,13 @@ interface Interview {
   overall_score: number | null;
   created_at: string;
   completed_at: string | null;
+  resume?: {
+    id: number;
+    parsed_data: {
+      name?: string;
+      [key: string]: any;
+    };
+  };
 }
 
 export default function InterviewsPage() {
@@ -442,7 +449,10 @@ export default function InterviewsPage() {
                       <div className="flex items-start justify-between mb-2">
                         <div>
                           <h3 className="text-xl font-bold text-white">
-                            {isResumeGrill ? 'Resume Grill' : (interview.jd_analysis?.job_title || 'Interview')}
+                            {isResumeGrill
+                              ? `Resume Grill${interview.resume?.parsed_data?.name ? ` - ${interview.resume.parsed_data.name}` : ''}`
+                              : (interview.jd_analysis?.job_title || 'Interview')
+                            }
                           </h3>
                           {interview.jd_analysis?.company && (
                             <p className={`text-sm font-medium mt-1 ${
