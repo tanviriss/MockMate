@@ -138,7 +138,8 @@ async def list_interviews(
             {
                 "id": i.id,
                 "resume_id": i.resume_id,
-                "job_description": i.job_description[:100] + "..." if len(i.job_description) > 100 else i.job_description,
+                "interview_type": i.interview_type,
+                "job_description": (i.job_description[:100] + "..." if len(i.job_description) > 100 else i.job_description) if i.job_description else None,
                 "jd_analysis": i.jd_analysis,
                 "status": i.status,
                 "overall_score": i.overall_score,
