@@ -309,7 +309,9 @@ async def generate_resume_grill_questions(resume_data: dict, num_questions: int 
             for desc in proj.get('description', []):
                 project_details += f"\n  • {desc}"
 
-    prompt = f"""You are conducting a RESUME GRILL interview. Your job is to test if the candidate ACTUALLY knows what they put on their resume.
+    prompt = f"""Role & Goal:
+You are an experienced software engineering interviewer conducting a resume grill — a simulated technical interview where the goal is to test a candidate's true understanding of their resume.
+Your task is to generate probing, realistic, and context-aware questions based on the candidate's resume.
 
 **Candidate's Resume:**
 
@@ -319,96 +321,48 @@ async def generate_resume_grill_questions(resume_data: dict, num_questions: int 
 
 **Projects:**{project_details}
 
-Generate {num_questions} SHORT, PUNCHY questions that test their deep knowledge of what they wrote.
+Behavior & Output Requirements:
 
-**CRITICAL RULES:**
-1. Keep questions SHORT (under 15 words) - be ruthlessly concise
-2. Remove ALL filler words - get straight to the point
-3. Be DIRECT and SKEPTICAL - assume they might be exaggerating
-4. ONE question = ONE specific thing to prove
-5. Use simple, conversational language - avoid formal/academic tone
-6. Questions should sound like a skeptical interviewer challenging claims
+1. Act as a human interviewer — curious, skeptical, and conversational.
+   - Your tone should sound natural and professional, not robotic.
+   - You can show curiosity ("Can you walk me through how that worked?") or challenge claims ("You said you reduced time by 80% — how did you measure that?").
 
-**Question Types to Mix:**
+2. Analyze the resume deeply — identify:
+   - Projects: technologies used, purpose, impact metrics, architecture.
+   - Experience: job titles, responsibilities, leadership roles.
+   - Skills: match claims with potential technical questions.
 
-**A) Metric Challenges (30%)** - Make them prove numbers:
-Good examples:
-✓ "How did you measure the 80% reduction?"
-✓ "What's your definition of '95% accuracy'?"
-✓ "How did you benchmark that improvement?"
+3. Generate {num_questions} questions that:
+   - Test technical depth (implementation details, architecture, algorithms, libraries).
+   - Test role clarity (what exactly the candidate did).
+   - Test impact validation (how they measured results).
+   - Test design decisions (why a framework, DB, or model was chosen).
+   - Test behavioral reasoning (teamwork, leadership, learning challenges).
 
-Bad examples (too long/formal):
-✗ "Can you walk me through how you measured and validated the 95% accuracy metric?"
-✗ "What constitutes a successful data fetch in your accuracy calculation?"
+4. Difficulty mix:
+   - 60% technical deep-dives (project or skill-based)
+   - 25% behavioral / reflective ("What did you learn?", "What would you do differently?")
+   - 15% follow-ups that push for more detail ("Can you go deeper into how you handled X?")
 
-**B) Technology Choices (30%)** - Challenge their stack:
-Good examples:
-✓ "Why Celery + Redis over AWS SQS?"
-✓ "Why use both PostgreSQL AND DynamoDB?"
-✓ "What's Groq Whisper's latency in your app?"
-
-Bad examples:
-✗ "What specific advantages did Celery offer over simpler asynchronous task queues?"
-✗ "Can you elaborate on why you selected Redis as the message broker?"
-
-**C) Implementation Details (25%)** - Make them explain HOW:
-Good examples:
-✓ "Explain your 3-step fallback system."
-✓ "What Selenium selectors did you use?"
-✓ "How does Next.js handle WebSocket connections?"
-
-Bad examples:
-✗ "Walk me through the technical implementation of your fallback mechanism."
-✗ "Can you describe the dataflow and processing pipeline in detail?"
-
-**D) Tech Understanding (15%)** - Test if they know their tools:
-Good examples:
-✓ "How does Celery task routing work?"
-✓ "Explain Redis pub/sub."
-✓ "What's the difference between RDB and AOF in Redis?"
-
-Bad examples:
-✗ "What specific Redis data structures did you leverage for managing tasks?"
-✗ "Elaborate on the architectural considerations you made when implementing..."
-
-**FINAL CHECKLIST - Every question MUST:**
-- Be under 15 words (ruthlessly cut filler)
-- Reference SPECIFIC project/tech from their resume
-- Ask ONE thing only (no "and" or multiple parts)
-- Use simple language (avoid: "elaborate", "articulate", "walk me through")
-- Sound like a skeptical interviewer, not a chatbot
-
-**GOOD question structure:**
-- "Why [tech A] over [tech B]?"
-- "How did you measure [metric]?"
-- "What [specific implementation detail]?"
-- "Explain [technology concept]."
-
-**BAD question patterns to AVOID:**
-- DON'T prefix with project/company names ("OpenGym:", "ClinicSense:", "Cognizant:")
-- DON'T start with "Can you..." or "Could you..."
-- DON'T use formal language ("elaborate", "describe in detail", "walk me through")
-- DON'T ask multiple things in one question
-- DON'T add context/setup - get straight to the question
+Global guidelines:
+- Avoid generic questions like "Tell me about yourself."
+- Always ground questions in the specific resume content.
+- Use variable tone — mix in curiosity, skepticism, and encouragement.
+- Keep each question under 45 words.
 
 Return JSON array with {num_questions} questions:
 [
     {{
         "question_number": 1,
-        "question_text": "Short direct question - NO project prefix, just the question",
-        "question_type": "technology_deepdive|implementation_detail|metric_challenge|critical_thinking",
+        "question_text": "Your natural, conversational question here",
+        "question_type": "technical_depth|impact_validation|behavioral_reflection|design_decision",
         "difficulty": "medium|hard",
-        "category": "Technology or skill being tested (NOT project name)",
+        "category": "Brief category like 'Vector Search' or 'Database Design'",
         "expected_topics": ["topic1", "topic2"],
         "skill_tags": ["specific_technology"],
-        "resume_reference": "What part of resume this tests"
+        "resume_reference": "What project/experience this tests"
     }}
 ]
-
-CRITICAL: The question_text should NEVER start with a project name. Just ask the question directly.
-Examples:
-✓ "Why Celery + Redis over AWS SQS?"
-✗ "ClinicSense: Why Celery + Redis over AWS SQS?"
 
 Return ONLY valid JSON, no markdown."""
 
