@@ -10,7 +10,8 @@ import { SkeletonInterview } from '@/components/Skeleton';
 interface Interview {
   id: number;
   resume_id: number;
-  job_description: string;
+  interview_type: string;
+  job_description: string | null;
   jd_analysis: unknown;
   status: string;
   overall_score: number | null;
@@ -29,6 +30,7 @@ export default function InterviewsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('recent');
+  const [activeTab, setActiveTab] = useState<'standard' | 'resume_grill'>('standard');
 
   useEffect(() => {
     if (isReady) {
@@ -79,6 +81,15 @@ export default function InterviewsPage() {
   // Filter and sort interviews
   const filteredAndSortedInterviews = interviews
     .filter(interview => {
+      // Tab filter - filter by interview type
+      const interviewType = interview.interview_type?.toLowerCase() || 'standard';
+      if (activeTab === 'standard' && interviewType !== 'standard') {
+        return false;
+      }
+      if (activeTab === 'resume_grill' && interviewType !== 'resume_grill') {
+        return false;
+      }
+
       // Status filter
       if (statusFilter !== 'all' && interview.status.toLowerCase() !== statusFilter) {
         return false;
@@ -89,7 +100,7 @@ export default function InterviewsPage() {
         const query = searchQuery.toLowerCase();
         const jobTitle = interview.jd_analysis?.job_title?.toLowerCase() || '';
         const company = interview.jd_analysis?.company?.toLowerCase() || '';
-        const description = interview.job_description.toLowerCase();
+        const description = interview.job_description?.toLowerCase() || '';
 
         return jobTitle.includes(query) ||
                company.includes(query) ||
@@ -202,6 +213,60 @@ export default function InterviewsPage() {
         {error && (
           <div className="bg-red-500/10 border border-red-500/50 text-red-200 px-4 py-3 rounded-lg backdrop-blur-sm mb-6">
             {error}
+          </div>
+        )}
+
+        {/* Tabs */}
+        {interviews.length > 0 && (
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-2 mb-6 flex gap-2">
+            <button
+              onClick={() => {
+                setActiveTab('standard');
+                setSearchQuery('');
+                setStatusFilter('all');
+              }}
+              className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
+                activeTab === 'standard'
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                  : 'text-gray-300 hover:bg-white/10'
+              }`}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Standard Interviews
+                <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
+                  activeTab === 'standard' ? 'bg-white/20' : 'bg-white/10'
+                }`}>
+                  {interviews.filter(i => (i.interview_type?.toLowerCase() || 'standard') === 'standard').length}
+                </span>
+              </div>
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab('resume_grill');
+                setSearchQuery('');
+                setStatusFilter('all');
+              }}
+              className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
+                activeTab === 'resume_grill'
+                  ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg'
+                  : 'text-gray-300 hover:bg-white/10'
+              }`}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+                </svg>
+                Resume Grills
+                <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
+                  activeTab === 'resume_grill' ? 'bg-white/20' : 'bg-white/10'
+                }`}>
+                  {interviews.filter(i => i.interview_type?.toLowerCase() === 'resume_grill').length}
+                </span>
+              </div>
+            </button>
           </div>
         )}
 
@@ -352,13 +417,23 @@ export default function InterviewsPage() {
             </div>
           ) : (
             <div className="divide-y divide-white/10">
-              {filteredAndSortedInterviews.map((interview) => (
+              {filteredAndSortedInterviews.map((interview) => {
+                const isResumeGrill = interview.interview_type?.toLowerCase() === 'resume_grill';
+                return (
                 <div key={interview.id} className="p-6 hover:bg-white/5 transition group">
                   <div className="flex gap-6">
                     <div className="flex-shrink-0">
-                      <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+                      <div className={`w-16 h-16 rounded-xl flex items-center justify-center ${
+                        isResumeGrill
+                          ? 'bg-gradient-to-br from-orange-500 to-red-600'
+                          : 'bg-gradient-to-br from-purple-500 to-purple-600'
+                      }`}>
                         <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                          {isResumeGrill ? (
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+                          ) : (
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                          )}
                         </svg>
                       </div>
                     </div>
@@ -367,10 +442,12 @@ export default function InterviewsPage() {
                       <div className="flex items-start justify-between mb-2">
                         <div>
                           <h3 className="text-xl font-bold text-white">
-                            {interview.jd_analysis?.job_title || 'Interview'}
+                            {isResumeGrill ? 'Resume Grill' : (interview.jd_analysis?.job_title || 'Interview')}
                           </h3>
                           {interview.jd_analysis?.company && (
-                            <p className="text-sm text-purple-300 font-medium mt-1">
+                            <p className={`text-sm font-medium mt-1 ${
+                              isResumeGrill ? 'text-orange-300' : 'text-purple-300'
+                            }`}>
                               {interview.jd_analysis.company}
                             </p>
                           )}
@@ -380,9 +457,16 @@ export default function InterviewsPage() {
                         </span>
                       </div>
 
-                      <p className="text-gray-300 text-sm mb-3 line-clamp-2">
-                        {interview.job_description}
-                      </p>
+                      {interview.job_description && (
+                        <p className="text-gray-300 text-sm mb-3 line-clamp-2">
+                          {interview.job_description}
+                        </p>
+                      )}
+                      {isResumeGrill && (
+                        <p className="text-orange-200 text-sm mb-3 italic">
+                          Testing your resume knowledge
+                        </p>
+                      )}
 
                       <div className="flex items-center gap-4 text-xs text-gray-400 mb-4">
                         <span className="flex items-center gap-1">
@@ -450,7 +534,8 @@ export default function InterviewsPage() {
                     </div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
