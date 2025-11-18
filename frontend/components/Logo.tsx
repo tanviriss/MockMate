@@ -1,30 +1,29 @@
 export default function Logo({ className = "" }: { className?: string }) {
   return (
-    <div className={`flex items-center gap-2.5 ${className}`}>
+    <div className={`flex items-center gap-2 ${className}`}>
       <div className="relative">
-        {/* Rounded square background with subtle border */}
-        <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-md border border-blue-500/30">
-          {/* Modern minimalist microphone icon */}
-          <svg
-            className="w-6 h-6 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            strokeWidth={2.2}
-          >
-            {/* Simplified mic shape */}
-            <rect x="9" y="3" width="6" height="10" rx="3" fill="currentColor" />
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M5 10v2a7 7 0 0014 0v-2M12 19v4m-4 0h8"
-            />
-          </svg>
+        <div className="relative w-10 h-10">
+          <div className="absolute inset-0 bg-violet-500/30 rounded-full"></div>
+          <div className="absolute inset-1 bg-violet-600/50 rounded-full"></div>
+          <div className="absolute inset-2 bg-violet-600 rounded-full flex items-center justify-center">
+            <svg
+              className="w-3.5 h-3.5 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+              />
+            </svg>
+          </div>
+          <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full"></div>
         </div>
-        {/* Active status indicator */}
-        <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full border-2 border-slate-900"></div>
       </div>
-      <span className="text-2xl font-bold text-white">
+      <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
         MockMate
       </span>
     </div>
