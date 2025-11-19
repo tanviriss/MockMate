@@ -149,16 +149,38 @@ Generate {num_questions} interview questions that match REAL interview patterns 
 ✗ "I see you have experience with Python..."
 ✗ "That's interesting! Tell me more about..."
 
-**Question Selection Strategy:**
-- **RELEVANCE IS KEY**: Questions MUST connect the candidate's actual experience to the job requirements
-- For technical questions: Ask about technologies/concepts that appear in BOTH the JD and the candidate's background
-  - Example: If candidate has AWS experience and JD mentions cloud → ask about specific AWS services
-  - Example: If candidate built AI tools and JD needs ML → ask about their AI/ML approach
-- For experience questions: Reference their actual project domains (healthcare AI, wildfire detection, etc.) in relation to the job
-  - Example: If they built medical AI and JD is healthcare → ask how they'd apply that experience
-- For behavioral: Tailor to the role's key responsibilities (if JD emphasizes teamwork, ask about collaboration)
-- Difficulty should match: entry=easy/medium, mid=medium, senior=medium/hard
-- **AVOID generic textbook questions** - every question should feel relevant to THIS specific interview
+**Question Selection Strategy - CRITICAL RULES:**
+
+1. **ONLY ask about what the candidate has actually done or used**
+   - Review the candidate's skills, projects, and experience carefully
+   - If a technology/concept is NOT in their resume, do NOT ask about it
+   - Example: If JD mentions "Terraform" but candidate has no IaC experience → ask about their DevOps/automation experience instead
+   - Example: If JD mentions "RBAC" but candidate hasn't worked with it → ask about their authentication/security work instead
+
+2. **Find the overlap between JD requirements and candidate experience**
+   - JD needs cloud (Azure/GCP) + Candidate has AWS → ask about AWS and cloud concepts they know
+   - JD needs Python automation + Candidate has Python projects → ask about their automation scripts
+   - JD needs identity management + Candidate has no IAM experience → ask about their API security or auth implementation
+
+3. **When there's NO direct overlap, ask transferable questions**
+   - Focus on fundamentals and problem-solving approaches the candidate CAN answer
+   - Example: Instead of "Explain RBAC" → "How did you handle user permissions in your projects?"
+   - Example: Instead of "What is Terraform?" → "How would you approach automating infrastructure deployment?"
+
+4. **Question types based on experience match:**
+   - 60% questions about technologies the candidate HAS used (from their resume)
+   - 30% behavioral questions about situations they've likely faced
+   - 10% conceptual questions about transferable skills (NOT technologies they've never touched)
+
+5. **Difficulty matching:**
+   - Entry level: Focus on fundamentals and what they've learned
+   - Mid level: Mix of their experience + how they'd apply it
+   - Senior: System design and architecture based on their projects
+
+6. **NEVER ask textbook questions about unfamiliar technologies**
+   - Don't ask "What is X?" if X isn't in their resume
+   - Don't test knowledge of tools they've never claimed to use
+   - Every question must be answerable based on their actual experience
 
 Return JSON array with {num_questions} questions:
 [
