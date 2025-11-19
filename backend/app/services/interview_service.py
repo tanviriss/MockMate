@@ -82,24 +82,26 @@ async def generate_interview_questions(resume_data: dict, jd_analysis: dict, num
     experiences = resume_data.get('experience', [])
     projects = resume_data.get('projects', [])
 
-    # Build detailed context
     experience_context = ""
     if experiences:
-        for exp in experiences[:3]:  # Top 3 experiences
-            experience_context += f"\n- {exp.get('title', '')} at {exp.get('company', '')}: {', '.join(exp.get('responsibilities', [])[:2])}"
+        for exp in experiences:
+            experience_context += f"\n- {exp.get('title', '')} at {exp.get('company', '')}: {', '.join(exp.get('responsibilities', []))}"
 
     project_context = ""
     if projects:
-        for proj in projects[:2]:  # Top 2 projects
-            project_context += f"\n- {proj.get('name', '')}: {', '.join(proj.get('description', [])[:1])}"
+        for proj in projects:
+            project_context += f"\n- {proj.get('name', '')}: {', '.join(proj.get('description', []))}"
 
     prompt = f"""You are generating realistic interview questions for a {jd_analysis.get('job_title', 'Software Engineer')} position.
 
-**Job Requirements:** {', '.join(jd_analysis.get('required_skills', [])[:8])}
-**Key Responsibilities:** {', '.join(jd_analysis.get('key_responsibilities', [])[:3])}
+**Job Requirements (Required Skills):** {', '.join(jd_analysis.get('required_skills', []))}
+**Job Requirements (Preferred Skills):** {', '.join(jd_analysis.get('preferred_skills', []))}
+**Technical Requirements:** {', '.join(jd_analysis.get('technical_requirements', []))}
+**Soft Skills Needed:** {', '.join(jd_analysis.get('soft_skills', []))}
+**Key Responsibilities:** {', '.join(jd_analysis.get('key_responsibilities', []))}
 **Company/Role:** {jd_analysis.get('company', 'Not specified')}
 
-**Candidate Skills:** {', '.join(all_skills[:10])}
+**Candidate Skills:** {', '.join(all_skills)}
 **Candidate Experience:**{experience_context}
 **Candidate Projects:**{project_context}
 **Experience Level:** {jd_analysis.get('experience_level', 'mid')}
