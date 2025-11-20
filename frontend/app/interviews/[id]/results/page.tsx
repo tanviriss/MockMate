@@ -32,6 +32,7 @@ interface QuestionResult {
     feedback?: string;
     strengths?: string[];
     improvements?: string[];
+    weaknesses?: string[];
     key_points_covered?: string[];
   };
 }
