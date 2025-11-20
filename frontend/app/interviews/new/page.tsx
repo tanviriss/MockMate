@@ -8,7 +8,10 @@ import Logo from '@/components/Logo';
 
 interface Resume {
   id: number;
-  parsed_data: unknown;
+  parsed_data: {
+    name?: string;
+    [key: string]: unknown;
+  };
   created_at: string;
 }
 

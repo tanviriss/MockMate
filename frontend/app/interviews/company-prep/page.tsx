@@ -6,9 +6,14 @@ import { useClerkAuth } from '@/hooks/useClerkAuth';
 import { api } from '@/lib/api';
 import Logo from '@/components/Logo';
 
+interface ParsedData {
+  name?: string;
+  [key: string]: unknown;
+}
+
 interface Resume {
   id: number;
-  parsed_data: unknown;
+  parsed_data: ParsedData;
   created_at: string;
 }
 

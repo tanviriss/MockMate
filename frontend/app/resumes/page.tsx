@@ -10,7 +10,10 @@ import { SkeletonResume } from '@/components/Skeleton';
 interface Resume {
   id: number;
   file_url: string;
-  parsed_data: unknown;
+  parsed_data: {
+    name?: string;
+    [key: string]: unknown;
+  };
   created_at: string;
 }
 
