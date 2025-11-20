@@ -16,6 +16,26 @@ interface IdealAnswer {
   why_this_works: string;
 }
 
+interface QuestionResult {
+  question_id: number;
+  question_text: string;
+  question_type: string;
+  user_answer: string;
+  score: number | null;
+  feedback: string;
+  strengths: string[];
+  improvements: string[];
+}
+
+interface InterviewResults {
+  interview_id: number;
+  total_questions: number;
+  evaluated_answers: number;
+  overall_score: number | null;
+  results: QuestionResult[];
+  [key: string]: unknown;
+}
+
 export default function InterviewResultsPage({
   params,
 }: {
@@ -25,7 +45,7 @@ export default function InterviewResultsPage({
   const interviewId = parseInt(resolvedParams.id);
   const router = useRouter();
   const { isReady, getToken } = useClerkAuth();
-  const [results, setResults] = useState<Record<string, unknown> | null>(null);
+  const [results, setResults] = useState<InterviewResults | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [idealAnswers, setIdealAnswers] = useState<{ [key: number]: IdealAnswer }>({});
@@ -113,7 +133,7 @@ export default function InterviewResultsPage({
   const getCategoryBreakdown = () => {
     const categories: { [key: string]: { scores: number[], count: number } } = {};
 
-    results.results.forEach((result: unknown) => {
+    results.results.forEach((result) => {
       if (result.score !== null && result.score !== undefined) {
         const category = result.question_type || 'general';
         if (!categories[category]) {
