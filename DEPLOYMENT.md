@@ -73,6 +73,10 @@ DEBUG=false
 DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@db.jtfjikxtydhlgiolfjft.supabase.co:5432/postgres
 REDIS_URL=redis://default:YOUR_PASSWORD@YOUR_REGION.upstash.io:6379
 
+# Clerk Authentication (production keys from clerk.com)
+CLERK_SECRET_KEY=sk_live_xxxxx
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_xxxxx
+
 JWT_SECRET_KEY=YOUR_SECURE_JWT_SECRET
 JWT_ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
@@ -99,6 +103,7 @@ RATE_LIMIT_PER_HOUR=1000
 - Copy values from your `.env` file
 - For `REDIS_URL`, use the Upstash URL from Step 1
 - For `ALLOWED_ORIGINS`, use your Vercel frontend URL (you'll get this in Step 3)
+- For Clerk keys, get production keys from clerk.com (switch to Production instance)
 
 ### 2.4 Deploy
 
@@ -151,9 +156,25 @@ Click "Environment Variables" and add:
 NEXT_PUBLIC_API_URL=https://your-backend.railway.app
 NEXT_PUBLIC_WS_URL=wss://your-backend.railway.app
 NEXT_PUBLIC_ENVIRONMENT=production
+
+# Clerk Authentication (get production keys from clerk.com)
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_xxxxx
+CLERK_SECRET_KEY=sk_live_xxxxx
+
+# Clerk URLs
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/dashboard
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/dashboard
 ```
 
 Replace `your-backend.railway.app` with your actual Railway domain from Step 2.
+
+**Getting Clerk Production Keys:**
+1. Go to https://clerk.com and log in
+2. Switch from "Development" to "Production" instance (top left)
+3. Go to "API Keys"
+4. Copy your production keys (pk_live_... and sk_live_...)
 
 ### 3.4 Deploy
 
