@@ -12,7 +12,12 @@ interface Interview {
   resume_id: number;
   interview_type: string;
   job_description: string | null;
-  jd_analysis: unknown;
+  jd_analysis: {
+    job_title?: string;
+    company?: string;
+    required_skills?: string[];
+    [key: string]: unknown;
+  } | null;
   status: string;
   overall_score: number | null;
   created_at: string;
