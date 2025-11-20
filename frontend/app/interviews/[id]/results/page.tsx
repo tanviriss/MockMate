@@ -16,6 +16,14 @@ interface IdealAnswer {
   why_this_works: string;
 }
 
+interface Evaluation {
+  feedback?: string;
+  strengths?: string[];
+  improvements?: string[];
+  weaknesses?: string[];
+  key_points_covered?: string[];
+}
+
 interface QuestionResult {
   question_id: number;
   question_number?: number;
@@ -28,13 +36,8 @@ interface QuestionResult {
   feedback?: string;
   strengths?: string[];
   improvements?: string[];
-  evaluation?: {
-    feedback?: string;
-    strengths?: string[];
-    improvements?: string[];
-    weaknesses?: string[];
-    key_points_covered?: string[];
-  };
+  has_evaluation?: boolean;
+  evaluation?: Evaluation;
 }
 
 interface InterviewResults {
