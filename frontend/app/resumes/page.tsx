@@ -12,6 +12,9 @@ interface Resume {
   file_url: string;
   parsed_data: {
     name?: string;
+    email?: string;
+    technical_skills?: string[];
+    languages?: string[];
     [key: string]: unknown;
   };
   created_at: string;
@@ -145,7 +148,7 @@ export default function ResumesPage() {
             isOpen: true,
             type: 'error',
             title: 'Delete Failed',
-            message: err.message || 'Failed to delete resume. Please try again.',
+            message: err instanceof Error ? err.message : 'Failed to delete resume. Please try again.',
             showCancel: false,
           });
         }
@@ -363,11 +366,11 @@ export default function ResumesPage() {
                       </p>
 
                       {/* Skills Preview */}
-                      {resume.parsed_data?.technical_skills && (
+                      {resume.parsed_data?.technical_skills && Array.isArray(resume.parsed_data.technical_skills) && (
                         <div>
                           <p className="text-xs text-gray-400 font-medium mb-2">Top Skills:</p>
                           <div className="flex flex-wrap gap-2">
-                            {resume.parsed_data.technical_skills.languages?.slice(0, 6).map((skill: string, idx: number) => (
+                            {resume.parsed_data.technical_skills.slice(0, 6).map((skill: string, idx: number) => (
                               <span
                                 key={idx}
                                 className="px-3 py-1 bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-medium rounded-full"
@@ -375,9 +378,9 @@ export default function ResumesPage() {
                                 {skill}
                               </span>
                             ))}
-                            {resume.parsed_data.technical_skills.languages?.length > 6 && (
+                            {resume.parsed_data.technical_skills.length > 6 && (
                               <span className="px-3 py-1 text-xs text-gray-400">
-                                +{resume.parsed_data.technical_skills.languages.length - 6} more
+                                +{resume.parsed_data.technical_skills.length - 6} more
                               </span>
                             )}
                           </div>
