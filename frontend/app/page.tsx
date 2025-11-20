@@ -193,12 +193,12 @@ export default function Home() {
                   </svg>
                 )
               }
-            ].map((feature, i) => (
+            ].map((feature, index) => (
               <motion.div
                 key={feature.label}
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 1.6 + i * 0.1 }}
+                transition={{ duration: 0.5, delay: 1.6 + index * 0.1 }}
                 whileHover={{ scale: 1.05 }}
                 className="relative text-center px-8 py-6 bg-white/5 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg shadow-black/10 overflow-hidden group"
               >
@@ -213,7 +213,7 @@ export default function Home() {
                     duration: 2,
                     repeat: Infinity,
                     ease: "easeInOut",
-                    delay: i * 0.3
+                    delay: index * 0.3
                   }}
                   className="relative mx-auto w-14 h-14 flex items-center justify-center mb-3"
                 >
@@ -226,7 +226,7 @@ export default function Home() {
                       duration: 2,
                       repeat: Infinity,
                       ease: "easeInOut",
-                      delay: i * 0.3
+                      delay: index * 0.3
                     }}
                     className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} rounded-full blur-xl`}
                   />

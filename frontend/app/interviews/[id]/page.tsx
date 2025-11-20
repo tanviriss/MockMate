@@ -26,6 +26,7 @@ interface InterviewData {
     job_title?: string;
     company?: string;
     required_skills?: string[];
+    experience_level?: string;
     [key: string]: unknown;
   };
 }
@@ -216,7 +217,7 @@ export default function InterviewDetailsPage() {
             {interview.jd_analysis?.experience_level && (
               <div>
                 <p className="text-gray-400 text-sm mb-1">Experience Level</p>
-                <p className="text-white font-medium capitalize">{interview.jd_analysis.experience_level}</p>
+                <p className="text-white font-medium capitalize">{String(interview.jd_analysis.experience_level)}</p>
               </div>
             )}
             {interview.jd_analysis?.required_skills && interview.jd_analysis.required_skills.length > 0 && (
