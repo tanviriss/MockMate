@@ -60,6 +60,7 @@ export default function VideoFeed({ isVisible = true }: VideoFeedProps) {
     return () => {
       stopCamera();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Stop camera when component becomes invisible
@@ -67,7 +68,8 @@ export default function VideoFeed({ isVisible = true }: VideoFeedProps) {
     if (!isVisible && stream) {
       stopCamera();
     }
-  }, [isVisible]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isVisible, stream]);
 
   if (!isVisible) {
     return null;

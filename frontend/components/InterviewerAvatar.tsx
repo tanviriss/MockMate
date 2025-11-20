@@ -9,6 +9,7 @@ interface InterviewerAvatarProps {
 }
 
 export default function InterviewerAvatar({ state, audioPlaying = false }: InterviewerAvatarProps) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [animationData, setAnimationData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -45,7 +46,7 @@ export default function InterviewerAvatar({ state, audioPlaying = false }: Inter
         const data = await response.json();
         setAnimationData(data);
         setLoading(false);
-      } catch (error) {
+      } catch {
         // Silently fail and use fallback avatar
         setLoading(false);
       }

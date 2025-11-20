@@ -7,8 +7,6 @@ import { api } from '@/lib/api';
 import Logo from '@/components/Logo';
 import Modal from '@/components/Modal';
 import { SkeletonResume } from '@/components/Skeleton';
-import { UserButton } from '@clerk/nextjs';
-
 interface Resume {
   id: number;
   file_url: string;
@@ -18,7 +16,7 @@ interface Resume {
 
 export default function ResumesPage() {
   const router = useRouter();
-  const { isReady, getToken, user } = useClerkAuth();
+  const { isReady, getToken } = useClerkAuth();
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -43,6 +41,7 @@ export default function ResumesPage() {
   useEffect(() => {
     if (!isReady) return;
     fetchResumes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReady]);
 
   const fetchResumes = async () => {

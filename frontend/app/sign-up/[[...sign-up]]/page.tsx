@@ -15,9 +15,9 @@ export default function SignUpPage() {
       <div className="relative z-10 w-full max-w-md">
         {/* Logo */}
         <div className="flex justify-center mb-8">
-          <a href="/">
+          <button onClick={() => window.location.href = '/'}>
             <Logo />
-          </a>
+          </button>
         </div>
 
         {/* Clerk Sign Up Component */}

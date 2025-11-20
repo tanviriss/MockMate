@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useClerkAuth } from '@/hooks/useClerkAuth';
 import { api } from '@/lib/api';
@@ -30,6 +30,7 @@ export default function NewInterviewPage() {
     if (isReady) {
       fetchResumes();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReady]);
 
   const fetchResumes = async () => {

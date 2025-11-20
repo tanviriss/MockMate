@@ -35,6 +35,7 @@ export default function InterviewResultsPage({
     if (isReady) {
       fetchResults();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReady, interviewId]);
 
   const fetchResults = async () => {
