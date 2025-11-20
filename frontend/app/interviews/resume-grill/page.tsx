@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
 import { api } from '@/lib/api';
-import Logo from '@/components/Logo';
 
 interface Resume {
   id: number;
@@ -12,6 +11,7 @@ interface Resume {
   created_at: string;
   parsed_data: {
     name?: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
   };
 }
@@ -27,6 +27,7 @@ export default function ResumeGrillPage() {
 
   useEffect(() => {
     fetchResumes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchResumes = async () => {
@@ -118,7 +119,7 @@ export default function ResumeGrillPage() {
             <div>
               <h1 className="text-3xl font-bold text-white mb-2">Resume Grill 🔥</h1>
               <p className="text-gray-300 text-lg">
-                Think you know your resume? Let's see if you can explain everything you wrote.
+                Think you know your resume? Let&apos;s see if you can explain everything you wrote.
               </p>
               <p className="text-orange-300 text-sm mt-2">
                 This interview will test your deep knowledge of the technologies, projects, and achievements on your resume.

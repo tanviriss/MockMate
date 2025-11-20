@@ -21,6 +21,7 @@ interface Interview {
     id: number;
     parsed_data: {
       name?: string;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       [key: string]: any;
     };
   };
@@ -47,6 +48,7 @@ export default function InterviewsPage() {
     if (isReady) {
       fetchInterviews();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReady]);
 
   const fetchInterviews = async () => {

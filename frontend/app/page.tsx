@@ -507,7 +507,7 @@ export default function Home() {
                   </div>
                 </div>
                 <p className="text-xl text-white leading-relaxed">
-                  "Tell me about a time when you had to lead a team through a difficult project deadline. How did you handle the pressure and ensure success?"
+                  &quot;Tell me about a time when you had to lead a team through a difficult project deadline. How did you handle the pressure and ensure success?&quot;
                 </p>
               </div>
 
@@ -526,7 +526,7 @@ export default function Home() {
                 </div>
                 <div className="bg-slate-800/50 rounded-lg p-4 min-h-[120px]">
                   <p className="text-gray-300 leading-relaxed">
-                    "In my previous role as a senior developer, we faced a critical product launch with only two weeks remaining..."
+                    &quot;In my previous role as a senior developer, we faced a critical product launch with only two weeks remaining...&quot;
                   </p>
                 </div>
               </div>

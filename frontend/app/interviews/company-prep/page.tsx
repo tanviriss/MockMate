@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useClerkAuth } from '@/hooks/useClerkAuth';
 import { api } from '@/lib/api';
@@ -31,6 +31,7 @@ export default function CompanyPrepPage() {
     if (isReady) {
       fetchResumes();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReady]);
 
   const fetchResumes = async () => {
@@ -227,7 +228,7 @@ export default function CompanyPrepPage() {
                 <p className="text-sm text-gray-300">
                   <span className="font-semibold text-blue-400">🌐 Real Questions from the Web</span>
                   <br />
-                  We'll search Reddit, LeetCode, and other sources for actual interview questions from {formData.target_company || 'your target company'} and generate questions based on real interview experiences.
+                  We&apos;ll search Reddit, LeetCode, and other sources for actual interview questions from {formData.target_company || 'your target company'} and generate questions based on real interview experiences.
                 </p>
               </div>
 
