@@ -18,13 +18,22 @@ interface IdealAnswer {
 
 interface QuestionResult {
   question_id: number;
+  question_number?: number;
   question_text: string;
   question_type: string;
-  user_answer: string;
+  question_category?: string;
+  user_answer?: string;
+  answer_transcript?: string;
   score: number | null;
-  feedback: string;
-  strengths: string[];
-  improvements: string[];
+  feedback?: string;
+  strengths?: string[];
+  improvements?: string[];
+  evaluation?: {
+    feedback?: string;
+    strengths?: string[];
+    improvements?: string[];
+    key_points_covered?: string[];
+  };
 }
 
 interface InterviewResults {
@@ -218,7 +227,7 @@ export default function InterviewResultsPage({
 
         {/* Question Results */}
         <div className="space-y-6">
-          {results.results.map((result: unknown, index: number) => (
+          {results.results.map((result, index: number) => (
             <div
               key={index}
               className="bg-white/10 backdrop-blur-lg rounded-2xl p-6"
