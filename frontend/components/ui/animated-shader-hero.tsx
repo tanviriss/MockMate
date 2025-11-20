@@ -27,7 +27,7 @@ interface HeroProps {
 // Reusable Shader Background Hook
 const useShaderBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationFrameRef = useRef<number>();
+  const animationFrameRef = useRef<number | undefined>(undefined);
   const rendererRef = useRef<WebGLRenderer | null>(null);
   const pointersRef = useRef<PointerHandler | null>(null);
 
@@ -41,9 +41,9 @@ const useShaderBackground = () => {
     private buffer: WebGLBuffer | null = null;
     private scale: number;
     private shaderSource: string;
-    private mouseMove = [0, 0];
-    private mouseCoords = [0, 0];
-    private pointerCoords = [0, 0];
+    private mouseMove: [number, number] = [0, 0];
+    private mouseCoords: [number, number] = [0, 0];
+    private pointerCoords: number[] = [0, 0];
     private nbrOfPointers = 0;
 
     private vertexSrc = `#version 300 es
@@ -68,11 +68,11 @@ void main(){gl_Position=position;}`;
       this.init();
     }
 
-    updateMove(deltas: number[]) {
+    updateMove(deltas: [number, number]) {
       this.mouseMove = deltas;
     }
 
-    updateMouse(coords: number[]) {
+    updateMouse(coords: [number, number]) {
       this.mouseCoords = coords;
     }
 
@@ -203,8 +203,8 @@ void main(){gl_Position=position;}`;
     private scale: number;
     private active = false;
     private pointers = new Map<number, number[]>();
-    private lastCoords = [0, 0];
-    private moves = [0, 0];
+    private lastCoords: [number, number] = [0, 0];
+    private moves: [number, number] = [0, 0];
 
     constructor(element: HTMLCanvasElement, scale: number) {
       this.scale = scale;
@@ -235,7 +235,8 @@ void main(){gl_Position=position;}`;
 
       element.addEventListener('pointermove', (e) => {
         if (!this.active) return;
-        this.lastCoords = [e.clientX, e.clientY];
+        const coords: [number, number] = [e.clientX, e.clientY];
+        this.lastCoords = coords;
         this.pointers.set(e.pointerId, map(element, this.getScale(), e.clientX, e.clientY));
         this.moves = [this.moves[0] + e.movementX, this.moves[1] + e.movementY];
       });
@@ -253,7 +254,7 @@ void main(){gl_Position=position;}`;
       return this.pointers.size;
     }
 
-    get move() {
+    get move(): [number, number] {
       return this.moves;
     }
 
@@ -263,8 +264,9 @@ void main(){gl_Position=position;}`;
         : [0, 0];
     }
 
-    get first() {
-      return this.pointers.values().next().value || this.lastCoords;
+    get first(): [number, number] {
+      const value = this.pointers.values().next().value;
+      return value ? [value[0], value[1]] : this.lastCoords;
     }
   }
 
