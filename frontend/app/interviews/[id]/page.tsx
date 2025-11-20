@@ -48,7 +48,7 @@ export default function InterviewDetailsPage() {
       const data = await api.getInterview(parseInt(params.id as string), token);
       setInterview(data);
       setQuestions(data.questions || []);
-    } catch (err: unknown) {
+    } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch interview');
     } finally {
       setLoading(false);

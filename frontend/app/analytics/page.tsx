@@ -31,7 +31,7 @@ export default function AnalyticsPage() {
       if (!token) return;
       const data = await api.getAnalytics(token);
       setAnalytics(data);
-    } catch (err: unknown) {
+    } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch analytics');
     } finally {
       setLoading(false);

@@ -45,8 +45,8 @@ export default function CompanyPrepPage() {
       if (data.resumes && data.resumes.length > 0) {
         setFormData(prev => ({ ...prev, resume_id: data.resumes[0].id.toString() }));
       }
-    } catch (err: unknown) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
@@ -90,8 +90,8 @@ export default function CompanyPrepPage() {
 
       sessionStorage.setItem(`interview_${response.id}`, JSON.stringify(response));
       router.push(`/interviews/${response.id}`);
-    } catch (err: unknown) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setCreating(false);
     }

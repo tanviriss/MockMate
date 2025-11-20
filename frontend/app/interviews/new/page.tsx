@@ -45,8 +45,8 @@ export default function NewInterviewPage() {
       if (data.resumes && data.resumes.length > 0) {
         setFormData(prev => ({ ...prev, resume_id: data.resumes[0].id.toString() }));
       }
-    } catch (err: unknown) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
@@ -86,8 +86,8 @@ export default function NewInterviewPage() {
 
       // Navigate to interview details page
       router.push(`/interviews/${response.id}`);
-    } catch (err: unknown) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setCreating(false);
     }

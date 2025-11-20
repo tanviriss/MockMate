@@ -58,8 +58,8 @@ export default function InterviewsPage() {
       if (!token) return;
       const data = await api.getInterviews(token);
       setInterviews(data.interviews || []);
-    } catch (err: unknown) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
@@ -80,8 +80,8 @@ export default function InterviewsPage() {
       setDeleteModalOpen(false);
       setInterviewToDelete(null);
       fetchInterviews();
-    } catch (err: unknown) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
     }
   };
 

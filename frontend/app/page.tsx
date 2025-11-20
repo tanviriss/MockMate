@@ -394,7 +394,7 @@ export default function Home() {
                 gradient: 'from-pink-500 to-red-500',
                 direction: 'left'
               }
-            ].map((item, i) => (
+            ].map((item) => (
               <motion.div
                 key={item.step}
                 initial={{ opacity: 0, x: item.direction === 'left' ? -100 : 100 }}

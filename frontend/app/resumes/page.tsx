@@ -52,7 +52,7 @@ export default function ResumesPage() {
 
       const data = await api.getResumes(token);
       setResumes(data.resumes || []);
-    } catch (err: unknown) {
+    } catch (err) {
       setError((err as Error).message);
     } finally {
       setLoading(false);
@@ -104,7 +104,7 @@ export default function ResumesPage() {
       await api.uploadResume(selectedFile, token);
       setSelectedFile(null);
       fetchResumes();
-    } catch (err: unknown) {
+    } catch (err) {
       setError((err as Error).message);
     } finally {
       setUploading(false);
@@ -137,7 +137,7 @@ export default function ResumesPage() {
           });
 
           fetchResumes();
-        } catch (err: unknown) {
+        } catch (err) {
           setModalState({
             isOpen: true,
             type: 'error',

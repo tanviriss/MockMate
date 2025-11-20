@@ -45,8 +45,8 @@ export default function InterviewResultsPage({
       if (!token) return;
       const data = await api.getInterviewResults(interviewId, token);
       setResults(data);
-    } catch (err: unknown) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
@@ -61,7 +61,7 @@ export default function InterviewResultsPage({
       if (!token) return;
       const data = await api.getIdealAnswer(questionId, token);
       setIdealAnswers(prev => ({ ...prev, [questionId]: data.ideal_answer }));
-    } catch (err: unknown) {
+    } catch (err) {
       console.error('Failed to fetch ideal answer:', err);
     } finally {
       setLoadingIdeal(prev => ({ ...prev, [questionId]: false }));
