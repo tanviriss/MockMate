@@ -89,25 +89,41 @@ async def get_current_user(
 
             # Try to sync user to local database
             try:
+                # Check by user ID first
                 local_user = db.query(User).filter(User.id == clerk_user_adapted.id).first()
 
                 if not local_user:
-                    logger.info(f"Creating new local user from Clerk: {clerk_user_adapted.email}")
-                    local_user = User(
-                        id=clerk_user_adapted.id,
-                        email=clerk_user_adapted.email,
-                        full_name=clerk_user_adapted.user_metadata.get("full_name")
-                    )
-                    db.add(local_user)
-                    db.commit()
-                    db.refresh(local_user)
-                    logger.info("Local user created successfully")
+                    # Check if email exists with different user ID
+                    existing_user = db.query(User).filter(User.email == clerk_user_adapted.email).first()
+
+                    if existing_user:
+                        # Update existing user's ID to match Clerk user ID
+                        logger.info(f"Updating existing user {clerk_user_adapted.email} with new Clerk ID")
+                        existing_user.id = clerk_user_adapted.id
+                        existing_user.full_name = clerk_user_adapted.user_metadata.get("full_name")
+                        db.commit()
+                        db.refresh(existing_user)
+                        local_user = existing_user
+                    else:
+                        # Create new user
+                        logger.info(f"Creating new local user from Clerk: {clerk_user_adapted.email}")
+                        local_user = User(
+                            id=clerk_user_adapted.id,
+                            email=clerk_user_adapted.email,
+                            full_name=clerk_user_adapted.user_metadata.get("full_name")
+                        )
+                        db.add(local_user)
+                        db.commit()
+                        db.refresh(local_user)
+                        logger.info("Local user created successfully")
                 else:
                     logger.debug(f"Local user found: {local_user.email}")
             except (OperationalError, SQLTimeoutError) as db_error:
                 logger.warning(f"Database unavailable during auth (user will be authenticated without local sync): {db_error}")
+                db.rollback()
             except Exception as db_error:
                 logger.error(f"Unexpected database error during auth: {db_error}")
+                db.rollback()
 
             return AuthenticatedUser(clerk_user_adapted, token)
 
