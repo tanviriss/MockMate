@@ -11,6 +11,7 @@ from app.models.resume import Resume
 from app.models.question import Question
 from app.services.interview_service import analyze_job_description, generate_interview_questions, generate_resume_grill_questions
 from app.services.company_research_service import generate_company_specific_questions
+from app.logging_config import logger
 
 router = APIRouter(prefix="/interviews", tags=["Interviews"])
 limiter = Limiter(key_func=get_remote_address)
