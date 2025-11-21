@@ -104,23 +104,29 @@ async def get_current_user(
                         from app.models.resume import Resume
                         from app.models.interview import Interview
 
-                        # Update all resumes to point to new user ID
-                        db.query(Resume).filter(Resume.user_id == existing_user.id).update(
-                            {Resume.user_id: clerk_user_adapted.id}
-                        )
+                        # Temporarily change old user's email to avoid unique constraint
+                        old_user_id = existing_user.id
+                        existing_user.email = f"migrating_{existing_user.email}"
+                        db.flush()
 
-                        # Update all interviews to point to new user ID
-                        db.query(Interview).filter(Interview.user_id == existing_user.id).update(
-                            {Interview.user_id: clerk_user_adapted.id}
-                        )
-
-                        # Create new user with production Clerk ID
+                        # Create new user with production Clerk ID first
                         local_user = User(
                             id=clerk_user_adapted.id,
                             email=clerk_user_adapted.email,
                             full_name=clerk_user_adapted.user_metadata.get("full_name")
                         )
                         db.add(local_user)
+                        db.flush()
+
+                        # Now update all resumes to point to new user ID
+                        db.query(Resume).filter(Resume.user_id == old_user_id).update(
+                            {Resume.user_id: clerk_user_adapted.id}
+                        )
+
+                        # Update all interviews to point to new user ID
+                        db.query(Interview).filter(Interview.user_id == old_user_id).update(
+                            {Interview.user_id: clerk_user_adapted.id}
+                        )
 
                         # Delete old user record
                         db.delete(existing_user)
