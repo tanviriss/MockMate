@@ -96,13 +96,39 @@ async def get_current_user(
                     # Check if email exists with different user ID
                     existing_user = db.query(User).filter(User.email == clerk_user_adapted.email).first()
 
-                    if existing_user:
-                        # Update existing user's ID to match Clerk user ID
-                        logger.info(f"Updating existing user {clerk_user_adapted.email} with new Clerk ID")
-                        existing_user.id = clerk_user_adapted.id
-                        existing_user.full_name = clerk_user_adapted.user_metadata.get("full_name")
+                    if existing_user and existing_user.id != clerk_user_adapted.id:
+                        # Migrate user data from old Clerk ID to new Clerk ID
+                        logger.info(f"Migrating user {clerk_user_adapted.email} from old ID to production Clerk ID")
+
+                        # Import models here to avoid circular imports
+                        from app.models.resume import Resume
+                        from app.models.interview import Interview
+
+                        # Update all resumes to point to new user ID
+                        db.query(Resume).filter(Resume.user_id == existing_user.id).update(
+                            {Resume.user_id: clerk_user_adapted.id}
+                        )
+
+                        # Update all interviews to point to new user ID
+                        db.query(Interview).filter(Interview.user_id == existing_user.id).update(
+                            {Interview.user_id: clerk_user_adapted.id}
+                        )
+
+                        # Create new user with production Clerk ID
+                        local_user = User(
+                            id=clerk_user_adapted.id,
+                            email=clerk_user_adapted.email,
+                            full_name=clerk_user_adapted.user_metadata.get("full_name")
+                        )
+                        db.add(local_user)
+
+                        # Delete old user record
+                        db.delete(existing_user)
                         db.commit()
-                        db.refresh(existing_user)
+                        db.refresh(local_user)
+                        logger.info("User migration completed successfully")
+                    elif existing_user:
+                        # Email exists with same ID, just use it
                         local_user = existing_user
                     else:
                         # Create new user
