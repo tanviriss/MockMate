@@ -92,13 +92,21 @@ async def generate_interview_questions(resume_data: dict, jd_analysis: dict, num
         for proj in projects:
             project_context += f"\n- {proj.get('name', '')}: {', '.join(proj.get('description', []))}"
 
+    # Helper function to safely join lists
+    def safe_join(items, default=''):
+        if isinstance(items, list):
+            return ', '.join(str(item) for item in items)
+        elif isinstance(items, str):
+            return items
+        return default
+
     prompt = f"""You are generating realistic interview questions for a {jd_analysis.get('job_title', 'Software Engineer')} position.
 
-**Job Requirements (Required Skills):** {', '.join(jd_analysis.get('required_skills', []))}
-**Job Requirements (Preferred Skills):** {', '.join(jd_analysis.get('preferred_skills', []))}
-**Technical Requirements:** {', '.join(jd_analysis.get('technical_requirements', []))}
-**Soft Skills Needed:** {', '.join(jd_analysis.get('soft_skills', []))}
-**Key Responsibilities:** {', '.join(jd_analysis.get('key_responsibilities', []))}
+**Job Requirements (Required Skills):** {safe_join(jd_analysis.get('required_skills', []))}
+**Job Requirements (Preferred Skills):** {safe_join(jd_analysis.get('preferred_skills', []))}
+**Technical Requirements:** {safe_join(jd_analysis.get('technical_requirements', []))}
+**Soft Skills Needed:** {safe_join(jd_analysis.get('soft_skills', []))}
+**Key Responsibilities:** {safe_join(jd_analysis.get('key_responsibilities', []))}
 **Company/Role:** {jd_analysis.get('company', 'Not specified')}
 
 **Candidate Skills:** {', '.join(all_skills)}
