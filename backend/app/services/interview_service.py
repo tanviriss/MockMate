@@ -58,7 +58,7 @@ async def analyze_job_description(jd_text: str) -> dict:
     return json.loads(result_text.strip())
 
 
-async def generate_interview_questions(resume_data: dict, jd_analysis: dict, num_questions: int = 10) -> list:
+async def generate_interview_questions(resume_data: dict, jd_analysis: dict, num_questions: int = 10, raw_jd: str = None) -> list:
     """
     Generate interview questions based on resume and job description
 
@@ -66,6 +66,7 @@ async def generate_interview_questions(resume_data: dict, jd_analysis: dict, num
         resume_data: Parsed resume data
         jd_analysis: Analyzed job description
         num_questions: Number of questions to generate
+        raw_jd: Raw job description text (optional, for full context)
 
     Returns:
         List of question dictionaries
@@ -100,8 +101,17 @@ async def generate_interview_questions(resume_data: dict, jd_analysis: dict, num
             return items
         return default
 
-    prompt = f"""You are generating realistic interview questions for a {jd_analysis.get('job_title', 'Software Engineer')} position.
+    # Include raw JD for full context if available
+    jd_context = ""
+    if raw_jd:
+        jd_context = f"""
+**FULL JOB DESCRIPTION (use this as primary source of truth):**
+{raw_jd}
 
+**EXTRACTED KEY POINTS (use as hints, but don't limit yourself to these):**"""
+
+    prompt = f"""You are generating realistic interview questions for a {jd_analysis.get('job_title', 'Software Engineer')} position.
+{jd_context}
 **Job Requirements (Required Skills):** {safe_join(jd_analysis.get('required_skills', []))}
 **Job Requirements (Preferred Skills):** {safe_join(jd_analysis.get('preferred_skills', []))}
 **Technical Requirements:** {safe_join(jd_analysis.get('technical_requirements', []))}

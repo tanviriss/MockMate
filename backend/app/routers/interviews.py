@@ -65,7 +65,8 @@ async def create_interview(
             questions = await generate_interview_questions(
                 resume.parsed_data,
                 jd_analysis,
-                interview_request.num_questions
+                interview_request.num_questions,
+                raw_jd=interview_request.job_description
             )
 
         # Create interview record
