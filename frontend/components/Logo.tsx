@@ -2,32 +2,37 @@ export default function Logo({ className = "" }: { className?: string }) {
   return (
     <div className={`flex items-center gap-3 ${className}`}>
       <div className="relative group">
-        <div className="relative w-14 h-14">
-          <div className="absolute inset-0 bg-violet-500/30 rounded-full animate-pulse"></div>
+        <div className="relative w-12 h-12">
+          {/* Pulsing glow */}
+          <div className="absolute inset-0 bg-purple-500/30 rounded-2xl blur-md animate-pulse"></div>
 
-          <div className="absolute inset-1 bg-violet-600/50 rounded-full animate-[pulse_2s_ease-in-out_infinite]"></div>
-
-          <div className="absolute inset-2 bg-violet-600 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+          {/* Main container - solid purple instead of gradient */}
+          <div className="absolute inset-0 bg-purple-600 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-lg shadow-purple-500/40">
             <svg
-              className="w-5 h-5 text-white transition-transform duration-300 group-hover:scale-110"
+              className="w-7 h-7 text-white transition-transform duration-300 group-hover:scale-110"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
-              strokeWidth={2}
+              strokeWidth={1.8}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
-              />
+              {/* Brain/AI neural network icon */}
+              <circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.3"/>
+              <circle cx="7" cy="7" r="2"/>
+              <circle cx="17" cy="7" r="2"/>
+              <circle cx="7" cy="17" r="2"/>
+              <circle cx="17" cy="17" r="2"/>
+              <line x1="9" y1="8" x2="11" y2="10" strokeLinecap="round"/>
+              <line x1="15" y1="8" x2="13" y2="10" strokeLinecap="round"/>
+              <line x1="9" y1="16" x2="11" y2="14" strokeLinecap="round"/>
+              <line x1="15" y1="16" x2="13" y2="14" strokeLinecap="round"/>
             </svg>
           </div>
 
-          {/* Active indicator - pulse animation */}
-          <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
+          {/* Active indicator */}
+          <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full animate-pulse shadow-lg shadow-emerald-400/50"></div>
         </div>
       </div>
-      <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+      <span className="text-2xl font-bold text-white tracking-tight">
         Reherse
       </span>
     </div>
