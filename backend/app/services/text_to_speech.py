@@ -24,7 +24,8 @@ class TextToSpeechService:
         self,
         text: str,
         voice: str = "default",
-        model: str = "eleven_multilingual_v2"
+        model: str = "eleven_multilingual_v2",
+        timeout: int = 30
     ) -> bytes:
         """
         Generate speech from text using ElevenLabs
@@ -33,34 +34,48 @@ class TextToSpeechService:
             text: Text to convert to speech
             voice: Voice persona to use (key from VOICES dict or voice_id)
             model: ElevenLabs model to use (eleven_multilingual_v2 for quality)
+            timeout: Timeout in seconds (default: 30)
 
         Returns:
             Audio data as bytes (MP3 format)
         """
+        import asyncio
+
         try:
             voice_id = self.VOICES.get(voice, voice)
 
-            # Generate audio using ElevenLabs with voice settings for natural sound
-            audio_generator = self.client.text_to_speech.convert(
-                voice_id=voice_id,
-                text=text,
-                model_id=model,
-                output_format="mp3_44100_128",
-                voice_settings={
-                    "stability": 0.5,
-                    "similarity_boost": 0.75,
-                    "style": 0.0,
-                    "use_speaker_boost": True
-                }
-            )
+            # Run TTS with timeout
+            async def _generate():
+                # Generate audio using ElevenLabs with voice settings for natural sound
+                loop = asyncio.get_event_loop()
+                audio_generator = await loop.run_in_executor(
+                    None,
+                    lambda: self.client.text_to_speech.convert(
+                        voice_id=voice_id,
+                        text=text,
+                        model_id=model,
+                        output_format="mp3_44100_128",
+                        voice_settings={
+                            "stability": 0.5,
+                            "similarity_boost": 0.75,
+                            "style": 0.0,
+                            "use_speaker_boost": True
+                        }
+                    )
+                )
 
-            audio_bytes = b""
-            for chunk in audio_generator:
-                if chunk:
-                    audio_bytes += chunk
+                audio_bytes = b""
+                for chunk in audio_generator:
+                    if chunk:
+                        audio_bytes += chunk
 
+                return audio_bytes
+
+            audio_bytes = await asyncio.wait_for(_generate(), timeout=timeout)
             return audio_bytes
 
+        except asyncio.TimeoutError:
+            raise Exception(f"Text-to-speech timeout after {timeout} seconds. Text may be too long.")
         except Exception as e:
             raise Exception(f"Error generating speech: {str(e)}")
 

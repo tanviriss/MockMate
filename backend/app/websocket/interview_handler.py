@@ -24,14 +24,18 @@ from app.websocket.session_manager import session_manager
 from app.config import settings
 from app.clerk_client import verify_clerk_token
 
-# Configure CORS based on environment - NEVER use wildcard in production
 cors_origins = settings.ALLOWED_ORIGINS.split(',') if settings.ALLOWED_ORIGINS else []
 
 sio = socketio.AsyncServer(
     async_mode='asgi',
     cors_allowed_origins=cors_origins if cors_origins else '*',
     logger=settings.DEBUG,
-    engineio_logger=settings.DEBUG
+    engineio_logger=settings.DEBUG,
+    ping_timeout=60,
+    ping_interval=25,
+    max_http_buffer_size=10 * 1024 * 1024,  # 10MB
+    cors_credentials=True,
+    compression_threshold=1024,
 )
 
 
@@ -99,7 +103,7 @@ async def start_interview(sid, data):
         "user_id": str
     }
     """
-    db: Session = next(get_db())
+    db: Session = SessionLocal()
     try:
         interview_id = data.get('interview_id')
         user_id = data.get('user_id')
@@ -110,6 +114,37 @@ async def start_interview(sid, data):
             }, room=sid)
             return
 
+        # Check if session already exists (reconnection scenario)
+        existing_session = session_manager.get_session(sid)
+        if existing_session and existing_session.interview_id == interview_id:
+            logger.info(f"Resuming existing session for {sid}, interview {interview_id}")
+            # Resume from existing session
+            questions = db.query(Question).filter(
+                Question.interview_id == interview_id
+            ).order_by(Question.order_number).all()
+
+            if not questions:
+                await sio.emit('error', {
+                    'message': 'No questions found for this interview'
+                }, room=sid)
+                return
+
+            current_index = existing_session.current_question_index
+            if current_index < len(questions):
+                current_question = questions[current_index]
+                await sio.emit('interview_started', {
+                    'interview_id': interview_id,
+                    'total_questions': len(questions),
+                    'current_question_index': current_index
+                }, room=sid)
+                await send_question(sid, current_question, current_index, len(questions))
+            else:
+                await sio.emit('interview_completed', {
+                    'interview_id': interview_id,
+                    'message': 'Interview already completed!'
+                }, room=sid)
+            return
+
         session = session_manager.create_session(sid, interview_id, user_id)
 
         interview = db.query(Interview).filter(Interview.id == interview_id).first()
@@ -118,6 +153,7 @@ async def start_interview(sid, data):
             await sio.emit('error', {
                 'message': 'Interview not found'
             }, room=sid)
+            session_manager.delete_session(sid)
             return
 
         questions = db.query(Question).filter(
@@ -128,6 +164,7 @@ async def start_interview(sid, data):
             await sio.emit('error', {
                 'message': 'No questions found for this interview'
             }, room=sid)
+            session_manager.delete_session(sid)
             return
 
         first_question = questions[0]
@@ -220,13 +257,36 @@ async def submit_answer(sid, data):
             }, room=sid)
             return
 
-        audio_bytes = base64.b64decode(audio_data_b64)
+        # Decode base64 audio
+        try:
+            audio_bytes = base64.b64decode(audio_data_b64)
+        except Exception as decode_error:
+            logger.error(f"Base64 decode error: {decode_error}")
+            await sio.emit('error', {
+                'message': 'Invalid audio data format. Please try recording again.'
+            }, room=sid)
+            return
+
+        # Validate audio size
+        audio_size_mb = len(audio_bytes) / (1024 * 1024)
 
         if len(audio_bytes) < 100:
+            logger.warning(f"Audio too small: {len(audio_bytes)} bytes")
             await sio.emit('error', {
                 'message': 'Audio file too small. Please record again.'
             }, room=sid)
             return
+
+        # Maximum 10MB to prevent memory issues
+        max_size_mb = 10
+        if audio_size_mb > max_size_mb:
+            logger.warning(f"Audio too large: {audio_size_mb:.2f}MB")
+            await sio.emit('error', {
+                'message': f'Audio file too large ({audio_size_mb:.1f}MB). Please record a shorter answer (max {max_size_mb}MB).'
+            }, room=sid)
+            return
+
+        logger.info(f"Processing audio: {audio_size_mb:.2f}MB")
 
         session = session_manager.get_session(sid)
         if not session:
@@ -260,16 +320,38 @@ async def submit_answer(sid, data):
             }, room=sid)
 
             try:
+                # Increase timeout for longer recordings (up to 60 seconds)
                 transcription_result = await speech_to_text_service.transcribe_audio(
                     audio_file_path=temp_file.name,
-                    language="en"
+                    language="en",
+                    timeout=60
                 )
                 transcript = transcription_result['text']
+
+                if not transcript or len(transcript.strip()) < 3:
+                    logger.warning(f"Empty or very short transcript: '{transcript}'")
+                    await sio.emit('error', {
+                        'message': 'Could not understand your response. Please speak clearly and try again.'
+                    }, room=sid)
+                    return
+
             except Exception as stt_error:
-                logger.error(f"STT error: {stt_error}")
-                await sio.emit('error', {
-                    'message': 'Failed to transcribe audio. Please try recording again.'
-                }, room=sid)
+                error_message = str(stt_error)
+                logger.error(f"STT error: {error_message}")
+
+                # Provide specific error messages
+                if "timeout" in error_message.lower():
+                    await sio.emit('error', {
+                        'message': 'Transcription took too long. Your recording may be corrupted. Please try again.'
+                    }, room=sid)
+                elif "rate limit" in error_message.lower() or "quota" in error_message.lower():
+                    await sio.emit('error', {
+                        'message': 'Service temporarily unavailable. Please try again in a moment.'
+                    }, room=sid)
+                else:
+                    await sio.emit('error', {
+                        'message': 'Failed to transcribe audio. Please try recording again.'
+                    }, room=sid)
                 return
 
             await sio.emit('transcript_ready', {
@@ -308,7 +390,7 @@ async def confirm_answer(sid, data):
         "transcript": str (can be edited by user)
     }
     """
-    db: Session = next(get_db())
+    db: Session = SessionLocal()
     try:
         question_id = data.get('question_id')
         transcript = data.get('transcript')
@@ -379,11 +461,15 @@ async def confirm_answer(sid, data):
             session_manager.update_session(sid, session)
         else:
             # Check if we already asked a follow-up for this question (max 1 per question)
-            followup_count = session.pending_followup.get('count', 0) if session.pending_followup else 0
+            # Track follow-ups per question to prevent infinite loops
+            if not hasattr(session, 'followup_counts'):
+                session.followup_counts = {}
+
+            followup_count = session.followup_counts.get(question_id, 0)
             max_followups = 1  # Limit to 1 follow-up per question
 
             if followup_count >= max_followups:
-                logger.info(f"Max follow-ups reached for question {question_id}, moving on")
+                logger.info(f"Max follow-ups ({max_followups}) reached for question {question_id}, moving on")
             else:
                 needs_followup, followup_data = await should_ask_followup(
                     question_text=current_question.question_text,
@@ -417,10 +503,12 @@ async def confirm_answer(sid, data):
                         except Exception as tts_error:
                             logger.warning(f"TTS failed for follow-up question: {tts_error}")
 
+                        # Increment follow-up count for this question
+                        session.followup_counts[question_id] = followup_count + 1
+
                         session.pending_followup = {
                             'parent_question_id': question_id,
                             'followup_data': followup_data,
-                            'count': followup_count + 1
                         }
                         session_manager.update_session(sid, session)
                         return
@@ -567,7 +655,7 @@ async def complete_interview(sid, session, db: Session):
 @sio.event
 async def end_interview(sid, data=None):
     """End interview early"""
-    db: Session = next(get_db())
+    db: Session = SessionLocal()
     try:
         session = session_manager.get_session(sid)
         if session:

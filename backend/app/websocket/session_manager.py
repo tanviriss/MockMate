@@ -20,6 +20,7 @@ class InterviewSession:
         self.answers = []
         self.status = "active"
         self.pending_followup = None
+        self.followup_counts = {} 
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert session to dictionary"""
@@ -30,7 +31,8 @@ class InterviewSession:
             "start_time": self.start_time,
             "answers": self.answers,
             "status": self.status,
-            "pending_followup": self.pending_followup
+            "pending_followup": self.pending_followup,
+            "followup_counts": self.followup_counts
         }
 
     @classmethod
@@ -45,6 +47,7 @@ class InterviewSession:
         session.answers = data.get("answers", [])
         session.status = data.get("status", "active")
         session.pending_followup = data.get("pending_followup")
+        session.followup_counts = data.get("followup_counts", {})
         return session
 
 

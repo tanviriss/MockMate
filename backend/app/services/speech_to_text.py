@@ -16,7 +16,8 @@ class SpeechToTextService:
         self,
         audio_file_path: str,
         language: str = "en",
-        prompt: Optional[str] = None
+        prompt: Optional[str] = None,
+        timeout: int = 30
     ) -> Dict[str, any]:
         """
         Transcribe audio file to text using Groq Whisper
@@ -25,6 +26,7 @@ class SpeechToTextService:
             audio_file_path: Path to audio file (wav, mp3, m4a, webm, etc.)
             language: Language code (default: "en")
             prompt: Optional prompt to guide transcription
+            timeout: Timeout in seconds (default: 30)
 
         Returns:
             Dict with transcript text and metadata
@@ -35,16 +37,28 @@ class SpeechToTextService:
                 "segments": list (optional)
             }
         """
+        import asyncio
+
         try:
-            with open(audio_file_path, "rb") as audio_file:
-                transcription = self.client.audio.transcriptions.create(
-                    file=audio_file,
-                    model=self.model,
-                    language=language,
-                    prompt=prompt,
-                    response_format="verbose_json",
-                    temperature=0.0
-                )
+            # Run transcription with timeout
+            async def _transcribe():
+                with open(audio_file_path, "rb") as audio_file:
+                    # Groq client is synchronous, run in executor
+                    loop = asyncio.get_event_loop()
+                    transcription = await loop.run_in_executor(
+                        None,
+                        lambda: self.client.audio.transcriptions.create(
+                            file=audio_file,
+                            model=self.model,
+                            language=language,
+                            prompt=prompt,
+                            response_format="verbose_json",
+                            temperature=0.0
+                        )
+                    )
+                    return transcription
+
+            transcription = await asyncio.wait_for(_transcribe(), timeout=timeout)
 
             result = {
                 "text": transcription.text.strip(),
@@ -57,6 +71,8 @@ class SpeechToTextService:
 
             return result
 
+        except asyncio.TimeoutError:
+            raise Exception(f"Transcription timeout after {timeout} seconds. Audio may be too long or corrupted.")
         except Exception as e:
             raise Exception(f"Error transcribing audio: {str(e)}")
 
