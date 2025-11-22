@@ -30,10 +30,6 @@ export default function VideoFeed({ isVisible = true }: VideoFeedProps) {
       setHasPermission(true);
       setIsRequesting(false);
       setError('');
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-      }
     } catch (err) {
       console.error('Error accessing camera:', err);
       setError('Camera access denied');
@@ -70,6 +66,13 @@ export default function VideoFeed({ isVisible = true }: VideoFeedProps) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isVisible, stream]);
+
+  // Assign stream to video element when both are available
+  useEffect(() => {
+    if (stream && videoRef.current && !videoRef.current.srcObject) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [stream]);
 
   if (!isVisible) {
     return null;
