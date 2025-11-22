@@ -586,7 +586,7 @@ export default function Home() {
               </span>
             </h2>
             <p className="relative text-xl text-gray-300 mb-12 max-w-2xl mx-auto">
-              Join thousands of job seekers who improved their interview skills with MockMate
+              Join thousands of job seekers who improved their interview skills with Reherse
             </p>
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -604,7 +604,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="relative z-10 py-12 px-6 border-t border-white/10">
         <div className="max-w-7xl mx-auto text-center text-gray-400">
-          <p>&copy; 2025 MockMate. All rights reserved.</p>
+          <p>&copy; 2025 Reherse. All rights reserved.</p>
         </div>
       </footer>
     </div>

@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MockMate - AI Voice Interview Coach",
+  title: "Reherse - AI Voice Interview Coach",
   description: "Practice interviews with AI-powered voice coaching and detailed feedback",
 };
 

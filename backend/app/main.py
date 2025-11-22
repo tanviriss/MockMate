@@ -135,7 +135,7 @@ async def shutdown_event():
 async def root():
     """Root endpoint"""
     return {
-        "message": "Welcome to MockMate API",
+        "message": "Welcome to Reherse API",
         "version": settings.VERSION,
         "docs": "/docs",
     }

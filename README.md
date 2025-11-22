@@ -1,8 +1,8 @@
-# MockMate
+# Reherse
 
 **AI Voice Interview Coach Platform**
 
-MockMate is a real-time voice-based AI interview coaching platform that helps you practice job interviews with personalized questions, live voice interaction, and detailed AI-powered feedback.
+Reherse is a real-time voice-based AI interview coaching platform that helps you practice job interviews with personalized questions, live voice interaction, and detailed AI-powered feedback.
 
 ## Features
 
