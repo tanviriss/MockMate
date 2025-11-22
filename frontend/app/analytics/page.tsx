@@ -257,7 +257,7 @@ export default function AnalyticsPage() {
         {/* AI Insights */}
         {analytics.insights && analytics.insights.length > 0 && (
           <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8">
-            <h2 className="text-2xl font-bold text-white mb-6">💡 AI Insights</h2>
+            <h2 className="text-2xl font-bold text-white mb-6">AI Insights</h2>
             <div className="space-y-4">
               {analytics.insights.map((insight: string, idx: number) => (
                 <div key={idx} className="flex items-start gap-3 bg-slate-800/50 rounded-lg p-4">

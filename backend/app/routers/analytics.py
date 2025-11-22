@@ -211,20 +211,20 @@ def generate_insights(
     # Score performance insights
     if average_score is not None:
         if average_score >= 8:
-            insights.append("🌟 Excellent performance! Your average score is in the top tier.")
+            insights.append(" Excellent performance! Your average score is in the top tier.")
         elif average_score >= 6:
-            insights.append("👍 Good work! Your average score shows solid performance.")
+            insights.append(" Good work! Your average score shows solid performance.")
         else:
-            insights.append("💪 Keep practicing! Each interview is a learning opportunity.")
+            insights.append(" Keep practicing! Each interview is a learning opportunity.")
 
     # Improvement insights
     if improvement_rate is not None:
         if improvement_rate > 20:
-            insights.append(f"📈 Amazing improvement! You've improved by {improvement_rate:.1f}% from your early interviews.")
+            insights.append(f" Amazing improvement! You've improved by {improvement_rate:.1f}% from your early interviews.")
         elif improvement_rate > 0:
-            insights.append(f"📊 You're trending upward with {improvement_rate:.1f}% improvement. Keep going!")
+            insights.append(f"You're trending upward with {improvement_rate:.1f}% improvement. Keep going!")
         elif improvement_rate < -10:
-            insights.append("🎯 Recent scores have dipped. Consider reviewing your strongest interview performances.")
+            insights.append("Recent scores have dipped. Consider reviewing your strongest interview performances.")
 
     # Category-specific insights
     if category_performance:
@@ -242,12 +242,12 @@ def generate_insights(
         score_variance = max(recent_scores) - min(recent_scores)
 
         if score_variance < 2:
-            insights.append("✅ Your performance is very consistent across recent interviews.")
+            insights.append(" Your performance is very consistent across recent interviews.")
         elif score_variance > 4:
-            insights.append("🎲 Your scores vary significantly. Try to identify what makes your best interviews successful.")
+            insights.append(" Your scores vary significantly. Try to identify what makes your best interviews successful.")
 
     # Encouragement for low activity
     if total_interviews < 3:
-        insights.append("🚀 Complete more interviews to unlock detailed insights and track your progress over time!")
+        insights.append(" Complete more interviews to unlock detailed insights and track your progress over time!")
 
     return insights
