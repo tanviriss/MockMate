@@ -52,7 +52,7 @@ export default function Home() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => router.push('/sign-in')}
-              className="cursor-target px-6 py-2 text-white hover:text-blue-400 transition font-medium"
+              className="cursor-target px-6 py-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-lg font-semibold hover:bg-white/20 transition"
             >
               Login
             </motion.button>
