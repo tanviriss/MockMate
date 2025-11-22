@@ -28,8 +28,6 @@ export default function Logo({ className = "" }: { className?: string }) {
             </svg>
           </div>
 
-          {/* Active indicator */}
-          <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full animate-pulse shadow-lg shadow-emerald-400/50"></div>
         </div>
       </div>
       <span className="text-2xl font-bold text-white tracking-tight">
