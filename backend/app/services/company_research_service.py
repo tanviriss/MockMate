@@ -9,7 +9,15 @@ import json
 from app.logging_config import logger
 
 genai.configure(api_key=settings.GEMINI_API_KEY)
-model = genai.GenerativeModel('gemini-2.0-flash')
+
+generation_config = {
+    "temperature": 0.35,
+    "top_p": 0.8,
+    "top_k": 40,
+    "response_mime_type": "application/json",
+}
+
+model = genai.GenerativeModel('gemini-2.5-flash-lite', generation_config=generation_config)
 
 
 async def research_company_interview_questions(

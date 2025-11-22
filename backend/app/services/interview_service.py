@@ -6,7 +6,18 @@ from app.config import settings
 import json
 
 genai.configure(api_key=settings.GEMINI_API_KEY)
-model = genai.GenerativeModel('gemini-2.0-flash')
+
+generation_config = {
+    "temperature": 0.4,
+    "top_p": 0.85,
+    "top_k": 40,
+    "response_mime_type": "application/json",
+}
+
+model = genai.GenerativeModel(
+    'gemini-2.5-flash-lite',
+    generation_config=generation_config
+)
 
 
 async def analyze_job_description(jd_text: str) -> dict:

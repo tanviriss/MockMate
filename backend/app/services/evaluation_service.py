@@ -11,7 +11,13 @@ from app.logging_config import logger
 # Configure Gemini
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
-# Retry decorator for AI service calls
+generation_config = {
+    "temperature": 0.3,
+    "top_p": 0.8,
+    "top_k": 40,
+    "response_mime_type": "application/json",
+}
+
 ai_retry = retry(
     stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=1, min=1, max=10),
@@ -122,8 +128,7 @@ Be constructive and specific. Provide actionable feedback that helps the candida
 
     try:
         logger.info(f"Evaluating answer for question: {question_text[:50]}...")
-        # Call Gemini API
-        model = genai.GenerativeModel('gemini-2.0-flash-exp')
+        model = genai.GenerativeModel('gemini-2.5-flash-lite', generation_config=generation_config)
         response = model.generate_content(prompt)
 
         # Extract JSON from response
