@@ -119,7 +119,7 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 1 }}
-            className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto"
+            className="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto"
           >
             Practice with AI-generated questions tailored to your resume.
             Get real-time voice feedback and{' '}
