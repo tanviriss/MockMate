@@ -21,12 +21,22 @@ export default function Home() {
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.8]);
 
   return (
-    <div ref={containerRef} className="bg-slate-950">
+    <div ref={containerRef} className="bg-purple-950">
       {/* Target Cursor */}
       <TargetCursor spinDuration={2} hideDefaultCursor={true} parallaxOn={true} />
 
-      {/* Background for non-hero sections */}
-      <div className="fixed inset-0 z-0 bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900" />
+      {/* Background - solid purple theme with pattern */}
+      <div className="fixed inset-0 z-0 bg-purple-950">
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 opacity-[0.05]" style={{
+          backgroundImage: 'linear-gradient(#a78bfa 1px, transparent 1px), linear-gradient(90deg, #a78bfa 1px, transparent 1px)',
+          backgroundSize: '50px 50px'
+        }}></div>
+        {/* Purple accent areas - more visible */}
+        <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-purple-700/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-purple-600/30 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-purple-800/20 rounded-full blur-3xl"></div>
+      </div>
 
       {/* Navigation */}
       <motion.nav
@@ -50,7 +60,7 @@ export default function Home() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => router.push('/sign-up')}
-              className="cursor-target px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition"
+              className="cursor-target px-6 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition hover:bg-purple-700"
             >
               Get Started
             </motion.button>
@@ -93,14 +103,14 @@ export default function Home() {
             Ace Your Next{' '}
             <br />
             <span className="relative inline-block">
-              <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              <span className="text-purple-400">
                 Job Interview
               </span>
               <motion.span
                 initial={{ width: 0 }}
                 animate={{ width: "100%" }}
                 transition={{ duration: 0.8, delay: 1.2 }}
-                className="absolute bottom-2 left-0 h-1 bg-gradient-to-r from-blue-400 to-purple-400"
+                className="absolute bottom-2 left-0 h-1 bg-purple-500"
               />
             </span>
           </motion.h1>
@@ -126,7 +136,7 @@ export default function Home() {
               whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(168, 85, 247, 0.6)" }}
               whileTap={{ scale: 0.95 }}
               onClick={() => router.push('/sign-up')}
-              className="cursor-target group px-10 py-5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-lg hover:shadow-2xl transition relative overflow-hidden"
+              className="cursor-target group px-10 py-5 bg-purple-600 text-white rounded-xl font-bold text-lg hover:shadow-2xl hover:bg-purple-700 transition relative overflow-hidden"
             >
               <span className="relative z-10 flex items-center justify-center gap-2">
                 Start Practicing Free
@@ -137,12 +147,6 @@ export default function Home() {
                   →
                 </motion.span>
               </span>
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600"
-                initial={{ x: "100%" }}
-                whileHover={{ x: 0 }}
-                transition={{ duration: 0.3 }}
-              />
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.05, backgroundColor: "rgba(255, 255, 255, 0.1)" }}
@@ -273,7 +277,7 @@ export default function Home() {
           >
             <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
               Everything You Need to{' '}
-              <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+              <span className="text-purple-400">
                 Succeed
               </span>
             </h2>
@@ -353,7 +357,7 @@ export default function Home() {
             className="text-center mb-20"
           >
             <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
-              How It <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Works</span>
+              How It <span className="text-purple-400">Works</span>
             </h2>
             <p className="text-xl text-gray-400">Get started in 3 simple steps</p>
           </motion.div>
@@ -482,7 +486,7 @@ export default function Home() {
             <div className="space-y-4">
               <h2 className="text-5xl md:text-7xl font-bold text-white">
                 Experience Real{' '}
-                <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                <span className="text-purple-400">
                   Interview Scenarios
                 </span>
               </h2>
@@ -492,7 +496,7 @@ export default function Home() {
             </div>
           }
         >
-          <div className="h-full w-full bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8 overflow-auto">
+          <div className="h-full w-full bg-slate-900 p-8 overflow-auto">
             {/* Mock Interview Interface */}
             <div className="space-y-6">
               {/* Question Section */}
@@ -532,7 +536,7 @@ export default function Home() {
               </div>
 
               {/* AI Feedback Section */}
-              <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 backdrop-blur-md border border-blue-400/20 rounded-xl p-6">
+              <div className="bg-purple-500/10 backdrop-blur-md border border-purple-400/20 rounded-xl p-6">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-2xl">🤖</span>
                   <p className="text-white font-semibold">AI Analysis</p>
@@ -555,7 +559,7 @@ export default function Home() {
 
               {/* Score Badge */}
               <div className="flex justify-center">
-                <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-full px-8 py-3">
+                <div className="bg-purple-600 rounded-full px-8 py-3">
                   <p className="text-white font-bold text-lg">Score: 8.5/10</p>
                 </div>
               </div>
@@ -573,15 +577,15 @@ export default function Home() {
           transition={{ duration: 0.8 }}
           className="max-w-5xl mx-auto text-center relative"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl blur-3xl opacity-20" />
+          <div className="absolute inset-0 bg-purple-600/20 rounded-3xl blur-3xl" />
           <div className="relative bg-white/5 backdrop-blur-2xl border border-white/20 rounded-3xl p-12 md:p-20 shadow-2xl shadow-black/20 overflow-hidden">
             {/* Glass shine effects */}
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-purple-500/5" />
+            <div className="absolute inset-0 bg-white/5" />
 
             <h2 className="relative text-5xl md:text-6xl font-bold text-white mb-8">
               Ready to Land Your{' '}
-              <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+              <span className="text-purple-400">
                 Dream Job?
               </span>
             </h2>
@@ -592,7 +596,7 @@ export default function Home() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => router.push('/sign-up')}
-              className="cursor-target relative px-12 py-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-xl shadow-2xl shadow-purple-500/50 hover:shadow-purple-500/70 transition-all"
+              className="cursor-target relative px-12 py-6 bg-purple-600 text-white rounded-xl font-bold text-xl shadow-2xl shadow-purple-500/50 hover:shadow-purple-500/70 hover:bg-purple-700 transition-all"
             >
               Start Practicing For Free →
             </motion.button>

@@ -50,12 +50,17 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Animated background */}
+    <main className="min-h-screen bg-purple-950">
+      {/* Solid purple theme background */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-        <div className="absolute top-40 right-10 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 opacity-[0.05]" style={{
+          backgroundImage: 'linear-gradient(#a78bfa 1px, transparent 1px), linear-gradient(90deg, #a78bfa 1px, transparent 1px)',
+          backgroundSize: '50px 50px'
+        }}></div>
+        {/* Purple accent areas - more visible */}
+        <div className="absolute top-20 left-10 w-[500px] h-[500px] bg-purple-700/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-purple-600/30 rounded-full blur-3xl"></div>
       </div>
 
       {/* Navigation */}
