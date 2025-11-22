@@ -30,7 +30,7 @@ export default function Logo({ className = "" }: { className?: string }) {
 
         </div>
       </div>
-      <span className="text-2xl font-bold text-white tracking-tight">
+      <span className="text-2xl font-bold text-white">
         Reherse
       </span>
     </div>

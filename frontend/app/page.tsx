@@ -377,7 +377,7 @@ export default function Home() {
               {
                 step: '02',
                 title: 'Paste Job Description',
-                description: 'Add the job description you&apos;re targeting. We&apos;ll generate questions that match the role perfectly.',
+                description: "Add the job description you're targeting. We'll generate questions that match the role perfectly.",
                 icon: (
                   <>
                     <circle cx="12" cy="12" r="10" strokeWidth={2} />
