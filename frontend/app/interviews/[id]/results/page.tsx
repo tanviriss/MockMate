@@ -4,6 +4,7 @@ import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useClerkAuth } from "@/hooks/useClerkAuth";
 import { api } from "@/lib/api";
+import LoadingMessages from "@/components/LoadingMessages";
 
 interface IdealAnswer {
   ideal_answer: string;
@@ -114,14 +115,7 @@ export default function InterviewResultsPage({
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-          <p className="text-gray-300">Loading results...</p>
-        </div>
-      </div>
-    );
+    return <LoadingMessages interval={1500} />;
   }
 
   if (error || !results) {
