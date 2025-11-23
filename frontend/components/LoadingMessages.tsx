@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { LiquidButton } from "@/components/ui/liquid-glass-button";
 
 const LOADING_MESSAGES = [
   "Analyzing job description...",
@@ -112,15 +113,11 @@ export default function LoadingMessages({ interval = 2000 }: LoadingMessagesProp
           </div>
         </div>
 
-        <div className="relative mb-6 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-2xl blur-sm"></div>
-          <div className="relative bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 transform transition-all duration-500 hover:scale-105">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-shimmer"></div>
-            <p className="text-white text-lg font-medium" key={messageIndex}>
-              {LOADING_MESSAGES[messageIndex]}
-            </p>
-          </div>
-        </div>
+        <LiquidButton className="mb-6 w-full" size="xl">
+          <p className="text-white text-lg font-medium" key={messageIndex}>
+            {LOADING_MESSAGES[messageIndex]}
+          </p>
+        </LiquidButton>
 
         <div className="flex items-center justify-center gap-3 mb-8">
           <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-blue-500 rounded-full animate-bounce shadow-lg shadow-blue-500/50"></div>

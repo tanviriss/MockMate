@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.35.1",
+    "@radix-ui/react-slot": "^1.2.4",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.4.0",
+    "class-variance-authority": "^0.7.1",
     "framer-motion": "^12.23.24",
     "gsap": "^3.13.0",
     "lottie-react": "^2.4.1",
