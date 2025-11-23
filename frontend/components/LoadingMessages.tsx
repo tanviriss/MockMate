@@ -99,29 +99,41 @@ export default function LoadingMessages({ interval = 2000 }: LoadingMessagesProp
         <div className="absolute top-40 right-10 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
       </div>
 
-      <div className="relative z-10 text-center max-w-md">
-        <div className="relative mb-8">
-          <div className="inline-block animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
-          <div className="absolute inset-0 inline-flex items-center justify-center">
-            <div className="w-12 h-12 bg-purple-500 rounded-full opacity-20 animate-ping"></div>
+      <div className="relative z-10 text-center max-w-md px-4">
+        <div className="relative mb-12">
+          <div className="relative inline-block">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full blur-xl opacity-50 animate-pulse"></div>
+            <div className="relative w-24 h-24 rounded-full border-4 border-transparent bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-spin" style={{ animationDuration: "3s" }}>
+              <div className="absolute inset-1 bg-slate-900 rounded-full"></div>
+            </div>
+          </div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full opacity-20 animate-ping" style={{ animationDuration: "2s" }}></div>
           </div>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 mb-4">
-          <p className="text-white text-lg font-medium animate-pulse">
-            {LOADING_MESSAGES[messageIndex]}
+        <div className="relative mb-6 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-2xl blur-sm"></div>
+          <div className="relative bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 transform transition-all duration-500 hover:scale-105">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-shimmer"></div>
+            <p className="text-white text-lg font-medium" key={messageIndex}>
+              {LOADING_MESSAGES[messageIndex]}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-center gap-3 mb-8">
+          <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-blue-500 rounded-full animate-bounce shadow-lg shadow-blue-500/50"></div>
+          <div className="w-3 h-3 bg-gradient-to-r from-purple-400 to-purple-500 rounded-full animate-bounce shadow-lg shadow-purple-500/50" style={{ animationDelay: "0.1s" }}></div>
+          <div className="w-3 h-3 bg-gradient-to-r from-pink-400 to-pink-500 rounded-full animate-bounce shadow-lg shadow-pink-500/50" style={{ animationDelay: "0.2s" }}></div>
+        </div>
+
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg blur-lg opacity-20"></div>
+          <p className="relative text-gray-300 text-sm backdrop-blur-sm bg-white/5 py-2 px-4 rounded-lg border border-white/10">
+            This usually takes 10-20 seconds
           </p>
         </div>
-
-        <div className="flex items-center justify-center gap-2">
-          <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
-          <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
-          <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
-        </div>
-
-        <p className="text-gray-400 text-sm mt-6">
-          This usually takes 10-20 seconds
-        </p>
       </div>
 
       <style jsx global>{`
@@ -135,6 +147,13 @@ export default function LoadingMessages({ interval = 2000 }: LoadingMessagesProp
         }
         .animation-delay-2000 {
           animation-delay: 2s;
+        }
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+        .animate-shimmer {
+          animation: shimmer 2s infinite;
         }
       `}</style>
     </div>
