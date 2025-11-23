@@ -113,8 +113,8 @@ export default function LoadingMessages({ interval = 2000 }: LoadingMessagesProp
           </div>
         </div>
 
-        <LiquidButton className="mb-6 w-full" size="xl">
-          <p className="text-white text-lg font-medium" key={messageIndex}>
+        <LiquidButton className="mb-6 w-full min-h-[60px]" size="xl">
+          <p className="text-white text-lg font-medium transition-opacity duration-300" key={messageIndex}>
             {LOADING_MESSAGES[messageIndex]}
           </p>
         </LiquidButton>
