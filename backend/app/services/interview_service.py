@@ -283,12 +283,20 @@ Skills: {', '.join(all_skills[:10])}
 
 {user_context}
 
-Generate a strong 150-200 word answer that:
+Generate a strong 120-150 word answer that:
 - Uses the SAME context/scenario as the user if they provided one
 - Shows proper STAR structure (for behavioral/situational questions)
-- Adds specific technical details and reasoning
+- Balances technical depth with simplicity (explain concepts clearly without being overly complex)
 - Includes the "why" behind decisions
 - Demonstrates learning and outcomes
+- Keeps it conversational and easy to follow
+
+CRITICAL FORMATTING RULES:
+- Write in PLAIN TEXT with NO markdown formatting
+- DO NOT use asterisks (**), backticks (`), or any markdown symbols
+- Use simple quotation marks for code/terms if needed (e.g., "list" not `list`)
+- Write naturally like you're speaking to an interviewer
+- Keep technical terms clear but don't over-explain basic concepts
 
 For situational/behavioral questions:
 - Situation: Set clear context (use their scenario!)
@@ -298,7 +306,7 @@ For situational/behavioral questions:
 
 Return JSON:
 {{
-    "ideal_answer": "Full improved answer using THEIR scenario",
+    "ideal_answer": "Full improved answer in PLAIN TEXT with NO markdown symbols",
     "key_points": ["point 1", "point 2", "point 3"],
     "structure": {{"opening": "how to start", "body": "main content", "closing": "how to end"}},
     "why_this_works": "why this answer is stronger"
