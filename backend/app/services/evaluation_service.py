@@ -127,7 +127,7 @@ Be constructive and specific. Provide actionable feedback that helps the candida
 
     try:
         logger.info(f"Evaluating answer for question: {question_text[:50]}...")
-        model = genai.GenerativeModel('gemini-2.5-flash-lite', generation_config=generation_config)
+        model = genai.GenerativeModel('gemini-2.5-flash', generation_config=generation_config)
         response = model.generate_content(prompt)
 
         # Extract JSON from response
