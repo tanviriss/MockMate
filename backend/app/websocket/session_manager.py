@@ -63,8 +63,11 @@ class SessionManager:
             self.redis_client = redis.from_url(
                 settings.REDIS_URL,
                 decode_responses=True,
-                socket_connect_timeout=5,
-                socket_timeout=5
+                socket_connect_timeout=10,
+                socket_timeout=10,
+                socket_keepalive=True,
+                health_check_interval=30,
+                ssl_cert_reqs=None
             )
             # Test connection
             self.redis_client.ping()
@@ -98,6 +101,15 @@ class SessionManager:
             try:
                 # Store session with 2 hour TTL
                 self.redis_client.setex(key, 7200, session_data)
+            except redis.ConnectionError as e:
+                logger.warning(f"Redis connection error, retrying once: {e}")
+                try:
+                    # Retry connection
+                    self.redis_client.ping()
+                    self.redis_client.setex(key, 7200, session_data)
+                except Exception as retry_error:
+                    logger.warning(f"Redis retry failed, using memory: {retry_error}")
+                    self.memory_store[key] = session_data
             except Exception as e:
                 logger.warning(f"Redis setex failed, using memory: {e}")
                 self.memory_store[key] = session_data
@@ -115,6 +127,9 @@ class SessionManager:
         if self.redis_client:
             try:
                 data = self.redis_client.get(key)
+            except redis.ConnectionError as e:
+                logger.warning(f"Redis connection error, checking memory: {e}")
+                data = self.memory_store.get(key)
             except Exception as e:
                 logger.warning(f"Redis get failed, using memory: {e}")
                 data = self.memory_store.get(key)
@@ -134,6 +149,9 @@ class SessionManager:
         if self.redis_client:
             try:
                 self.redis_client.setex(key, 7200, session_data)
+            except redis.ConnectionError as e:
+                logger.warning(f"Redis connection error during update, using memory: {e}")
+                self.memory_store[key] = session_data
             except Exception as e:
                 logger.warning(f"Redis update failed, using memory: {e}")
                 self.memory_store[key] = session_data
