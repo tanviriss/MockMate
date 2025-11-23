@@ -88,11 +88,10 @@ export default function NewInterviewPage() {
       // Store interview data in session storage for details page
       sessionStorage.setItem(`interview_${response.id}`, JSON.stringify(response));
 
-      // Navigate to interview details page
+      // Navigate to interview details page (keep creating state to prevent flash)
       router.push(`/interviews/${response.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
-    } finally {
       setCreating(false);
     }
   };

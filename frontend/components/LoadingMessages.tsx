@@ -113,8 +113,8 @@ export default function LoadingMessages({ interval = 2000 }: LoadingMessagesProp
           </div>
         </div>
 
-        <LiquidButton className="mb-6 w-full min-h-[60px]" size="xl">
-          <p className="text-white text-lg font-medium transition-opacity duration-300" key={messageIndex}>
+        <LiquidButton className="mb-6 w-full min-h-[60px] px-4" size="xl">
+          <p className="text-white text-lg font-medium transition-opacity duration-300 px-6 py-3" key={messageIndex}>
             {LOADING_MESSAGES[messageIndex]}
           </p>
         </LiquidButton>
@@ -125,9 +125,9 @@ export default function LoadingMessages({ interval = 2000 }: LoadingMessagesProp
           <div className="w-3 h-3 bg-gradient-to-r from-pink-400 to-pink-500 rounded-full animate-bounce shadow-lg shadow-pink-500/50" style={{ animationDelay: "0.2s" }}></div>
         </div>
 
-        <div className="relative">
+        <div className="relative h-12 flex items-center justify-center">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg blur-lg opacity-20"></div>
-          <p className="relative text-gray-300 text-sm backdrop-blur-sm bg-white/5 py-2 px-4 rounded-lg border border-white/10">
+          <p className="relative text-gray-300 text-sm backdrop-blur-sm bg-white/5 py-2 px-4 rounded-lg border border-white/10 whitespace-nowrap">
             This usually takes 10-20 seconds
           </p>
         </div>
