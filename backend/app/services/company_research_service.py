@@ -16,7 +16,7 @@ generation_config = {
     "top_k": 40,
 }
 
-model = genai.GenerativeModel('gemini-2.5-flash-lite', generation_config=generation_config)
+model = genai.GenerativeModel('gemini-2.0-flash', generation_config=generation_config)
 
 
 async def research_company_interview_questions(
