@@ -31,15 +31,27 @@ export default function AudioRecorder({
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  // Start recording
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
 
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: "audio/webm",
-      });
+      let mimeType = "audio/webm";
+      if (!MediaRecorder.isTypeSupported("audio/webm")) {
+        if (MediaRecorder.isTypeSupported("audio/webm;codecs=opus")) {
+          mimeType = "audio/webm;codecs=opus";
+        } else if (MediaRecorder.isTypeSupported("audio/mp4")) {
+          mimeType = "audio/mp4";
+        } else if (MediaRecorder.isTypeSupported("audio/ogg;codecs=opus")) {
+          mimeType = "audio/ogg;codecs=opus";
+        } else {
+          mimeType = "";
+        }
+      }
+
+      const mediaRecorder = new MediaRecorder(stream,
+        mimeType ? { mimeType } : undefined
+      );
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
@@ -51,16 +63,16 @@ export default function AudioRecorder({
 
       mediaRecorder.onstop = () => {
         const audioBlob = new Blob(audioChunksRef.current, {
-          type: "audio/webm",
+          type: mimeType || "audio/webm",
         });
 
-        // Validate audio blob has content
         if (audioBlob.size < 100) {
-          console.error("Audio recording too small, likely corrupted");
           alert("Recording failed. Please try again.");
           setIsRecording(false);
           setRecordingTime(0);
+          setHasRecorded(false);
           audioChunksRef.current = [];
+          streamRef.current?.getTracks().forEach((track) => track.stop());
           return;
         }
 
@@ -68,7 +80,6 @@ export default function AudioRecorder({
         setAudioURL(url);
         setHasRecorded(true);
 
-        // Stop all tracks
         streamRef.current?.getTracks().forEach((track) => track.stop());
       };
 
@@ -153,12 +164,23 @@ export default function AudioRecorder({
 
   // Submit recording
   const submitRecording = () => {
-    if (audioChunksRef.current.length > 0) {
-      const audioBlob = new Blob(audioChunksRef.current, {
-        type: "audio/webm",
-      });
-      onRecordingComplete(audioBlob);
+    if (audioChunksRef.current.length === 0) {
+      alert("No recording found. Please record your answer first.");
+      resetRecording();
+      return;
     }
+
+    const audioBlob = new Blob(audioChunksRef.current, {
+      type: mediaRecorderRef.current?.mimeType || "audio/webm",
+    });
+
+    if (audioBlob.size < 100) {
+      alert("Recording failed or too short. Please try again.");
+      resetRecording();
+      return;
+    }
+
+    onRecordingComplete(audioBlob);
   };
 
   useEffect(() => {
