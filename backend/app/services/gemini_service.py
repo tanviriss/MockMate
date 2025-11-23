@@ -10,7 +10,6 @@ generation_config = {
     "temperature": 0.3,
     "top_p": 0.8,
     "top_k": 40,
-    "response_mime_type": "application/json",
 }
 
 model = genai.GenerativeModel(

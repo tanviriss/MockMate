@@ -14,7 +14,6 @@ generation_config = {
     "temperature": 0.35,
     "top_p": 0.8,
     "top_k": 40,
-    "response_mime_type": "application/json",
 }
 
 model = genai.GenerativeModel('gemini-2.5-flash-lite', generation_config=generation_config)
