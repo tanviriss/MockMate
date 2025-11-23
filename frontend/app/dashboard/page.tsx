@@ -176,9 +176,8 @@ export default function DashboardPage() {
           </button>
 
           {/* Company-Specific Prep Card */}
-          <button
-            onClick={() => router.push('/interviews/company-prep')}
-            className="group relative overflow-hidden bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 hover:bg-white/15 transition-all hover:scale-105 transform text-left"
+          <div
+            className="group relative overflow-hidden bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 text-left opacity-60 cursor-not-allowed"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-cyan-500/20 to-transparent rounded-bl-full"></div>
             <div className="relative">
@@ -194,14 +193,14 @@ export default function DashboardPage() {
               <p className="text-gray-300 mb-4">
                 Practice with company-specific questions from Google, Meta, Amazon
               </p>
-              <div className="flex items-center text-cyan-400 font-semibold group-hover:translate-x-2 transition-transform">
+              <div className="flex items-center text-cyan-400 font-semibold">
                 Coming soon
                 <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </div>
             </div>
-          </button>
+          </div>
 
           {/* My Interviews Card */}
           <button
