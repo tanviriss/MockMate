@@ -144,24 +144,6 @@ export default function NewInterviewPage() {
           Generate AI-powered interview questions based on your resume and job description
         </p>
 
-        {/* Option to go to company-specific */}
-        <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-8">
-          <div className="flex items-start gap-3">
-            <span className="text-2xl">🎯</span>
-            <div className="flex-1">
-              <h3 className="font-semibold text-white mb-1">Want company-specific questions?</h3>
-              <p className="text-sm text-gray-300 mb-3">
-                Get questions tailored to Google, Amazon, Meta, etc. by researching recent interview experiences
-              </p>
-              <button
-                onClick={() => router.push('/interviews/company-prep')}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition text-sm"
-              >
-                Try Company-Specific Prep →
-              </button>
-            </div>
-          </div>
-        </div>
 
         {resumes.length === 0 ? (
           <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-12 text-center">
