@@ -1,11 +1,11 @@
 'use client';
 
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { pageview, GA_MEASUREMENT_ID } from '@/lib/gtag';
 import Script from 'next/script';
 
-export default function Analytics() {
+function AnalyticsTracker() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -16,6 +16,10 @@ export default function Analytics() {
     pageview(url);
   }, [pathname, searchParams]);
 
+  return null;
+}
+
+export default function Analytics() {
   if (!GA_MEASUREMENT_ID) {
     return null;
   }
@@ -40,6 +44,9 @@ export default function Analytics() {
           `,
         }}
       />
+      <Suspense fallback={null}>
+        <AnalyticsTracker />
+      </Suspense>
     </>
   );
 }
