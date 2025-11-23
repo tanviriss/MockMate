@@ -76,6 +76,35 @@ const LOADING_MESSAGES = [
   "Trust the process...",
   "AI is doing its thing...",
   "Beep boop generating questions beep boop...",
+  "Counting your 'passionate' mentions...",
+  "Questioning your GitHub gaps...",
+  "Debating 'self-taught' vibes...",
+  "Do you actually know those frameworks?...",
+  "Calculating real salary expectations...",
+  "Found that 3-month job you hid...",
+  "Noticed 'Microsoft Office' as a skill...",
+  "Spotting typos in 'detail-oriented'...",
+  "Generating conflict scenarios...",
+  "Predicting your sweat triggers...",
+  "Writing 'why hire you' variations...",
+  "Did you Google the company?...",
+  "Preparing for your 'umm' pauses...",
+  "Loading interviewer gotchas...",
+  "Testing discomfort tolerance...",
+  "What did you actually do though?...",
+  "'Led a team' or just showed up?...",
+  "Exposing skill level incoming...",
+  "Does anyone know what 'agile' means?...",
+  "What's a stakeholder anyway?...",
+  "Creating impossible scenarios...",
+  "Judging your career timeline...",
+  "Raising eyebrows at job hopping...",
+  "Preparing the salary negotiation trap...",
+  "Writing questions with no right answer...",
+  "Measuring your poker face ability...",
+  "Testing if you read the job description...",
+  "Checking for resume embellishments...",
+  "Preparing the classic 'weakness' trap...",
 ];
 
 interface LoadingMessagesProps {
@@ -84,14 +113,29 @@ interface LoadingMessagesProps {
 
 export default function LoadingMessages({ interval = 2000 }: LoadingMessagesProps) {
   const [messageIndex, setMessageIndex] = useState(Math.floor(Math.random() * LOADING_MESSAGES.length));
+  const [usedIndices, setUsedIndices] = useState<Set<number>>(new Set([messageIndex]));
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setMessageIndex(Math.floor(Math.random() * LOADING_MESSAGES.length));
+      setMessageIndex(() => {
+        const availableIndices = LOADING_MESSAGES
+          .map((_, idx) => idx)
+          .filter(idx => !usedIndices.has(idx));
+
+        if (availableIndices.length === 0) {
+          const newIndex = Math.floor(Math.random() * LOADING_MESSAGES.length);
+          setUsedIndices(new Set([newIndex]));
+          return newIndex;
+        }
+
+        const newIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+        setUsedIndices(prev => new Set([...prev, newIndex]));
+        return newIndex;
+      });
     }, interval);
 
     return () => clearInterval(timer);
-  }, [interval]);
+  }, [interval, usedIndices]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
