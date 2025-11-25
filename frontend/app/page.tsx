@@ -173,6 +173,7 @@ export default function Home() {
             {[
               {
                 label: 'AI-Powered Questions',
+                bg: 'bg-blue-500 dark:bg-blue-400',
                 icon: (
                   <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
@@ -181,6 +182,7 @@ export default function Home() {
               },
               {
                 label: 'Voice Practice',
+                bg: 'bg-purple-500 dark:bg-purple-400',
                 icon: (
                   <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
@@ -189,6 +191,7 @@ export default function Home() {
               },
               {
                 label: 'Instant Feedback',
+                bg: 'bg-amber-500 dark:bg-amber-400',
                 icon: (
                   <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -217,7 +220,7 @@ export default function Home() {
                       }}
                       className="mx-auto w-14 h-14 flex items-center justify-center mb-3"
                     >
-                      <div className="bg-slate-600 dark:bg-slate-400 rounded-xl p-2 text-white dark:text-slate-900">
+                      <div className={`${feature.bg} rounded-xl p-2 text-white dark:text-slate-900`}>
                         {feature.icon}
                       </div>
                     </motion.div>
@@ -274,21 +277,24 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 ),
                 title: 'Smart Resume Analysis',
-                description: 'AI extracts your skills, experience, and strengths to generate personalized interview questions'
+                description: 'AI extracts your skills, experience, and strengths to generate personalized interview questions',
+                bg: 'bg-blue-500 dark:bg-blue-400'
               },
               {
                 icon: (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                 ),
                 title: 'Real Voice Practice',
-                description: 'Practice speaking your answers out loud with natural AI voice interactions'
+                description: 'Practice speaking your answers out loud with natural AI voice interactions',
+                bg: 'bg-purple-500 dark:bg-purple-400'
               },
               {
                 icon: (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 ),
                 title: 'Detailed Feedback',
-                description: 'Get AI-powered analysis with strengths, weaknesses, and specific improvement tips'
+                description: 'Get AI-powered analysis with strengths, weaknesses, and specific improvement tips',
+                bg: 'bg-emerald-500 dark:bg-emerald-400'
               }
             ].map((feature, i) => (
               <motion.div
@@ -305,9 +311,9 @@ export default function Home() {
                     <motion.div
                       whileHover={{ rotate: 360 }}
                       transition={{ duration: 0.6 }}
-                      className="w-16 h-16 bg-zinc-600 dark:bg-zinc-400 rounded-2xl flex items-center justify-center mb-6"
+                      className={`w-16 h-16 ${feature.bg} rounded-2xl flex items-center justify-center mb-6`}
                     >
-                      <svg className="w-8 h-8 text-white dark:text-zinc-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-8 h-8 text-white dark:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         {feature.icon}
                       </svg>
                     </motion.div>
@@ -346,7 +352,8 @@ export default function Home() {
                 icon: (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 ),
-                direction: 'left'
+                direction: 'left',
+                bg: 'bg-blue-500 dark:bg-blue-400'
               },
               {
                 step: '02',
@@ -359,7 +366,8 @@ export default function Home() {
                     <circle cx="12" cy="12" r="2" strokeWidth={2} fill="currentColor" />
                   </>
                 ),
-                direction: 'right'
+                direction: 'right',
+                bg: 'bg-purple-500 dark:bg-purple-400'
               },
               {
                 step: '03',
@@ -368,7 +376,8 @@ export default function Home() {
                 icon: (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 ),
-                direction: 'left'
+                direction: 'left',
+                bg: 'bg-emerald-500 dark:bg-emerald-400'
               }
             ].map((item) => (
               <motion.div
@@ -394,9 +403,9 @@ export default function Home() {
                         <motion.div
                           whileHover={{ rotate: 360 }}
                           transition={{ duration: 0.6 }}
-                          className="w-24 h-24 bg-zinc-600 dark:bg-zinc-400 rounded-2xl flex items-center justify-center"
+                          className={`w-24 h-24 ${item.bg} rounded-2xl flex items-center justify-center`}
                         >
-                          <svg className="w-12 h-12 text-white dark:text-zinc-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-12 h-12 text-white dark:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             {item.icon}
                           </svg>
                         </motion.div>
