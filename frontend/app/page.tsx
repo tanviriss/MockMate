@@ -51,7 +51,6 @@ export default function Home() {
           <Logo className="text-neutral-900 dark:text-white" />
           <div className="flex gap-4">
             <Button
-              variant="ghost"
               onClick={() => router.push('/sign-in')}
             >
               Login
@@ -432,7 +431,7 @@ export default function Home() {
         <div className="mt-32">
           <AnimatedShaderHero
             trustBadge={{
-              text: "🎯 AI-Powered Interview Practice",
+              text: "AI-Powered Interview Practice",
               icons: ["✨"]
             }}
             headline={{
