@@ -1,19 +1,21 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Space_Grotesk, Inknut_Antiqua } from "next/font/google";
 import "./globals.css";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ClerkProvider } from '@clerk/nextjs';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import Analytics from '@/components/Analytics';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inknutAntiqua = Inknut_Antiqua({
+  variable: "--font-inknut-antiqua",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -38,7 +40,7 @@ export default function RootLayout({
           colorTextSecondary: '#d1d5db',
           colorNeutral: '#ffffff',
           borderRadius: '0.75rem',
-          fontFamily: `${geistSans.variable}, system-ui, sans-serif`,
+          fontFamily: `${inknutAntiqua.variable}, system-ui, serif`,
         },
         elements: {
           formButtonPrimary:
@@ -63,7 +65,7 @@ export default function RootLayout({
     >
       <html lang="en" suppressHydrationWarning>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          className={`${spaceGrotesk.variable} ${inknutAntiqua.variable} antialiased`}
         >
           <Analytics />
           <ThemeProvider>
