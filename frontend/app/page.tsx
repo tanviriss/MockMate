@@ -51,11 +51,13 @@ export default function Home() {
           <Logo className="text-neutral-900 dark:text-white" />
           <div className="flex gap-4">
             <Button
+              className="cursor-target"
               onClick={() => router.push('/sign-in')}
             >
               Login
             </Button>
             <Button
+              className="cursor-target"
               onClick={() => router.push('/sign-up')}
             >
               Get Started
@@ -87,7 +89,7 @@ export default function Home() {
           >
             <Badge variant="outline" className="px-4 py-2 bg-slate-100 dark:bg-slate-900 backdrop-blur-xl border-slate-300 dark:border-slate-700">
               <span className="flex items-center gap-2">
-                <span className="text-lg">🚀</span>
+                <span className="text-lg"></span>
                 <span className="text-slate-700 dark:text-slate-300">AI-Powered Interview Coaching</span>
               </span>
             </Badge>
