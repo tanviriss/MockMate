@@ -104,14 +104,14 @@ export default function Home() {
             Ace Your Next{' '}
             <br />
             <span className="relative inline-block">
-              <span className="text-slate-900 dark:text-white">
+              <span className="bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
                 Job Interview
               </span>
               <motion.span
                 initial={{ width: 0 }}
                 animate={{ width: "100%" }}
                 transition={{ duration: 0.8, delay: 1.2 }}
-                className="absolute bottom-2 left-0 h-1 bg-slate-600 dark:bg-slate-400"
+                className="absolute bottom-2 left-0 h-1 bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400"
               />
             </span>
           </motion.h1>
