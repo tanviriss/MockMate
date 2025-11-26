@@ -98,13 +98,13 @@ export default function InterviewsPage() {
   const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {
       case 'pending':
-        return 'bg-yellow-500/20 border-yellow-500/30 text-yellow-300';
+        return 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-300';
       case 'in_progress':
-        return 'bg-blue-500/20 border-blue-500/30 text-blue-300';
+        return 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300';
       case 'completed':
-        return 'bg-green-500/20 border-green-500/30 text-green-300';
+        return 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300';
       default:
-        return 'bg-gray-500/20 border-gray-500/30 text-gray-300';
+        return 'bg-slate-50 dark:bg-slate-900/20 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300';
     }
   };
 
@@ -156,15 +156,16 @@ export default function InterviewsPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        {/* Animated background */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-          <div className="absolute top-40 right-10 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+      <main className="min-h-screen bg-slate-100 dark:bg-slate-800">
+        {/* Neutral slate theme background */}
+        <div className="fixed inset-0 z-0 bg-slate-100 dark:bg-slate-800">
+          {/* Subtle colored accents */}
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-slate-200/50 dark:bg-slate-700/30 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-zinc-200/40 dark:bg-slate-600/20 rounded-full blur-3xl"></div>
         </div>
 
         {/* Navigation */}
-        <nav className="relative z-10 border-b border-white/10 bg-white/5 backdrop-blur-md">
+        <nav className="relative z-10 border-b border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex justify-between items-center">
               <Logo />
@@ -174,15 +175,15 @@ export default function InterviewsPage() {
 
         {/* Main Content Skeleton */}
         <div className="relative z-10 max-w-6xl mx-auto px-6 py-12">
-          <div className="h-12 w-64 bg-white/10 rounded-lg mb-4 animate-pulse"></div>
-          <div className="h-6 w-96 bg-white/10 rounded-lg mb-12 animate-pulse"></div>
+          <div className="h-12 w-64 bg-slate-200 dark:bg-slate-700 rounded-lg mb-4 animate-pulse"></div>
+          <div className="h-6 w-96 bg-slate-200 dark:bg-slate-700 rounded-lg mb-12 animate-pulse"></div>
 
           {/* Interviews List Skeleton */}
-          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden">
-            <div className="p-6 border-b border-white/10">
-              <div className="h-8 w-48 bg-white/10 rounded-lg animate-pulse"></div>
+          <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden">
+            <div className="p-6 border-b border-slate-200 dark:border-slate-700">
+              <div className="h-8 w-48 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse"></div>
             </div>
-            <div className="divide-y divide-white/10">
+            <div className="divide-y divide-slate-200 dark:divide-slate-700">
               {[1, 2, 3].map((i) => (
                 <SkeletonInterview key={i} />
               ))}
@@ -194,15 +195,16 @@ export default function InterviewsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Animated background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-        <div className="absolute top-40 right-10 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+    <main className="min-h-screen bg-slate-100 dark:bg-slate-800">
+      {/* Neutral slate theme background */}
+      <div className="fixed inset-0 z-0 bg-slate-100 dark:bg-slate-800">
+        {/* Subtle colored accents */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-slate-200/50 dark:bg-slate-700/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-zinc-200/40 dark:bg-slate-600/20 rounded-full blur-3xl"></div>
       </div>
 
       {/* Navigation */}
-      <nav className="relative z-10 border-b border-white/10 bg-white/5 backdrop-blur-md">
+      <nav className="relative z-10 border-b border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
             <button onClick={() => router.push('/dashboard')}>
@@ -210,7 +212,7 @@ export default function InterviewsPage() {
             </button>
             <button
               onClick={() => router.push('/dashboard')}
-              className="text-gray-300 hover:text-white transition flex items-center gap-2"
+              className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -225,30 +227,30 @@ export default function InterviewsPage() {
       <div className="relative z-10 max-w-6xl mx-auto px-6 py-12">
         <div className="flex justify-between items-center mb-12">
           <div>
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">
               My Interviews
             </h1>
-            <p className="text-xl text-gray-300">
+            <p className="text-xl text-slate-600 dark:text-slate-400">
               View and manage your interview sessions
             </p>
           </div>
           <button
             onClick={() => router.push('/interviews/new')}
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition"
+            className="px-6 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-700 dark:hover:bg-blue-600 hover:shadow-lg transition"
           >
             + New Interview
           </button>
         </div>
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500/50 text-red-200 px-4 py-3 rounded-lg backdrop-blur-sm mb-6">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg backdrop-blur-sm mb-6">
             {error}
           </div>
         )}
 
         {/* Tabs */}
         {interviews.length > 0 && (
-          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-2 mb-6 flex gap-2">
+          <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-2 mb-6 flex gap-2">
             <button
               onClick={() => {
                 setActiveTab('standard');
@@ -257,8 +259,8 @@ export default function InterviewsPage() {
               }}
               className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
                 activeTab === 'standard'
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-                  : 'text-gray-300 hover:bg-white/10'
+                  ? 'bg-blue-600 dark:bg-blue-500 text-white shadow-lg'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               <div className="flex items-center justify-center gap-2">
@@ -267,7 +269,7 @@ export default function InterviewsPage() {
                 </svg>
                 Standard Interviews
                 <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
-                  activeTab === 'standard' ? 'bg-white/20' : 'bg-white/10'
+                  activeTab === 'standard' ? 'bg-white/20' : 'bg-slate-200 dark:bg-slate-700'
                 }`}>
                   {interviews.filter(i => (i.interview_type?.toLowerCase() || 'standard') === 'standard').length}
                 </span>
@@ -281,8 +283,8 @@ export default function InterviewsPage() {
               }}
               className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
                 activeTab === 'resume_grill'
-                  ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg'
-                  : 'text-gray-300 hover:bg-white/10'
+                  ? 'bg-amber-600 dark:bg-amber-500 text-white shadow-lg'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               <div className="flex items-center justify-center gap-2">
@@ -291,7 +293,7 @@ export default function InterviewsPage() {
                 </svg>
                 Resume Grills
                 <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
-                  activeTab === 'resume_grill' ? 'bg-white/20' : 'bg-white/10'
+                  activeTab === 'resume_grill' ? 'bg-white/20' : 'bg-slate-200 dark:bg-slate-700'
                 }`}>
                   {interviews.filter(i => i.interview_type?.toLowerCase() === 'resume_grill').length}
                 </span>
@@ -302,11 +304,11 @@ export default function InterviewsPage() {
 
         {/* Search and Filters */}
         {interviews.length > 0 && (
-          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 mb-6">
+          <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-6 mb-6">
             {/* Search Bar */}
             <div className="relative mb-4">
               <svg
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -318,12 +320,12 @@ export default function InterviewsPage() {
                 placeholder="Search by job title, company, or description..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white transition"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -340,8 +342,8 @@ export default function InterviewsPage() {
                   onClick={() => setStatusFilter('all')}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
                     statusFilter === 'all'
-                      ? 'bg-white/20 text-white border border-white/30'
-                      : 'bg-white/5 text-gray-300 hover:bg-white/10'
+                      ? 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600'
+                      : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
                   }`}
                 >
                   All
@@ -350,8 +352,8 @@ export default function InterviewsPage() {
                   onClick={() => setStatusFilter('pending')}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
                     statusFilter === 'pending'
-                      ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
-                      : 'bg-white/5 text-gray-300 hover:bg-white/10'
+                      ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800'
+                      : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
                   }`}
                 >
                   Pending
@@ -360,8 +362,8 @@ export default function InterviewsPage() {
                   onClick={() => setStatusFilter('in_progress')}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
                     statusFilter === 'in_progress'
-                      ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-                      : 'bg-white/5 text-gray-300 hover:bg-white/10'
+                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
+                      : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
                   }`}
                 >
                   In Progress
@@ -370,8 +372,8 @@ export default function InterviewsPage() {
                   onClick={() => setStatusFilter('completed')}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
                     statusFilter === 'completed'
-                      ? 'bg-green-500/20 text-green-300 border border-green-500/30'
-                      : 'bg-white/5 text-gray-300 hover:bg-white/10'
+                      ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800'
+                      : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
                   }`}
                 >
                   Completed
@@ -383,19 +385,19 @@ export default function InterviewsPage() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  className="px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 >
-                  <option value="recent" className="bg-slate-800">Most Recent</option>
-                  <option value="oldest" className="bg-slate-800">Oldest First</option>
-                  <option value="score-high" className="bg-slate-800">Highest Score</option>
-                  <option value="score-low" className="bg-slate-800">Lowest Score</option>
+                  <option value="recent" className="bg-white dark:bg-slate-800">Most Recent</option>
+                  <option value="oldest" className="bg-white dark:bg-slate-800">Oldest First</option>
+                  <option value="score-high" className="bg-white dark:bg-slate-800">Highest Score</option>
+                  <option value="score-low" className="bg-white dark:bg-slate-800">Lowest Score</option>
                 </select>
               </div>
             </div>
 
             {/* Results count */}
             {(searchQuery || statusFilter !== 'all') && (
-              <div className="mt-4 text-sm text-gray-400">
+              <div className="mt-4 text-sm text-slate-500 dark:text-slate-400">
                 Showing {filteredAndSortedInterviews.length} of {interviews.length} interviews
               </div>
             )}
@@ -403,62 +405,62 @@ export default function InterviewsPage() {
         )}
 
         {/* Interviews List */}
-        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden">
-          <div className="p-6 border-b border-white/10">
-            <h2 className="text-2xl font-bold text-white">
+        <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden">
+          <div className="p-6 border-b border-slate-200 dark:border-slate-700">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
               {searchQuery || statusFilter !== 'all' ? 'Filtered Interviews' : 'All Interviews'} ({filteredAndSortedInterviews.length})
             </h2>
           </div>
 
           {interviews.length === 0 ? (
             <div className="p-12 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-white/5 rounded-full flex items-center justify-center">
-                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 mx-auto mb-4 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                 </svg>
               </div>
-              <p className="text-gray-400">No interviews yet.</p>
-              <p className="text-gray-500 text-sm mt-2">Create your first interview to get started!</p>
+              <p className="text-slate-500 dark:text-slate-400">No interviews yet.</p>
+              <p className="text-slate-400 dark:text-slate-500 text-sm mt-2">Create your first interview to get started!</p>
               <button
                 onClick={() => router.push('/interviews/new')}
-                className="mt-6 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition"
+                className="mt-6 px-6 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-700 dark:hover:bg-blue-600 hover:shadow-lg transition"
               >
                 Create Interview
               </button>
             </div>
           ) : filteredAndSortedInterviews.length === 0 ? (
             <div className="p-12 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-white/5 rounded-full flex items-center justify-center">
-                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 mx-auto mb-4 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
-              <p className="text-gray-400">No interviews match your filters.</p>
-              <p className="text-gray-500 text-sm mt-2">Try adjusting your search or filters.</p>
+              <p className="text-slate-500 dark:text-slate-400">No interviews match your filters.</p>
+              <p className="text-slate-400 dark:text-slate-500 text-sm mt-2">Try adjusting your search or filters.</p>
               <button
                 onClick={() => {
                   setSearchQuery('');
                   setStatusFilter('all');
                 }}
-                className="mt-6 px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg font-semibold transition"
+                className="mt-6 px-6 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-lg font-semibold transition"
               >
                 Clear Filters
               </button>
             </div>
           ) : (
-            <div className="divide-y divide-white/10">
+            <div className="divide-y divide-slate-200 dark:divide-slate-700">
               {filteredAndSortedInterviews.map((interview) => {
                 const isResumeGrill = interview.interview_type?.toLowerCase() === 'resume_grill';
                 return (
-                <div key={interview.id} className="p-6 hover:bg-white/5 transition group">
+                <div key={interview.id} className="p-6 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition group">
                   <div className="flex gap-6">
                     <div className="flex-shrink-0">
                       <div className={`w-16 h-16 rounded-xl flex items-center justify-center ${
                         isResumeGrill
-                          ? 'bg-gradient-to-br from-orange-500 to-red-600'
-                          : 'bg-gradient-to-br from-purple-500 to-purple-600'
+                          ? 'bg-amber-500 dark:bg-amber-400'
+                          : 'bg-purple-500 dark:bg-purple-400'
                       }`}>
-                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-8 h-8 text-white dark:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           {isResumeGrill ? (
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
                           ) : (
@@ -471,7 +473,7 @@ export default function InterviewsPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between mb-2">
                         <div>
-                          <h3 className="text-xl font-bold text-white">
+                          <h3 className="text-xl font-bold text-slate-900 dark:text-white">
                             {isResumeGrill
                               ? `Resume Grill${interview.resume?.parsed_data?.name ? ` - ${interview.resume.parsed_data.name}` : ''}`
                               : (interview.jd_analysis?.job_title || 'Interview')
@@ -479,7 +481,7 @@ export default function InterviewsPage() {
                           </h3>
                           {interview.jd_analysis?.company && (
                             <p className={`text-sm font-medium mt-1 ${
-                              isResumeGrill ? 'text-orange-300' : 'text-purple-300'
+                              isResumeGrill ? 'text-amber-700 dark:text-amber-300' : 'text-purple-700 dark:text-purple-300'
                             }`}>
                               {interview.jd_analysis.company}
                             </p>
@@ -491,17 +493,17 @@ export default function InterviewsPage() {
                       </div>
 
                       {interview.job_description && (
-                        <p className="text-gray-300 text-sm mb-3 line-clamp-2">
+                        <p className="text-slate-600 dark:text-slate-400 text-sm mb-3 line-clamp-2">
                           {interview.job_description}
                         </p>
                       )}
                       {isResumeGrill && (
-                        <p className="text-orange-200 text-sm mb-3 italic">
+                        <p className="text-amber-700 dark:text-amber-200 text-sm mb-3 italic">
                           Testing your resume knowledge
                         </p>
                       )}
 
-                      <div className="flex items-center gap-4 text-xs text-gray-400 mb-4">
+                      <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400 mb-4">
                         <span className="flex items-center gap-1">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -513,7 +515,7 @@ export default function InterviewsPage() {
                           })}
                         </span>
                         {interview.overall_score !== null && interview.overall_score !== undefined && (
-                          <span className="flex items-center gap-1 font-semibold text-blue-300">
+                          <span className="flex items-center gap-1 font-semibold text-blue-700 dark:text-blue-300">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                             </svg>
@@ -528,13 +530,13 @@ export default function InterviewsPage() {
                           {interview.jd_analysis.required_skills.slice(0, 5).map((skill: string, idx: number) => (
                             <span
                               key={idx}
-                              className="px-2 py-1 bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs rounded-full"
+                              className="px-2 py-1 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-xs rounded-full"
                             >
                               {skill}
                             </span>
                           ))}
                           {interview.jd_analysis.required_skills.length > 5 && (
-                            <span className="px-2 py-1 text-xs text-gray-400">
+                            <span className="px-2 py-1 text-xs text-slate-500 dark:text-slate-400">
                               +{interview.jd_analysis.required_skills.length - 5} more
                             </span>
                           )}
@@ -546,21 +548,21 @@ export default function InterviewsPage() {
                       {interview.status.toLowerCase() === 'completed' ? (
                         <button
                           onClick={() => router.push(`/interviews/${interview.id}/results`)}
-                          className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg text-sm font-medium transition text-center"
+                          className="px-4 py-2 bg-green-600 dark:bg-green-500 hover:bg-green-700 dark:hover:bg-green-600 text-white rounded-lg text-sm font-medium transition text-center"
                         >
                           View Results
                         </button>
                       ) : (
                         <button
                           onClick={() => router.push(`/interviews/${interview.id}`)}
-                          className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm font-medium transition text-center"
+                          className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-lg text-sm font-medium transition text-center"
                         >
                           View Details
                         </button>
                       )}
                       <button
                         onClick={() => handleDelete(interview.id)}
-                        className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-300 rounded-lg text-sm font-medium transition"
+                        className="px-4 py-2 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg text-sm font-medium transition"
                       >
                         Delete
                       </button>
@@ -577,40 +579,40 @@ export default function InterviewsPage() {
       {/* Custom Delete Confirmation Modal */}
       {deleteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-gradient-to-br from-slate-900 to-slate-800 border border-red-500/30 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all">
+          <div className="bg-white dark:bg-slate-900 border border-red-200 dark:border-red-800 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all">
             {/* Header with icon */}
-            <div className="bg-red-500/10 border-b border-red-500/20 p-6">
+            <div className="bg-red-50 dark:bg-red-900/10 border-b border-red-200 dark:border-red-800 p-6">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
-                  <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white">Delete Interview</h3>
-                  <p className="text-sm text-gray-400 mt-1">This action cannot be undone</p>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">Delete Interview</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">This action cannot be undone</p>
                 </div>
               </div>
             </div>
 
             {/* Content */}
             <div className="p-6">
-              <p className="text-gray-300 leading-relaxed">
+              <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
                 Are you sure you want to permanently delete this interview? All questions, answers, and results will be lost forever.
               </p>
             </div>
 
             {/* Actions */}
-            <div className="bg-white/5 border-t border-white/10 p-6 flex gap-3">
+            <div className="bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700 p-6 flex gap-3">
               <button
                 onClick={cancelDelete}
-                className="flex-1 px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg font-semibold transition-all transform hover:scale-105"
+                className="flex-1 px-6 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-lg font-semibold transition-all transform hover:scale-105"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmDelete}
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg shadow-red-500/30"
+                className="flex-1 px-6 py-3 bg-red-600 dark:bg-red-500 hover:bg-red-700 dark:hover:bg-red-600 text-white rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg"
               >
                 Delete Forever
               </button>
