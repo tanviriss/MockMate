@@ -104,25 +104,25 @@ export default function CompanyPrepPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-          <p className="text-gray-300">Loading...</p>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 dark:border-blue-400 mb-4"></div>
+          <p className="text-slate-600 dark:text-slate-300">Loading...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Animated background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-        <div className="absolute top-40 right-10 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+    <main className="min-h-screen bg-slate-100 dark:bg-slate-800">
+      {/* Background */}
+      <div className="fixed inset-0 z-0 bg-slate-100 dark:bg-slate-800">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-slate-200/50 dark:bg-slate-700/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-zinc-200/40 dark:bg-slate-600/20 rounded-full blur-3xl"></div>
       </div>
 
       {/* Navigation */}
-      <nav className="relative z-10 border-b border-white/10 bg-white/5 backdrop-blur-md">
+      <nav className="relative z-10 border-b border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
             <button onClick={() => router.push('/dashboard')}>
@@ -130,7 +130,7 @@ export default function CompanyPrepPage() {
             </button>
             <button
               onClick={() => router.push('/dashboard')}
-              className="text-gray-300 hover:text-white transition flex items-center gap-2"
+              className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -145,34 +145,34 @@ export default function CompanyPrepPage() {
       <div className="relative z-10 max-w-4xl mx-auto px-6 py-12">
         <div className="flex items-center gap-3 mb-4">
           <span className="text-5xl">🎯</span>
-          <h1 className="text-4xl md:text-5xl font-bold text-white">
+          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white">
             Company-Specific Prep
           </h1>
         </div>
-        <p className="text-xl text-gray-300 mb-12">
+        <p className="text-xl text-slate-600 dark:text-slate-300 mb-12">
           Get interview questions tailored to a specific company by researching recent experiences from Glassdoor, Reddit, and more
         </p>
 
         {resumes.length === 0 ? (
-          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-12 text-center">
-            <div className="w-16 h-16 mx-auto mb-4 bg-white/5 rounded-full flex items-center justify-center">
-              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-12 text-center">
+            <div className="w-16 h-16 mx-auto mb-4 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
+              <svg className="w-8 h-8 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">No Resumes Found</h3>
-            <p className="text-gray-400 mb-6">You need to upload a resume before creating an interview.</p>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">No Resumes Found</h3>
+            <p className="text-slate-500 dark:text-slate-400 mb-6">You need to upload a resume before creating an interview.</p>
             <button
               onClick={() => router.push('/resumes')}
-              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition"
+              className="px-6 py-3 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition"
             >
               Upload Resume
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8">
+          <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-8">
             {error && (
-              <div className="bg-red-500/10 border border-red-500/50 text-red-200 px-4 py-3 rounded-lg backdrop-blur-sm mb-6">
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg backdrop-blur-sm mb-6">
                 {error}
               </div>
             )}
@@ -180,17 +180,17 @@ export default function CompanyPrepPage() {
             <div className="space-y-6">
               {/* Resume Selection */}
               <div>
-                <label className="block text-sm font-medium text-gray-200 mb-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
                   Select Resume
                 </label>
                 <select
                   value={formData.resume_id}
                   onChange={(e) => setFormData({ ...formData, resume_id: e.target.value })}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                   required
                 >
                   {resumes.map((resume) => (
-                    <option key={resume.id} value={resume.id} className="bg-slate-800">
+                    <option key={resume.id} value={resume.id} className="bg-white dark:bg-slate-800">
                       {resume.parsed_data?.name || `Resume ${resume.id}`} - {new Date(resume.created_at).toLocaleDateString()}
                     </option>
                   ))}
@@ -200,28 +200,28 @@ export default function CompanyPrepPage() {
               {/* Target Company & Role */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-200 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
                     Target Company *
                   </label>
                   <input
                     type="text"
                     value={formData.target_company}
                     onChange={(e) => setFormData({ ...formData, target_company: e.target.value })}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                     placeholder="e.g., Google, Amazon, Meta"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-200 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
                     Target Role *
                   </label>
                   <input
                     type="text"
                     value={formData.target_role}
                     onChange={(e) => setFormData({ ...formData, target_role: e.target.value })}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                     placeholder="e.g., Software Engineer, PM"
                     required
                   />
@@ -229,9 +229,9 @@ export default function CompanyPrepPage() {
               </div>
 
               {/* Info about web scraping */}
-              <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-                <p className="text-sm text-gray-300">
-                  <span className="font-semibold text-blue-400">🌐 Real Questions from the Web</span>
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                <p className="text-sm text-slate-700 dark:text-slate-300">
+                  <span className="font-semibold text-blue-600 dark:text-blue-400">🌐 Real Questions from the Web</span>
                   <br />
                   We&apos;ll search Reddit, LeetCode, and other sources for actual interview questions from {formData.target_company || 'your target company'} and generate questions based on real interview experiences.
                 </p>
@@ -239,7 +239,7 @@ export default function CompanyPrepPage() {
 
               {/* Number of Questions */}
               <div>
-                <label className="block text-sm font-medium text-gray-200 mb-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
                   Number of Questions: {formData.num_questions}
                 </label>
                 <input
@@ -250,7 +250,7 @@ export default function CompanyPrepPage() {
                   onChange={(e) => setFormData({ ...formData, num_questions: parseInt(e.target.value) })}
                   className="w-full"
                 />
-                <div className="flex justify-between text-xs text-gray-400 mt-1">
+                <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1">
                   <span>1 question</span>
                   <span>15 questions</span>
                 </div>
@@ -260,7 +260,7 @@ export default function CompanyPrepPage() {
               <button
                 type="submit"
                 disabled={creating}
-                className="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                className="w-full py-4 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 {creating ? (
                   <span className="flex items-center justify-center">
@@ -278,20 +278,6 @@ export default function CompanyPrepPage() {
           </form>
         )}
       </div>
-
-      <style jsx global>{`
-        @keyframes blob {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-        }
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-      `}</style>
     </main>
   );
 }
