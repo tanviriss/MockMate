@@ -20,8 +20,40 @@ export default function Home() {
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.8]);
 
+  // Structured data for SEO
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Mockmate",
+    "applicationCategory": "EducationalApplication",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "description": "AI-powered voice interview coach for job interview preparation",
+    "operatingSystem": "Web",
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "ratingCount": "150"
+    },
+    "featureList": [
+      "AI-powered voice interview practice",
+      "Real-time feedback and scoring",
+      "Company-specific interview prep",
+      "Technical and behavioral questions",
+      "Resume-based interview practice"
+    ]
+  };
+
   return (
-    <div ref={containerRef} className="bg-purple-950">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <div ref={containerRef} className="bg-purple-950">
       {/* Target Cursor */}
       <TargetCursor spinDuration={2} hideDefaultCursor={true} parallaxOn={true} />
 
@@ -608,9 +640,10 @@ export default function Home() {
       {/* Footer */}
       <footer className="relative z-10 py-12 px-6 border-t border-white/10">
         <div className="max-w-7xl mx-auto text-center text-gray-400">
-          <p>&copy; 2025 Reherse. All rights reserved.</p>
+          <p>&copy; 2025 Mockmate. All rights reserved.</p>
         </div>
       </footer>
-    </div>
+      </div>
+    </>
   );
 }

@@ -17,8 +17,73 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Reherse - AI Voice Interview Coach",
-  description: "Practice interviews with AI-powered voice coaching and detailed feedback",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+  title: {
+    default: "Mockmate - AI Voice Interview Coach | Master Your Interviews",
+    template: "%s | Mockmate"
+  },
+  description: "Master your interviews with Mockmate's AI-powered voice interview coach. Get real-time feedback, practice unlimited mock interviews, and land your dream job. Free interview preparation platform.",
+  keywords: [
+    "interview practice",
+    "mock interview",
+    "AI interview coach",
+    "job interview preparation",
+    "voice interview practice",
+    "technical interview prep",
+    "behavioral interview questions",
+    "interview feedback",
+    "career coaching",
+    "interview simulator",
+    "job interview tips",
+    "interview training",
+    "AI voice coach",
+    "practice interviews online",
+    "interview preparation software"
+  ],
+  authors: [{ name: "Mockmate Team" }],
+  creator: "Mockmate",
+  publisher: "Mockmate",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "/",
+    title: "Mockmate - AI Voice Interview Coach",
+    description: "Practice real interviews with AI-powered coaching. Get instant feedback and ace your next interview.",
+    siteName: "Mockmate",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Mockmate - AI Interview Coach Platform",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Mockmate - AI Voice Interview Coach",
+    description: "Practice real interviews with AI-powered coaching. Get instant feedback and ace your next interview.",
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  alternates: {
+    canonical: "/",
+  },
 };
 
 export default function RootLayout({

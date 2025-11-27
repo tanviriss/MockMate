@@ -1,0 +1,20 @@
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow dashboard and user-specific pages
+Disallow: /dashboard
+Disallow: /interviews/*/live
+Disallow: /interviews/*/results
+Disallow: /sign-in
+Disallow: /sign-up
+Disallow: /api/
+
+# Allow public pages
+Allow: /
+Allow: /interviews/new
+Allow: /interviews/resume-grill
+Allow: /interviews/company-prep
+
+# Sitemap location
+Sitemap: ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/sitemap.xml
