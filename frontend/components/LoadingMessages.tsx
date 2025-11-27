@@ -138,22 +138,22 @@ export default function LoadingMessages({ interval = 2000 }: LoadingMessagesProp
   }, [interval, usedIndices]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-        <div className="absolute top-40 right-10 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+      <div className="fixed inset-0 z-0 bg-slate-100 dark:bg-slate-800">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-slate-200/50 dark:bg-slate-700/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-zinc-200/40 dark:bg-slate-600/20 rounded-full blur-3xl"></div>
       </div>
 
       <div className="relative z-10 text-center max-w-md px-4">
         <div className="relative mb-12">
           <div className="relative inline-block">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full blur-xl opacity-50 animate-pulse"></div>
-            <div className="relative w-24 h-24 rounded-full border-4 border-transparent bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-spin" style={{ animationDuration: "3s" }}>
-              <div className="absolute inset-1 bg-slate-900 rounded-full"></div>
+            <div className="absolute inset-0 bg-blue-500 dark:bg-blue-400 rounded-full blur-xl opacity-30 animate-pulse"></div>
+            <div className="relative w-24 h-24 rounded-full border-4 border-transparent bg-blue-500 dark:bg-blue-400 animate-spin" style={{ animationDuration: "3s" }}>
+              <div className="absolute inset-1 bg-slate-100 dark:bg-slate-800 rounded-full"></div>
             </div>
           </div>
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full opacity-20 animate-ping" style={{ animationDuration: "2s" }}></div>
+            <div className="w-20 h-20 bg-blue-500 dark:bg-blue-400 rounded-full opacity-20 animate-ping" style={{ animationDuration: "2s" }}></div>
           </div>
         </div>
 
@@ -164,14 +164,14 @@ export default function LoadingMessages({ interval = 2000 }: LoadingMessagesProp
         </LiquidButton>
 
         <div className="flex items-center justify-center gap-3 mb-8">
-          <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-blue-500 rounded-full animate-bounce shadow-lg shadow-blue-500/50"></div>
-          <div className="w-3 h-3 bg-gradient-to-r from-purple-400 to-purple-500 rounded-full animate-bounce shadow-lg shadow-purple-500/50" style={{ animationDelay: "0.1s" }}></div>
-          <div className="w-3 h-3 bg-gradient-to-r from-pink-400 to-pink-500 rounded-full animate-bounce shadow-lg shadow-pink-500/50" style={{ animationDelay: "0.2s" }}></div>
+          <div className="w-3 h-3 bg-blue-500 dark:bg-blue-400 rounded-full animate-bounce shadow-lg shadow-blue-500/50"></div>
+          <div className="w-3 h-3 bg-purple-500 dark:bg-purple-400 rounded-full animate-bounce shadow-lg shadow-purple-500/50" style={{ animationDelay: "0.1s" }}></div>
+          <div className="w-3 h-3 bg-indigo-500 dark:bg-indigo-400 rounded-full animate-bounce shadow-lg shadow-indigo-500/50" style={{ animationDelay: "0.2s" }}></div>
         </div>
 
         <div className="relative h-12 flex items-center justify-center">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg blur-lg opacity-20"></div>
-          <p className="relative text-gray-300 text-sm backdrop-blur-sm bg-white/5 py-2 px-4 rounded-lg border border-white/10 whitespace-nowrap">
+          <div className="absolute inset-0 bg-blue-500 dark:bg-blue-400 rounded-lg blur-lg opacity-10"></div>
+          <p className="relative text-slate-600 dark:text-slate-400 text-sm backdrop-blur-sm bg-white/50 dark:bg-slate-900/50 py-2 px-4 rounded-lg border border-slate-200 dark:border-slate-700 whitespace-nowrap">
             This usually takes 10-20 seconds
           </p>
         </div>
