@@ -81,7 +81,14 @@ export default function Home() {
       >
         <div className="flex items-center justify-between p-6 max-w-7xl mx-auto">
           <Logo className="text-neutral-900 dark:text-white" />
-          <div className="flex gap-4">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              className="cursor-target"
+              onClick={() => router.push('/guides')}
+            >
+              Guides
+            </Button>
             <Button
               className="cursor-target"
               onClick={() => router.push('/sign-in')}
