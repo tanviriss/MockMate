@@ -343,7 +343,7 @@ const Hero: React.FC<HeroProps> = ({
   const canvasRef = useShaderBackground();
 
   return (
-    <div className={`relative w-full h-screen overflow-hidden bg-slate-950 ${className}`}>
+    <div className={`relative w-full h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 ${className}`}>
       <style jsx>{`
         @keyframes fade-in-down {
           from {
@@ -391,41 +391,30 @@ const Hero: React.FC<HeroProps> = ({
         .animation-delay-800 {
           animation-delay: 0.8s;
         }
-
-        @keyframes gradient-shift {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-
-        .animate-gradient {
-          background-size: 200% 200%;
-          animation: gradient-shift 3s ease infinite;
-        }
       `}</style>
 
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 w-full h-full object-contain touch-none"
-        style={{ background: '#020617' }}
+        className="absolute inset-0 w-full h-full object-contain touch-none opacity-20 dark:opacity-30"
+        style={{ background: 'transparent' }}
       />
 
       {/* Hero Content Overlay */}
-      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-white">
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center">
         {/* Trust Badge */}
         {trustBadge && (
           <div className="mb-8 animate-fade-in-down">
-            <div className="flex items-center gap-2 px-6 py-3 bg-blue-500/10 backdrop-blur-md border border-blue-300/30 rounded-full text-sm">
+            <div className="flex items-center gap-2 px-6 py-3 bg-slate-100 dark:bg-slate-900 backdrop-blur-md border border-slate-300 dark:border-slate-700 rounded-full text-sm">
               {trustBadge.icons && (
                 <div className="flex">
                   {trustBadge.icons.map((icon, index) => (
-                    <span key={index} className="text-blue-300">
+                    <span key={index}>
                       {icon}
                     </span>
                   ))}
                 </div>
               )}
-              <span className="text-blue-100">{trustBadge.text}</span>
+              <span className="text-slate-700 dark:text-slate-300">{trustBadge.text}</span>
             </div>
           </div>
         )}
@@ -433,17 +422,17 @@ const Hero: React.FC<HeroProps> = ({
         <div className="text-center space-y-6 max-w-5xl mx-auto px-4">
           {/* Main Heading with Animation */}
           <div className="space-y-2">
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold bg-gradient-to-r from-blue-300 via-purple-400 to-pink-300 bg-clip-text text-transparent animate-fade-in-up animation-delay-200">
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-slate-900 dark:text-white animate-fade-in-up animation-delay-200">
               {headline.line1}
             </h1>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold bg-gradient-to-r from-purple-300 via-blue-400 to-cyan-400 bg-clip-text text-transparent animate-fade-in-up animation-delay-400">
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-slate-900 dark:text-white animate-fade-in-up animation-delay-400">
               {headline.line2}
             </h1>
           </div>
 
           {/* Subtitle with Animation */}
           <div className="max-w-3xl mx-auto animate-fade-in-up animation-delay-600">
-            <p className="text-lg md:text-xl lg:text-2xl text-gray-300 font-light leading-relaxed">
+            <p className="text-lg md:text-xl lg:text-2xl text-slate-600 dark:text-slate-400 leading-relaxed">
               {subtitle}
             </p>
           </div>
@@ -454,7 +443,7 @@ const Hero: React.FC<HeroProps> = ({
               {buttons.primary && (
                 <button
                   onClick={buttons.primary.onClick}
-                  className="cursor-target px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/25"
+                  className="cursor-target px-8 py-4 bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-full font-semibold text-lg transition-all duration-300 hover:scale-105"
                 >
                   {buttons.primary.text}
                 </button>
@@ -462,7 +451,7 @@ const Hero: React.FC<HeroProps> = ({
               {buttons.secondary && (
                 <button
                   onClick={buttons.secondary.onClick}
-                  className="cursor-target px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/20 hover:border-white/30 text-white rounded-full font-semibold text-lg transition-all duration-300 hover:scale-105 backdrop-blur-sm"
+                  className="cursor-target px-8 py-4 bg-transparent border border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600 text-slate-900 dark:text-white rounded-full font-semibold text-lg transition-all duration-300 hover:scale-105 backdrop-blur-sm"
                 >
                   {buttons.secondary.text}
                 </button>
@@ -536,12 +525,12 @@ void main(void) {
         uv+=.1*cos(i*vec2(.1+.01*i, .8)+i*i+T*.5+.1*uv.x);
         vec2 p=uv;
         float d=length(p);
-        // Purple/Blue/Pink color scheme instead of orange/yellow
-        col+=.00125/d*(cos(sin(i)*vec3(3,2,1))+1.);
+        // Slate/neutral color scheme - subtle blues and grays
+        col+=.00125/d*(cos(sin(i)*vec3(1.8,1.9,2.0))+1.);
         float b=noise(i+p+bg*1.731);
         col+=.002*b/length(max(p,vec2(b*p.x*.02,p.y)));
-        // Purple-ish background mix
-        col=mix(col,vec3(bg*.15,bg*.05,bg*.25),d);
+        // Neutral slate background mix
+        col=mix(col,vec3(bg*.12,bg*.13,bg*.15),d);
     }
     O=vec4(col,1);
 }`;

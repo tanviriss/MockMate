@@ -88,18 +88,18 @@ export default function ResumeGrillPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <main className="min-h-screen bg-slate-100 dark:bg-slate-800">
       {/* Background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-orange-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-        <div className="absolute top-40 right-10 w-72 h-72 bg-red-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+      <div className="fixed inset-0 z-0 bg-slate-100 dark:bg-slate-800">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-slate-200/50 dark:bg-slate-700/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-zinc-200/40 dark:bg-slate-600/20 rounded-full blur-3xl"></div>
       </div>
 
       {/* Content */}
       <div className="relative z-10 max-w-4xl mx-auto px-6 py-12">
         <button
           onClick={() => router.push('/dashboard')}
-          className="mb-8 flex items-center text-gray-300 hover:text-white transition-colors"
+          className="mb-8 flex items-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
         >
           <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -107,7 +107,7 @@ export default function ResumeGrillPage() {
           Back to Dashboard
         </button>
 
-        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8">
+        <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-8">
           {/* Header */}
           <div className="flex items-start gap-4 mb-8">
             <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center flex-shrink-0">
@@ -117,11 +117,11 @@ export default function ResumeGrillPage() {
               </svg>
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-white mb-2">Resume Grill 🔥</h1>
-              <p className="text-gray-300 text-lg">
+              <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Resume Grill 🔥</h1>
+              <p className="text-slate-600 dark:text-slate-300 text-lg">
                 Think you know your resume? Let&apos;s see if you can explain everything you wrote.
               </p>
-              <p className="text-orange-300 text-sm mt-2">
+              <p className="text-orange-600 dark:text-orange-400 text-sm mt-2">
                 This interview will test your deep knowledge of the technologies, projects, and achievements on your resume.
               </p>
             </div>
@@ -129,22 +129,22 @@ export default function ResumeGrillPage() {
 
           {/* Resume Selection */}
           <div className="space-y-4">
-            <label className="block text-white font-semibold text-lg">
+            <label className="block text-slate-900 dark:text-white font-semibold text-lg">
               Select a resume to get grilled on:
             </label>
 
             {loading ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-16 bg-white/5 rounded-lg animate-pulse" />
+                  <div key={i} className="h-16 bg-slate-100 dark:bg-slate-800 rounded-lg animate-pulse" />
                 ))}
               </div>
             ) : resumes.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-gray-400 mb-4">No resumes found. Upload one first!</p>
+                <p className="text-slate-500 dark:text-slate-400 mb-4">No resumes found. Upload one first!</p>
                 <button
                   onClick={() => router.push('/resumes')}
-                  className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                  className="px-6 py-3 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white rounded-lg transition-colors"
                 >
                   Upload Resume
                 </button>
@@ -157,16 +157,16 @@ export default function ResumeGrillPage() {
                     onClick={() => setSelectedResume(resume.id)}
                     className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
                       selectedResume === resume.id
-                        ? 'border-orange-500 bg-orange-500/10'
-                        : 'border-white/20 bg-white/5 hover:border-white/40'
+                        ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
+                        : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-white font-semibold">
+                        <p className="text-slate-900 dark:text-white font-semibold">
                           {resume.parsed_data?.name || 'Resume'}
                         </p>
-                        <p className="text-gray-400 text-sm">
+                        <p className="text-slate-500 dark:text-slate-400 text-sm">
                           Uploaded {new Date(resume.created_at).toLocaleDateString()}
                         </p>
                       </div>
@@ -187,7 +187,7 @@ export default function ResumeGrillPage() {
           {/* Number of Questions Slider */}
           {resumes.length > 0 && (
             <div className="mt-8">
-              <label className="block text-white font-semibold text-lg mb-2">
+              <label className="block text-slate-900 dark:text-white font-semibold text-lg mb-2">
                 Number of Questions: {numQuestions}
               </label>
               <input
@@ -196,9 +196,9 @@ export default function ResumeGrillPage() {
                 max="10"
                 value={numQuestions}
                 onChange={(e) => setNumQuestions(parseInt(e.target.value))}
-                className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-orange-500"
               />
-              <div className="flex justify-between text-xs text-gray-400 mt-1">
+              <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1">
                 <span>1 question</span>
                 <span>10 questions</span>
               </div>
@@ -207,13 +207,13 @@ export default function ResumeGrillPage() {
 
           {/* Start Button */}
           {resumes.length > 0 && (
-            <div className="mt-6 pt-6 border-t border-white/10">
+            <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
               <button
                 onClick={handleStartGrill}
                 disabled={!selectedResume || creating}
                 className={`w-full py-4 px-6 rounded-lg font-bold text-lg transition-all ${
                   !selectedResume || creating
-                    ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                    ? 'bg-slate-400 dark:bg-slate-600 text-slate-300 dark:text-slate-400 cursor-not-allowed'
                     : 'bg-gradient-to-r from-orange-500 to-red-600 text-white hover:from-orange-600 hover:to-red-700 transform hover:scale-105'
                 }`}
               >
@@ -229,27 +229,13 @@ export default function ResumeGrillPage() {
                   "Get Grilled 🔥"
                 )}
               </button>
-              <p className="text-center text-gray-400 text-sm mt-3">
+              <p className="text-center text-slate-500 dark:text-slate-400 text-sm mt-3">
                 This will generate {numQuestions} tough {numQuestions === 1 ? 'question' : 'questions'} about your resume
               </p>
             </div>
           )}
         </div>
       </div>
-
-      <style jsx global>{`
-        @keyframes blob {
-          0%, 100% { transform: translate(0px, 0px) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-        }
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-      `}</style>
     </main>
   );
 }

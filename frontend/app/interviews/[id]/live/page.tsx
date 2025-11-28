@@ -7,6 +7,7 @@ import AudioRecorder from "@/components/AudioRecorder";
 import VideoFeed from "@/components/VideoFeed";
 import InterviewerAvatar from "@/components/InterviewerAvatar";
 import { useInterview } from "@/lib/useInterview";
+import { api } from "@/lib/api";
 
 export default function LiveInterviewPage({
   params,
@@ -23,6 +24,7 @@ export default function LiveInterviewPage({
   const [isRecording, setIsRecording] = useState(false);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [token, setToken] = useState<string>("");
+  const [interviewQuestionCount, setInterviewQuestionCount] = useState<number>(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Get token when auth is ready
@@ -35,6 +37,20 @@ export default function LiveInterviewPage({
     };
     fetchToken();
   }, [isSignedIn, getToken]);
+
+  // Fetch interview details to get question count
+  useEffect(() => {
+    const fetchInterviewDetails = async () => {
+      if (!token) return;
+      try {
+        const data = await api.getInterview(interviewId, token);
+        setInterviewQuestionCount(data.questions?.length || 0);
+      } catch (err) {
+        console.error('Failed to fetch interview details:', err);
+      }
+    };
+    fetchInterviewDetails();
+  }, [interviewId, token]);
 
   const {
     isConnected,
@@ -137,31 +153,31 @@ export default function LiveInterviewPage({
 
   if (!isLoaded || !isSignedIn) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-white">Loading...</div>
+      <div className="min-h-screen bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+        <div className="text-slate-900 dark:text-white">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8">
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-800 p-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 mb-8">
+        <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-6 mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-white mb-2">
+              <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
                 Live Interview
               </h1>
               {isConnected && (
-                <div className="flex items-center gap-2 text-green-400 text-sm">
-                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                <div className="flex items-center gap-2 text-green-600 dark:text-green-400 text-sm">
+                  <div className="w-2 h-2 bg-green-600 dark:bg-green-400 rounded-full animate-pulse" />
                   Connected
                 </div>
               )}
               {!isConnected && (
-                <div className="flex items-center gap-2 text-red-400 text-sm">
-                  <div className="w-2 h-2 bg-red-400 rounded-full" />
+                <div className="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm">
+                  <div className="w-2 h-2 bg-red-600 dark:bg-red-400 rounded-full" />
                   Disconnected
                 </div>
               )}
@@ -169,10 +185,10 @@ export default function LiveInterviewPage({
 
             {isStarted && (
               <div className="text-right">
-                <div className="text-4xl font-bold text-white">
+                <div className="text-4xl font-bold text-slate-900 dark:text-white">
                   {currentQuestionNumber}/{totalQuestions}
                 </div>
-                <div className="text-sm text-gray-400">Questions</div>
+                <div className="text-sm text-slate-500 dark:text-slate-400">Questions</div>
               </div>
             )}
           </div>
@@ -180,9 +196,9 @@ export default function LiveInterviewPage({
           {/* Progress Bar */}
           {isStarted && (
             <div className="mt-4">
-              <div className="w-full bg-gray-700 rounded-full h-2">
+              <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
                 <div
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-500"
+                  className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-500"
                   style={{
                     width: `${(currentQuestionNumber / totalQuestions) * 100}%`,
                   }}
@@ -194,26 +210,32 @@ export default function LiveInterviewPage({
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-500/20 border border-red-500 rounded-lg p-4 mb-8 text-red-200">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-8 text-red-700 dark:text-red-300">
             {error}
           </div>
         )}
 
         {/* Start Screen */}
         {!hasStarted && !isCompleted && (
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-12 text-center">
-            <div className="text-6xl mb-6">🎤</div>
-            <h2 className="text-3xl font-bold text-white mb-4">
+          <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-12 text-center">
+            <div className="mb-6 flex justify-center">
+              <div className="w-20 h-20 bg-blue-500 dark:bg-blue-400 rounded-full flex items-center justify-center">
+                <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+              </div>
+            </div>
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">
               Ready to Start?
             </h2>
-            <p className="text-gray-300 mb-8 max-w-md mx-auto">
+            <p className="text-slate-600 dark:text-slate-300 mb-8 max-w-md mx-auto">
               Make sure you&apos;re in a quiet environment with a working microphone.
-              You&apos;ll be asked {totalQuestions || 10} questions.
+              You&apos;ll be asked {interviewQuestionCount} {interviewQuestionCount === 1 ? 'question' : 'questions'}.
             </p>
             <button
               onClick={handleStart}
               disabled={!isConnected}
-              className="px-8 py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-full font-semibold text-lg transition-all transform hover:scale-105"
+              className="px-8 py-4 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 disabled:bg-slate-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-full font-semibold text-lg transition-all transform hover:scale-105"
             >
               {isConnected ? "Start Interview" : "Connecting..."}
             </button>
@@ -224,7 +246,7 @@ export default function LiveInterviewPage({
         {isStarted && currentQuestion && !isCompleted && (
           <div className="space-y-8">
             {/* Interviewer Avatar */}
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8">
+            <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-8">
               <InterviewerAvatar
                 state={getAvatarState()}
                 audioPlaying={isAudioPlaying}
@@ -232,19 +254,19 @@ export default function LiveInterviewPage({
             </div>
 
             {/* Question Display */}
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8">
+            <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-8">
               <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 bg-blue-600 dark:bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
                   <span className="text-white font-bold text-lg">
                     {currentQuestionNumber}
                   </span>
                 </div>
                 <div className="flex-1">
-                  <h2 className="text-2xl font-bold text-white mb-4">
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
                     {currentQuestion.question_text}
                   </h2>
                   {isAudioPlaying && (
-                    <div className="flex items-center gap-2 text-blue-400 text-sm">
+                    <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 text-sm">
                       <svg className="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
                       </svg>
@@ -257,8 +279,8 @@ export default function LiveInterviewPage({
 
             {/* Recording Section */}
             {!transcript && !isTranscribing && (
-              <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8">
-                <h3 className="text-xl font-semibold text-white mb-6 text-center">
+              <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-8">
+                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-6 text-center">
                   Record Your Answer
                 </h3>
                 <AudioRecorder
@@ -271,12 +293,12 @@ export default function LiveInterviewPage({
 
             {/* Transcribing State */}
             {isTranscribing && (
-              <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-12 text-center">
+              <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-12 text-center">
                 <div className="text-4xl mb-4">⏳</div>
-                <h3 className="text-xl font-semibold text-white mb-2">
+                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
                   Transcribing...
                 </h3>
-                <p className="text-gray-400">
+                <p className="text-slate-500 dark:text-slate-400">
                   Please wait while we transcribe your answer
                 </p>
               </div>
@@ -284,18 +306,18 @@ export default function LiveInterviewPage({
 
             {/* Transcript Review */}
             {transcript && !isTranscribing && (
-              <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8">
-                <h3 className="text-xl font-semibold text-white mb-4">
+              <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-8">
+                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
                   Review Your Answer
                 </h3>
-                <p className="text-sm text-gray-400 mb-4">
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
                   You can edit your transcript if needed
                 </p>
 
                 <textarea
                   value={editedTranscript}
                   onChange={(e) => setEditedTranscript(e.target.value)}
-                  className="w-full h-40 bg-slate-800/50 text-white rounded-lg p-4 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full h-40 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-lg p-4 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
 
                 <div className="flex gap-4 mt-6">
@@ -304,13 +326,13 @@ export default function LiveInterviewPage({
                       setEditedTranscript("");
                       resetTranscript();
                     }}
-                    className="flex-1 px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-semibold transition-all"
+                    className="flex-1 px-6 py-3 bg-slate-600 dark:bg-slate-500 hover:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-lg font-semibold transition-all"
                   >
                     Re-record
                   </button>
                   <button
                     onClick={handleConfirmAndNext}
-                    className="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all transform hover:scale-105"
+                    className="flex-1 px-6 py-3 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white rounded-lg font-semibold transition-all transform hover:scale-105"
                   >
                     Confirm & Next Question
                   </button>
@@ -322,7 +344,7 @@ export default function LiveInterviewPage({
             <div className="text-center">
               <button
                 onClick={handleEndEarly}
-                className="text-red-400 hover:text-red-300 text-sm underline"
+                className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm underline"
               >
                 End Interview Early
               </button>
@@ -332,23 +354,23 @@ export default function LiveInterviewPage({
 
         {/* Completion Screen */}
         {isCompleted && (
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-12 text-center">
+          <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-12 text-center">
             <div className="text-6xl mb-6">🎉</div>
-            <h2 className="text-3xl font-bold text-white mb-4">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">
               Interview Complete!
             </h2>
-            <p className="text-gray-300 mb-8">
+            <p className="text-slate-600 dark:text-slate-300 mb-8">
               Great job! We&apos;re processing your responses and generating feedback.
               You&apos;ll be redirected to the results page shortly.
             </p>
             <div className="flex items-center justify-center gap-2">
-              <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" />
+              <div className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce" />
               <div
-                className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"
+                className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce"
                 style={{ animationDelay: "0.1s" }}
               />
               <div
-                className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"
+                className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce"
                 style={{ animationDelay: "0.2s" }}
               />
             </div>
