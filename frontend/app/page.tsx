@@ -27,7 +27,7 @@ export default function Home() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "name": "Mockmate",
+    "name": "Reherse",
     "applicationCategory": "EducationalApplication",
     "offers": {
       "@type": "Offer",
@@ -617,9 +617,88 @@ export default function Home() {
         </motion.div>
       </section>
 
-      <footer className="relative z-10 py-12 px-6 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
-        <div className="max-w-7xl mx-auto text-center text-slate-600 dark:text-slate-400">
-          <p>&copy; 2025 Mockmate. All rights reserved.</p>
+      <footer className="relative z-10 py-16 px-6 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+            {/* Brand */}
+            <div className="col-span-1 md:col-span-1">
+              <Logo />
+              <p className="text-slate-600 dark:text-slate-400 mt-4 text-sm">
+                AI-powered interview coaching to help you land your dream job.
+              </p>
+            </div>
+
+            {/* Product */}
+            <div>
+              <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Product</h3>
+              <ul className="space-y-3 text-sm">
+                <li>
+                  <button onClick={() => router.push('/interviews/new')} className="text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+                    Practice Interviews
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => router.push('/interviews/resume-grill')} className="text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+                    Resume Grill
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => router.push('/interviews/company-prep')} className="text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+                    Company Prep
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            {/* Resources */}
+            <div>
+              <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Resources</h3>
+              <ul className="space-y-3 text-sm">
+                <li>
+                  <button onClick={() => router.push('/guides')} className="text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+                    Interview Guides
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => router.push('/guides/star-method-interview')} className="text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+                    STAR Method
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => router.push('/guides/behavioral-interview-questions')} className="text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+                    Behavioral Questions
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            {/* Company */}
+            <div>
+              <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Company</h3>
+              <ul className="space-y-3 text-sm">
+                <li>
+                  <a href="/about" className="text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+                    About
+                  </a>
+                </li>
+                <li>
+                  <a href="/privacy" className="text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+                    Privacy Policy
+                  </a>
+                </li>
+                <li>
+                  <a href="/terms" className="text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+                    Terms of Service
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom bar */}
+          <div className="pt-8 border-t border-slate-200 dark:border-slate-800 text-center text-sm text-slate-600 dark:text-slate-400">
+            <p>&copy; 2025 Reherse. All rights reserved.</p>
+          </div>
         </div>
       </footer>
       </div>
