@@ -151,13 +151,19 @@ export default async function GuidePage({ params }: GuidePageProps) {
             <div
               className="prose prose-slate dark:prose-invert prose-lg max-w-none
                 prose-headings:font-bold prose-headings:text-slate-900 dark:prose-headings:text-white
-                prose-p:text-slate-700 dark:prose-p:text-slate-300
+                prose-headings:mt-8 prose-headings:mb-4
+                prose-h2:text-3xl prose-h3:text-2xl prose-h4:text-xl
+                prose-p:text-slate-700 dark:prose-p:text-slate-300 prose-p:leading-relaxed prose-p:mb-4
                 prose-a:text-purple-600 dark:prose-a:text-purple-400 prose-a:no-underline hover:prose-a:underline
-                prose-strong:text-slate-900 dark:prose-strong:text-white
-                prose-ul:text-slate-700 dark:prose-ul:text-slate-300
-                prose-ol:text-slate-700 dark:prose-ol:text-slate-300
-                prose-blockquote:border-l-purple-500 prose-blockquote:bg-purple-50 dark:prose-blockquote:bg-purple-950/20
-                prose-blockquote:rounded-r-lg prose-blockquote:py-1"
+                prose-strong:text-slate-900 dark:prose-strong:text-white prose-strong:font-semibold
+                prose-ul:text-slate-700 dark:prose-ul:text-slate-300 prose-ul:my-4 prose-ul:list-disc prose-ul:pl-6
+                prose-ol:text-slate-700 dark:prose-ol:text-slate-300 prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-6
+                prose-li:mb-2
+                prose-blockquote:border-l-4 prose-blockquote:border-l-purple-500 prose-blockquote:bg-purple-50 dark:prose-blockquote:bg-purple-950/20
+                prose-blockquote:rounded-r-lg prose-blockquote:py-3 prose-blockquote:px-4 prose-blockquote:my-6
+                prose-code:text-purple-600 dark:prose-code:text-purple-400 prose-code:bg-slate-100 dark:prose-code:bg-slate-800
+                prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none
+                prose-pre:bg-slate-900 dark:prose-pre:bg-slate-950 prose-pre:text-slate-100 prose-pre:p-4 prose-pre:rounded-lg prose-pre:overflow-x-auto"
               dangerouslySetInnerHTML={{ __html: guide.content }}
             />
 
