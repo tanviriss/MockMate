@@ -18,7 +18,7 @@ export default function AboutPage() {
             Coming Soon
           </p>
           <p className="text-slate-600 dark:text-slate-400 mb-8">
-            We're working on sharing our story with you.
+            We&apos;re working on sharing our story with you.
           </p>
           <Link
             href="/"

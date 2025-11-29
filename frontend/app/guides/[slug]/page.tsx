@@ -175,7 +175,7 @@ export default async function GuidePage({ params }: GuidePageProps) {
                     Ready to Put This Into Practice?
                   </h2>
                   <p className="text-lg text-slate-600 dark:text-slate-400 mb-6">
-                    Now that you've learned these techniques, it's time to practice them with Reherse's AI interview coach. Get personalized feedback on your answers in real-time.
+                    Now that you&apos;ve learned these techniques, it&apos;s time to practice them with Reherse&apos;s AI interview coach. Get personalized feedback on your answers in real-time.
                   </p>
                   <ul className="space-y-2 mb-8 text-slate-700 dark:text-slate-300">
                     <li className="flex items-start gap-2">
