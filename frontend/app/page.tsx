@@ -108,31 +108,34 @@ export default function Home() {
       {/* Hero Section */}
       <motion.section
         style={{ opacity, scale }}
-        className="relative min-h-screen flex flex-col items-center justify-center px-6 text-center overflow-hidden"
+        className="relative min-h-screen flex flex-col items-center justify-center px-6 text-center overflow-hidden pt-32"
       >
         {/* Dot Shader Background */}
         <div className="absolute inset-0 z-0 opacity-30 dark:opacity-20">
           <DotScreenShader />
         </div>
+
+        {/* Badge - positioned above hero content */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="absolute top-24 left-1/2 transform -translate-x-1/2 z-20"
+        >
+          <Badge variant="outline" className="px-4 py-2 bg-slate-100 dark:bg-slate-900 backdrop-blur-xl border-slate-300 dark:border-slate-700">
+            <span className="flex items-center gap-2">
+              <span className="text-lg"></span>
+              <span className="text-slate-700 dark:text-slate-300">AI-Powered Interview Coaching</span>
+            </span>
+          </Badge>
+        </motion.div>
+
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="relative z-10 max-w-5xl space-y-8"
+          className="relative z-10 max-w-5xl space-y-8 text-center"
         >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="inline-block"
-          >
-            <Badge variant="outline" className="px-4 py-2 bg-slate-100 dark:bg-slate-900 backdrop-blur-xl border-slate-300 dark:border-slate-700">
-              <span className="flex items-center gap-2">
-                <span className="text-lg"></span>
-                <span className="text-slate-700 dark:text-slate-300">AI-Powered Interview Coaching</span>
-              </span>
-            </Badge>
-          </motion.div>
 
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
@@ -203,12 +206,33 @@ export default function Home() {
             </motion.div>
           </motion.div>
 
+          {/* Demo Video */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 1.4 }}
+            className="max-w-3xl mx-auto pt-12 pb-8"
+          >
+            <div className="relative rounded-xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800">
+              <video
+                className="w-full"
+                autoPlay
+                loop
+                muted
+                playsInline
+              >
+                <source src="/videos/tutorial.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </motion.div>
+
           {/* Key Features */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.4 }}
-            className="flex flex-wrap justify-center gap-8 pt-12"
+            transition={{ duration: 0.8, delay: 1.6 }}
+            className="flex flex-wrap justify-center gap-8 pt-8"
           >
             {[
               {
@@ -270,25 +294,6 @@ export default function Home() {
                 </Card>
               </motion.div>
             ))}
-          </motion.div>
-        </motion.div>
-
-        {/* Scroll Indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 2 }}
-          className="absolute bottom-10 z-10"
-        >
-          <motion.div
-            animate={{ y: [0, 10, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-            className="flex flex-col items-center gap-2 text-slate-400 dark:text-slate-600"
-          >
-            <span className="text-sm">Scroll to explore</span>
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
           </motion.div>
         </motion.div>
       </motion.section>
