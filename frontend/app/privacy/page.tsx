@@ -18,7 +18,7 @@ export default function PrivacyPage() {
             Coming Soon
           </p>
           <p className="text-slate-600 dark:text-slate-400 mb-8">
-            We're working on our privacy policy and will have it available soon.
+            We&apos;re working on our privacy policy and will have it available soon.
           </p>
           <Link
             href="/"

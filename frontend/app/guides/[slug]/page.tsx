@@ -6,9 +6,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
 interface GuidePageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export async function generateStaticParams() {
@@ -20,7 +20,8 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: GuidePageProps): Promise<Metadata> {
   try {
-    const guide = await getGuideBySlug(params.slug);
+    const { slug } = await params;
+    const guide = await getGuideBySlug(slug);
 
     return {
       title: `${guide.title} | Reherse`,
@@ -42,7 +43,7 @@ export async function generateMetadata({ params }: GuidePageProps): Promise<Meta
         images: guide.ogImage ? [guide.ogImage] : undefined,
       },
       alternates: {
-        canonical: `/guides/${params.slug}`,
+        canonical: `/guides/${slug}`,
       },
     };
   } catch {
@@ -53,14 +54,15 @@ export async function generateMetadata({ params }: GuidePageProps): Promise<Meta
 }
 
 export default async function GuidePage({ params }: GuidePageProps) {
+  const { slug } = await params;
   let guide;
   try {
-    guide = await getGuideBySlug(params.slug);
+    guide = await getGuideBySlug(slug);
   } catch {
     notFound();
   }
 
-  const relatedGuides = await getRelatedGuides(params.slug, 3);
+  const relatedGuides = await getRelatedGuides(slug, 3);
 
   // JSON-LD structured data for article
   const articleSchema = {
@@ -175,7 +177,7 @@ export default async function GuidePage({ params }: GuidePageProps) {
                     Ready to Put This Into Practice?
                   </h2>
                   <p className="text-lg text-slate-600 dark:text-slate-400 mb-6">
-                    Now that you've learned these techniques, it's time to practice them with Reherse's AI interview coach. Get personalized feedback on your answers in real-time.
+                    Now that you&apos;ve learned these techniques, it&apos;s time to practice them with Reherse&apos;s AI interview coach. Get personalized feedback on your answers in real-time.
                   </p>
                   <ul className="space-y-2 mb-8 text-slate-700 dark:text-slate-300">
                     <li className="flex items-start gap-2">

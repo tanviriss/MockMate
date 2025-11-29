@@ -116,7 +116,7 @@ export default async function GuidesPage() {
                   Ready to Practice?
                 </h2>
                 <p className="text-xl text-slate-600 dark:text-slate-400 mb-8">
-                  Turn these strategies into skills with Reherse's AI-powered interview coach
+                  Turn these strategies into skills with Reherse&apos;s AI-powered interview coach
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link
