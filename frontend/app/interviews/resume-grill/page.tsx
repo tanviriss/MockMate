@@ -60,7 +60,10 @@ export default function ResumeGrillPage() {
     setCreating(true);
     try {
       const token = await getToken();
-      if (!token) return;
+      if (!token) {
+        setCreating(false);
+        return;
+      }
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/interviews/resume-grill`, {
         method: 'POST',
@@ -80,10 +83,10 @@ export default function ResumeGrillPage() {
 
       const interview = await response.json();
       router.push(`/interviews/${interview.id}`);
+      // Don't set creating to false here - let the navigation happen
     } catch (error) {
       console.error('Failed to create resume grill:', error);
       alert('Failed to create resume grill. Please try again.');
-    } finally {
       setCreating(false);
     }
   };
