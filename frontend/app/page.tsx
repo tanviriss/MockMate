@@ -211,11 +211,11 @@ export default function Home() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 1.4 }}
-            className="max-w-3xl mx-auto pt-12 pb-8"
+            className="relative z-20 max-w-3xl mx-auto pt-12 pb-8"
           >
-            <div className="relative rounded-xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800">
+            <div className="relative rounded-xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 bg-slate-900">
               <video
-                className="w-full"
+                className="w-full relative z-10"
                 autoPlay
                 loop
                 muted
