@@ -7,6 +7,7 @@ import { api } from '@/lib/api';
 import Logo from '@/components/Logo';
 import Modal from '@/components/Modal';
 import { SkeletonResume } from '@/components/Skeleton';
+import LoadingMessages from '@/components/LoadingMessages';
 interface Resume {
   id: number;
   file_url: string;
@@ -155,6 +156,10 @@ export default function ResumesPage() {
       },
     });
   };
+
+  if (uploading) {
+    return <LoadingMessages interval={1500} />;
+  }
 
   if (loading) {
     return (
