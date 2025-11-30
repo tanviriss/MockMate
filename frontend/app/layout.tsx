@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Inknut_Antiqua } from "next/font/google";
+import { Space_Grotesk } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ClerkProvider } from '@clerk/nextjs';
@@ -8,12 +9,6 @@ import Analytics from '@/components/Analytics';
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-});
-
-const inknutAntiqua = Inknut_Antiqua({
-  variable: "--font-inknut-antiqua",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
 });
@@ -105,7 +100,7 @@ export default function RootLayout({
           colorTextSecondary: '#d1d5db',
           colorNeutral: '#ffffff',
           borderRadius: '0.75rem',
-          fontFamily: `${inknutAntiqua.variable}, system-ui, serif`,
+          fontFamily: `${GeistSans.variable}, system-ui, sans-serif`,
         },
         elements: {
           formButtonPrimary:
@@ -130,7 +125,7 @@ export default function RootLayout({
     >
       <html lang="en" suppressHydrationWarning>
         <body
-          className={`${spaceGrotesk.variable} ${inknutAntiqua.variable} antialiased`}
+          className={`${spaceGrotesk.variable} ${GeistSans.variable} antialiased`}
         >
           <Analytics />
           <ThemeProvider>
