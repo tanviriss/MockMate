@@ -158,7 +158,7 @@ export default function ResumesPage() {
   };
 
   if (uploading) {
-    return <LoadingMessages interval={1500} />;
+    return <LoadingMessages interval={1500} type="resume-upload" />;
   }
 
   if (loading) {

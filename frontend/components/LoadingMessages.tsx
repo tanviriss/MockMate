@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { LiquidButton } from "@/components/ui/liquid-glass-button";
 
-const LOADING_MESSAGES = [
+const INTERVIEW_MESSAGES = [
   "Analyzing job description...",
   "Extracting key requirements...",
   "Matching skills with your resume...",
@@ -107,23 +107,152 @@ const LOADING_MESSAGES = [
   "Preparing the classic 'weakness' trap...",
 ];
 
+const RESUME_GRILL_MESSAGES = [
+  "Analyzing your resume...",
+  "Extracting your claimed skills...",
+  "Reading your job titles...",
+  "Consulting the AI resume expert...",
+  "Crafting questions about YOUR experience...",
+  "Preparing to grill you properly...",
+  "Scanning for buzzword density...",
+  "Counting how many times you said 'responsible for'...",
+  "Investigating vague accomplishments...",
+  "Preparing follow-up questions...",
+  "Creating scenario-based challenges...",
+  "Testing if you actually did what you said...",
+  "Generating 'tell me more about that' traps...",
+  "Designing technical deep-dives...",
+  "Planning behavioral callbacks...",
+  "Cross-referencing your timeline...",
+  "Spotting the leadership inflation...",
+  "Questioning those 'team of 10' claims...",
+  "Preparing for your project stories...",
+  "Building context-specific scenarios...",
+  "Wondering about that 6-month gap...",
+  "Analyzing your skill progression...",
+  "Creating challenges based on YOUR tech stack...",
+  "Designing questions you can't google mid-interview...",
+  "Testing depth vs breadth...",
+  "Preparing 'explain it like I'm 5' moments...",
+  "Generating metric validation questions...",
+  "Challenging your impact claims...",
+  "Building situational judgment tests...",
+  "Crafting behavioral STAR setups...",
+  "Preparing to test problem-solving...",
+  "Creating role-specific scenarios...",
+  "Designing conflict resolution questions...",
+  "Planning priority/trade-off dilemmas...",
+  "Testing your actual hands-on experience...",
+  "Preparing stakeholder management questions...",
+  "Generating technical architecture challenges...",
+  "Building debugging scenario questions...",
+  "Creating scale/performance scenarios...",
+  "Testing your collaboration claims...",
+  "Preparing 'walk me through' deep-dives...",
+  "Designing mistake/failure explorations...",
+  "Generating learning/growth questions...",
+  "Building time-management scenarios...",
+  "Creating decision-making challenges...",
+  "Testing communication skills indirectly...",
+  "Preparing open-ended exploration questions...",
+  "Designing questions about your weaknesses...",
+  "Building edge case scenarios...",
+  "Creating system design challenges...",
+  "Testing your mentorship claims...",
+  "Preparing innovation/creativity tests...",
+  "Generating adaptability scenarios...",
+  "Building pressure-situation questions...",
+  "Creating cross-functional work questions...",
+  "Testing your ownership mentality...",
+  "Almost ready to grill you...",
+  "Final touches on the tough questions...",
+  "Preparing the 'why did you leave' moment...",
+  "Creating the closing challenge questions...",
+  "Just a few more seconds...",
+];
+
+const RESUME_UPLOAD_MESSAGES = [
+  "Uploading your PDF...",
+  "Scanning document structure...",
+  "Extracting text from resume...",
+  "Parsing your work history...",
+  "Reading your education section...",
+  "Identifying your skills...",
+  "Analyzing resume format...",
+  "Decoding PDF layout...",
+  "Extracting contact information...",
+  "Processing job titles...",
+  "Reading employment dates...",
+  "Identifying certifications...",
+  "Scanning for keywords...",
+  "Analyzing bullet points...",
+  "Extracting project descriptions...",
+  "Processing achievements...",
+  "Reading technical skills section...",
+  "Identifying programming languages...",
+  "Extracting company names...",
+  "Analyzing experience timeline...",
+  "Processing education credentials...",
+  "Reading degree information...",
+  "Scanning for publications...",
+  "Extracting volunteer experience...",
+  "Analyzing resume sections...",
+  "Processing soft skills mentions...",
+  "Reading leadership experience...",
+  "Identifying team sizes managed...",
+  "Extracting metrics and numbers...",
+  "Processing impact statements...",
+  "Analyzing action verbs...",
+  "Reading technology stack...",
+  "Identifying frameworks mentioned...",
+  "Extracting tools and platforms...",
+  "Processing industry experience...",
+  "Reading domain expertise...",
+  "Analyzing career progression...",
+  "Identifying promotions...",
+  "Extracting responsibilities...",
+  "Processing achievements vs duties...",
+  "Reading between the lines...",
+  "Identifying gaps in timeline...",
+  "Analyzing job-hopping patterns...",
+  "Processing career trajectory...",
+  "Reading salary indicators...",
+  "Identifying seniority level...",
+  "Extracting management experience...",
+  "Processing technical depth...",
+  "Analyzing breadth of skills...",
+  "Identifying unique experiences...",
+  "Structuring parsed data...",
+  "Organizing information...",
+  "Validating extracted content...",
+  "Final processing...",
+  "Almost done parsing...",
+];
+
 interface LoadingMessagesProps {
   interval?: number;
+  type?: 'interview' | 'resume-grill' | 'resume-upload';
 }
 
-export default function LoadingMessages({ interval = 2000 }: LoadingMessagesProps) {
-  const [messageIndex, setMessageIndex] = useState(Math.floor(Math.random() * LOADING_MESSAGES.length));
+export default function LoadingMessages({ interval = 2000, type = 'interview' }: LoadingMessagesProps) {
+  const messages = type === 'resume-grill'
+    ? RESUME_GRILL_MESSAGES
+    : type === 'resume-upload'
+    ? RESUME_UPLOAD_MESSAGES
+    : INTERVIEW_MESSAGES;
+
+  const [messageIndex, setMessageIndex] = useState(Math.floor(Math.random() * messages.length));
   const [usedIndices, setUsedIndices] = useState<Set<number>>(new Set([messageIndex]));
 
   useEffect(() => {
     const timer = setInterval(() => {
       setMessageIndex(() => {
-        const availableIndices = LOADING_MESSAGES
+        const availableIndices = messages
           .map((_, idx) => idx)
           .filter(idx => !usedIndices.has(idx));
 
         if (availableIndices.length === 0) {
-          const newIndex = Math.floor(Math.random() * LOADING_MESSAGES.length);
+          const newIndex = Math.floor(Math.random() * messages.length);
           setUsedIndices(new Set([newIndex]));
           return newIndex;
         }
@@ -135,7 +264,7 @@ export default function LoadingMessages({ interval = 2000 }: LoadingMessagesProp
     }, interval);
 
     return () => clearInterval(timer);
-  }, [interval, usedIndices]);
+  }, [interval, usedIndices, messages]);
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
@@ -159,7 +288,7 @@ export default function LoadingMessages({ interval = 2000 }: LoadingMessagesProp
 
         <LiquidButton className="mb-6 w-full min-h-[60px] px-4" size="xl">
           <p className="text-white text-lg font-medium transition-opacity duration-300 px-6 py-3" key={messageIndex}>
-            {LOADING_MESSAGES[messageIndex]}
+            {messages[messageIndex]}
           </p>
         </LiquidButton>
 

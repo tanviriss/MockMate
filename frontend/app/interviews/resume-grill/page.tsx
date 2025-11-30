@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
 import { api } from '@/lib/api';
+import LoadingMessages from '@/components/LoadingMessages';
 
 interface Resume {
   id: number;
@@ -86,6 +87,10 @@ export default function ResumeGrillPage() {
       setCreating(false);
     }
   };
+
+  if (creating) {
+    return <LoadingMessages interval={1500} type="resume-grill" />;
+  }
 
   return (
     <main className="min-h-screen bg-slate-100 dark:bg-slate-800">

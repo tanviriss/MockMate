@@ -97,7 +97,7 @@ export default function NewInterviewPage() {
   };
 
   if (creating) {
-    return <LoadingMessages interval={1500} />;
+    return <LoadingMessages interval={1500} type="interview" />;
   }
 
   if (loading) {
