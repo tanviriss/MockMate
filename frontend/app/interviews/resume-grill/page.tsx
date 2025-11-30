@@ -122,7 +122,7 @@ export default function ResumeGrillPage() {
               </svg>
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Resume Grill 🔥</h1>
+              <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Resume Grill</h1>
               <p className="text-slate-600 dark:text-slate-300 text-lg">
                 Think you know your resume? Let&apos;s see if you can explain everything you wrote.
               </p>

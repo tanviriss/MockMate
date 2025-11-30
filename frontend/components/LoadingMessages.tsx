@@ -286,8 +286,8 @@ export default function LoadingMessages({ interval = 2000, type = 'interview' }:
           </div>
         </div>
 
-        <LiquidButton className="mb-6 w-full min-h-[60px] px-4" size="xl">
-          <p className="text-white text-lg font-medium transition-opacity duration-300 px-6 py-3" key={messageIndex}>
+        <LiquidButton className="mb-6 w-full min-h-[80px] px-6" size="xl">
+          <p className="text-white text-lg font-medium transition-opacity duration-300 px-4 py-3 break-words text-center leading-relaxed" key={messageIndex}>
             {messages[messageIndex]}
           </p>
         </LiquidButton>
