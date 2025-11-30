@@ -205,9 +205,11 @@ export default function InterviewDetailsPage() {
           )}
         </div>
 
-        {/* Job Analysis */}
+        {/* Job Analysis / Resume Analysis */}
         <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-6 mb-8">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Job Analysis</h2>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">
+            {interview.job_description ? 'Job Analysis' : 'Resume Analysis'}
+          </h2>
           <div className="grid md:grid-cols-2 gap-4">
             {interview.jd_analysis?.job_title && (
               <div>
