@@ -8,9 +8,11 @@ Reherse is a real-time voice-based AI interview coaching platform that helps you
 
 - 📄 **Resume Analysis** - Upload your resume and extract structured data with AI
 - 🎯 **Job-Specific Questions** - Generate tailored interview questions based on your resume and job description
+- 🔥 **Resume Grill** - Practice defending everything on your resume with deep technical and behavioral questions
 - 🎤 **Voice Practice** - Real-time voice interview simulation with natural speech
 - 🤖 **AI Feedback** - Detailed evaluation with strengths, weaknesses, and improvement tips
 - 📊 **Progress Tracking** - Track your improvement over multiple practice sessions
+- 📚 **Interview Guides** - Comprehensive guides on various interview topics (ATS optimization, behavioral questions, etc.)
 - 💯 **100% Free Tier** - Built on free AI services (Gemini, Groq, ElevenLabs)
 
 ## Tech Stack
@@ -19,6 +21,8 @@ Reherse is a real-time voice-based AI interview coaching platform that helps you
 - **Framework**: Next.js 15 with App Router
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
+- **UI Components**: Radix UI, Framer Motion, shadcn/ui
+- **Fonts**: Space Grotesk (headings), Geist Sans (body)
 - **Authentication**: Clerk
 - **State Management**: Zustand
 - **Audio**: RecordRTC, Howler.js
@@ -184,11 +188,24 @@ Frontend will be available at `http://localhost:3000`
 
 ## Usage
 
+### Standard Interview Practice
 1. **Sign up / Login** - Create an account or log in
 2. **Upload Resume** - Upload your resume (PDF format recommended)
 3. **Create Interview** - Paste a job description and generate tailored questions
 4. **Start Practice** - Begin live voice interview with AI interviewer
 5. **Get Feedback** - Receive detailed evaluation with scores and improvement tips
+
+### Resume Grill Mode
+1. **Upload Resume** - Make sure you have a resume uploaded
+2. **Select Resume Grill** - Choose the Resume Grill option from the dashboard
+3. **Choose Resume** - Select which resume to practice with
+4. **Set Question Count** - Pick 1-10 questions
+5. **Get Grilled** - Answer tough questions about YOUR specific experience and skills
+
+### Interview Guides
+- Access comprehensive guides from the navigation menu
+- Topics include: ATS optimization, behavioral questions, STAR method, salary negotiation, and more
+- SEO-optimized content to help you prepare for every interview scenario
 
 ## Development
 
@@ -262,4 +279,23 @@ The live interview uses Socket.IO with these events:
 - Create storage buckets: `resumes` and `audio-answers` (set to private)
 - **Note**: We use Supabase only for PostgreSQL database and file storage, NOT for authentication
 - Free tier: 500MB database, 1GB storage
+
+## Deployment
+
+### Frontend (Vercel)
+The frontend is deployed on Vercel at https://reherse.dev
+
+**Important notes:**
+- Root Directory must be set to `frontend` in Vercel project settings
+- Static files should be placed directly in `public/` (not in subdirectories) for reliable deployment
+- Environment variables must be configured in Vercel dashboard
+
+### Backend
+The backend can be deployed on platforms like Railway, Render, or Fly.io
+
+**Requirements:**
+- PostgreSQL database
+- Redis instance
+- All environment variables configured
+- Storage buckets set up in Supabase
 
