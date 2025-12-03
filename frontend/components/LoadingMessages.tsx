@@ -241,8 +241,8 @@ export default function LoadingMessages({ interval = 2000, type = 'interview' }:
     ? RESUME_UPLOAD_MESSAGES
     : INTERVIEW_MESSAGES;
 
-  const [messageIndex, setMessageIndex] = useState(Math.floor(Math.random() * messages.length));
-  const [usedIndices, setUsedIndices] = useState<Set<number>>(new Set([messageIndex]));
+  const [messageIndex, setMessageIndex] = useState(0);
+  const [usedIndices, setUsedIndices] = useState<Set<number>>(new Set([0]));
 
   useEffect(() => {
     const timer = setInterval(() => {
