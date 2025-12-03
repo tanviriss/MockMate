@@ -10,6 +10,7 @@ class Answer(Base):
     id = Column(Integer, primary_key=True, index=True)
     question_id = Column(Integer, ForeignKey("questions.id"), nullable=False, index=True)
     transcript = Column(String, nullable=False)
+    audio_duration_seconds = Column(Float, nullable=True)
     evaluation = Column(JSON, nullable=True)
     score = Column(Float, nullable=True)
     answered_at = Column(DateTime(timezone=True), server_default=func.now())

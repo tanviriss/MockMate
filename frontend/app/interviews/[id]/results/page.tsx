@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useClerkAuth } from "@/hooks/useClerkAuth";
 import { api } from "@/lib/api";
 import LoadingMessages from "@/components/LoadingMessages";
+import SpeakingAnalysisCard from "@/components/SpeakingAnalysis";
 
 interface IdealAnswer {
   ideal_answer: string;
@@ -17,12 +18,23 @@ interface IdealAnswer {
   why_this_works: string;
 }
 
+interface SpeakingAnalysis {
+  words_per_minute: number | null;
+  total_words: number;
+  filler_words: { [key: string]: number };
+  total_filler_count: number;
+  filler_percentage: number;
+  speaking_pace_feedback: string;
+  filler_word_feedback: string;
+}
+
 interface Evaluation {
   feedback?: string;
   strengths?: string[];
   improvements?: string[];
   weaknesses?: string[];
   key_points_covered?: string[];
+  speaking_analysis?: SpeakingAnalysis;
 }
 
 interface QuestionResult {
@@ -323,6 +335,13 @@ export default function InterviewResultsPage({
                       </ul>
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* Speaking Analysis */}
+              {result.evaluation?.speaking_analysis && (
+                <div className="mt-6">
+                  <SpeakingAnalysisCard analysis={result.evaluation.speaking_analysis} />
                 </div>
               )}
 

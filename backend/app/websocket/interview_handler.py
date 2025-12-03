@@ -364,7 +364,8 @@ async def submit_answer(sid, data):
             session_manager.add_answer(sid, question_id, {
                 'transcript': transcript,
                 'audio_url': audio_url,
-                'format': audio_format
+                'format': audio_format,
+                'duration': transcription_result.get('duration')
             })
 
     except ValueError as ve:
@@ -440,6 +441,7 @@ async def confirm_answer(sid, data):
                 answer = Answer(
                     question_id=question_id,
                     transcript=transcript,
+                    audio_duration_seconds=answer_data.get('duration'),
                     score=None,
                     evaluation=None
                 )
@@ -449,6 +451,7 @@ async def confirm_answer(sid, data):
             answer = Answer(
                 question_id=question_id,
                 transcript=transcript,
+                audio_duration_seconds=answer_data.get('duration'),
                 score=None,
                 evaluation=None
             )
