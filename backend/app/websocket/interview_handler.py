@@ -18,7 +18,7 @@ from app.models.resume import Resume
 from app.services.text_to_speech import text_to_speech_service
 from app.services.speech_to_text import speech_to_text_service
 from app.services.storage_service import StorageService
-from app.services.evaluation_service import evaluate_answer, calculate_overall_score
+from app.services.evaluation_service import evaluate_answer, calculate_overall_score, analyze_speaking_patterns
 from app.services.followup_service import should_ask_followup
 from app.websocket.session_manager import session_manager
 from app.config import settings
@@ -591,6 +591,13 @@ async def evaluate_interview_async(interview_id: int, db: Session):
                 resume_data=resume.parsed_data or {},
                 jd_analysis=interview.jd_analysis or {}
             )
+
+            # Analyze speaking patterns
+            speaking_analysis = analyze_speaking_patterns(
+                transcript=answer.transcript,
+                audio_duration_seconds=answer.audio_duration_seconds
+            )
+            evaluation['speaking_analysis'] = speaking_analysis
 
             answer.evaluation = evaluation
             answer.score = evaluation.get('score', 0)
