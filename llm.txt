@@ -1,0 +1,223 @@
+# Reherse - AI Voice Interview Coach Platform
+
+> Real-time voice-based AI interview coaching platform that helps you practice job interviews with personalized questions, live voice interaction, and detailed AI-powered feedback.
+
+Website: https://reherse.dev
+GitHub: https://github.com/tanviriss/mockmate
+
+## What is Reherse?
+
+Reherse is a comprehensive interview preparation platform that combines AI-powered question generation, real-time voice interaction, and detailed feedback to help job seekers practice and improve their interview skills. The platform analyzes your resume, generates tailored interview questions based on job descriptions, and provides live voice interview simulations with AI-powered evaluation.
+
+## Key Features
+
+### Resume Analysis
+- Upload resumes in PDF format
+- AI-powered structured data extraction using Google Gemini 2.5 Flash
+- Automatic parsing of skills, experience, and qualifications
+
+### Job-Specific Questions
+- Generate tailored interview questions based on your resume and target job description
+- Questions cover technical skills, behavioral scenarios, and role-specific competencies
+- Adaptive difficulty based on experience level
+
+### Resume Grill Mode
+- Deep-dive practice mode that challenges you to defend every claim on your resume
+- Generate 1-10 tough technical and behavioral questions about YOUR specific experience
+- Helps identify weak spots and prepare stronger answers
+
+### Voice Practice
+- Real-time voice interview simulation with natural speech
+- WebSocket-based live interaction using Socket.IO
+- Speech-to-Text powered by Groq Whisper API
+- Text-to-Speech powered by ElevenLabs
+
+### AI Feedback
+- Detailed evaluation after each answer
+- Scores for relevance, clarity, completeness, and communication
+- Specific strengths, weaknesses, and improvement tips
+- Speaking pace analysis and filler word detection
+
+### Progress Tracking
+- Track improvement over multiple practice sessions
+- Historical performance metrics
+- Answer duration and speaking pace analytics
+
+### Interview Guides
+- Comprehensive guides on various interview topics
+- Topics include: ATS optimization, behavioral questions, STAR method, salary negotiation
+- SEO-optimized educational content
+
+## Technology Stack
+
+### Frontend
+- Next.js 15 with App Router
+- TypeScript
+- Tailwind CSS
+- Radix UI, Framer Motion, shadcn/ui
+- Clerk Authentication
+- Zustand for state management
+- RecordRTC and Howler.js for audio
+- Socket.io-client for WebSocket
+
+### Backend
+- FastAPI (Python 3.12+)
+- PostgreSQL (Supabase)
+- Redis for session management
+- Python-SocketIO for WebSocket
+
+### AI Services
+- Google Gemini 2.5 Flash for resume parsing, question generation, and evaluation
+- Groq Whisper API for speech-to-text
+- ElevenLabs for text-to-speech
+
+## Project Structure
+
+```
+mockmate/
+├── backend/                 # FastAPI backend
+│   ├── app/
+│   │   ├── models/         # Database models
+│   │   ├── routers/        # API routes
+│   │   ├── services/       # Business logic
+│   │   ├── auth/           # Authentication
+│   │   └── websocket/      # WebSocket handlers
+│   ├── tests/              # Backend tests
+│   ├── alembic/            # Database migrations
+│   └── requirements.txt    # Python dependencies
+│
+├── frontend/               # Next.js frontend
+│   ├── app/                # App router pages
+│   ├── components/         # React components
+│   ├── lib/                # Utilities
+│   └── types/              # TypeScript types
+```
+
+## Core Workflows
+
+### Standard Interview Practice
+1. User signs up/logs in via Clerk
+2. User uploads resume (stored in Supabase storage)
+3. AI parses resume using Gemini 2.5 Flash
+4. User pastes job description
+5. AI generates tailored interview questions
+6. User starts live voice interview via WebSocket
+7. Real-time transcription using Groq Whisper
+8. AI evaluates answers and provides detailed feedback
+
+### Resume Grill Mode
+1. User selects uploaded resume
+2. User chooses number of questions (1-10)
+3. AI generates deep-dive questions about specific resume claims
+4. Live voice interview with challenging follow-ups
+5. Detailed evaluation with improvement suggestions
+
+## API Architecture
+
+### REST Endpoints
+- `/health` - Health check
+- `/auth/*` - Authentication endpoints
+- `/resumes/*` - Resume management (upload, parse, list)
+- `/interviews/*` - Interview session management
+- `/questions/*` - Question generation and management
+- `/evaluations/*` - Answer evaluation and feedback
+
+### WebSocket Events
+**Client → Server:**
+- `start_interview` - Begin interview session
+- `submit_answer` - Send audio answer
+- `confirm_answer` - Confirm transcript and move to next question
+- `end_interview` - End interview early
+
+**Server → Client:**
+- `connected` - Connection established
+- `interview_started` - Interview session started
+- `question` - New question text
+- `question_audio` - Question TTS audio (base64)
+- `transcribing` - Answer transcription in progress
+- `transcript_ready` - Transcription complete
+- `interview_completed` - All questions answered
+- `error` - Error occurred
+
+## Free Tier Service Limits
+
+The platform is designed to be accessible with generous free tiers:
+
+- **Clerk**: 10,000 monthly active users
+- **Google Gemini**: 15 requests/minute, 1500/day
+- **Groq**: Very generous limits on Whisper API
+- **ElevenLabs**: 10,000 characters/month (Creator plan $22/month for more)
+- **Supabase**: 500MB database, 1GB storage
+
+## Development Setup
+
+### Prerequisites
+- Python 3.12+
+- Node.js 18+
+- PostgreSQL (via Supabase)
+- Redis instance
+
+### Backend
+```bash
+cd backend
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env  # Configure API keys
+alembic upgrade head
+uvicorn app.main:app --reload
+```
+
+### Frontend
+```bash
+cd frontend
+npm install
+cp .env.example .env.local  # Configure API keys
+npm run dev
+```
+
+## Environment Variables
+
+### Backend (.env)
+- `CLERK_SECRET_KEY` - Clerk authentication
+- `SUPABASE_URL`, `SUPABASE_KEY`, `SUPABASE_SERVICE_KEY` - Database and storage
+- `DATABASE_URL` - PostgreSQL connection
+- `REDIS_URL` - Redis connection
+- `GEMINI_API_KEY` - Google Gemini API
+- `GROQ_API_KEY` - Groq Whisper API
+- `ELEVENLABS_API_KEY` - ElevenLabs TTS
+
+### Frontend (.env.local)
+- `NEXT_PUBLIC_API_URL` - Backend API URL
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` - Clerk publishable key
+- `CLERK_SECRET_KEY` - Clerk secret key
+
+## Deployment
+
+### Frontend
+- Deployed on Vercel at https://reherse.dev
+- Root directory set to `frontend`
+- Static files in `public/`
+
+### Backend
+- Compatible with Railway, Render, or Fly.io
+- Requires PostgreSQL, Redis, and environment variables
+- Supabase storage buckets: `resumes` and `audio-answers`
+
+## Documentation
+
+For detailed development plans and architecture decisions, see:
+- `/README.md` - Main documentation
+- `/DEVELOPMENT_PLAN.md` - Detailed build plan
+- `/docs/` - Additional documentation
+
+## API Documentation
+
+When running locally:
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
+
+
+## Contact
+
+For questions, issues, or contributions, please refer to the GitHub repository.
