@@ -6,14 +6,14 @@ Reherse is a real-time voice-based AI interview coaching platform that helps you
 
 ## Features
 
-- 📄 **Resume Analysis** - Upload your resume and extract structured data with AI
-- 🎯 **Job-Specific Questions** - Generate tailored interview questions based on your resume and job description
-- 🔥 **Resume Grill** - Practice defending everything on your resume with deep technical and behavioral questions
-- 🎤 **Voice Practice** - Real-time voice interview simulation with natural speech
-- 🤖 **AI Feedback** - Detailed evaluation with strengths, weaknesses, and improvement tips
-- 📊 **Progress Tracking** - Track your improvement over multiple practice sessions
-- 📚 **Interview Guides** - Comprehensive guides on various interview topics (ATS optimization, behavioral questions, etc.)
-- 💯 **100% Free Tier** - Built on free AI services (Gemini, Groq, ElevenLabs)
+- **Resume Analysis** - Upload your resume and extract structured data with AI
+- **Job-Specific Questions** - Generate tailored interview questions based on your resume and job description
+- **Resume Grill** - Practice defending everything on your resume with deep technical and behavioral questions
+- **Voice Practice** - Real-time voice interview simulation with natural speech
+- **AI Feedback** - Detailed evaluation with strengths, weaknesses, and improvement tips
+- **Progress Tracking** - Track your improvement over multiple practice sessions
+- **Interview Guides** - Comprehensive guides on various interview topics (ATS optimization, behavioral questions, etc.)
+- **100% Free Tier** - Built on free AI services (Gemini, Groq, ElevenLabs)
 
 ## Tech Stack
 
