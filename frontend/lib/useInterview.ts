@@ -342,6 +342,21 @@ export function useInterview(interviewId: number, userId: string, token: string)
     [state.currentQuestion]
   );
 
+  // Skip current question
+  const skipQuestion = useCallback(() => {
+    if (!socketRef.current || !state.currentQuestion) return;
+
+    socketRef.current.emit("skip_question", {
+      question_id: state.currentQuestion.question_id,
+    });
+
+    // Reset transcript when skipping
+    setState((prev) => ({
+      ...prev,
+      transcript: null,
+    }));
+  }, [state.currentQuestion]);
+
   // End interview early
   const endInterview = useCallback(() => {
     if (socketRef.current) {
@@ -361,6 +376,7 @@ export function useInterview(interviewId: number, userId: string, token: string)
     startInterview,
     submitAnswer,
     confirmAnswer,
+    skipQuestion,
     endInterview,
     resetTranscript,
   };

@@ -663,6 +663,67 @@ async def complete_interview(sid, session, db: Session):
 
 
 @sio.event
+async def skip_question(sid, data):
+    """
+    Skip current question without answering
+
+    Expected data:
+    {
+        "question_id": int
+    }
+    """
+    db: Session = SessionLocal()
+    try:
+        question_id = data.get('question_id')
+
+        session = session_manager.get_session(sid)
+        if not session:
+            await sio.emit('error', {
+                'message': 'Session not found'
+            }, room=sid)
+            return
+
+        logger.info(f"User skipped question {question_id}")
+
+        # Clear any pending follow-up for this question
+        if session.pending_followup:
+            session.pending_followup = None
+            session_manager.update_session(sid, session)
+
+        # Move to next question
+        session.current_question_index += 1
+        session_manager.update_session(sid, session)
+
+        question = db.query(Question).filter(
+            Question.interview_id == session.interview_id,
+            Question.order_number == session.current_question_index
+        ).first()
+
+        if question:
+            total_questions = db.query(Question).filter(
+                Question.interview_id == session.interview_id
+            ).count()
+
+            await send_question(sid, question, session.current_question_index, total_questions)
+        else:
+            await complete_interview(sid, session, db)
+
+    except SQLAlchemyError as e:
+        logger.error(f"Database error skipping question: {e}")
+        db.rollback()
+        await sio.emit('error', {
+            'message': 'Database error. Please try again.'
+        }, room=sid)
+    except Exception as e:
+        logger.error(f"Error skipping question: {e}")
+        await sio.emit('error', {
+            'message': f'Error skipping question: {str(e)}'
+        }, room=sid)
+    finally:
+        db.close()
+
+
+@sio.event
 async def end_interview(sid, data=None):
     """End interview early"""
     db: Session = SessionLocal()

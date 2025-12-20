@@ -66,6 +66,7 @@ export default function LiveInterviewPage({
     startInterview,
     submitAnswer,
     confirmAnswer,
+    skipQuestion,
     endInterview,
     resetTranscript,
   } = useInterview(interviewId, user?.id || "", token);
@@ -135,6 +136,13 @@ export default function LiveInterviewPage({
   const handleConfirmAndNext = () => {
     confirmAnswer(editedTranscript);
     setEditedTranscript("");
+  };
+
+  // Handle skip question
+  const handleSkipQuestion = () => {
+    if (confirm("Are you sure you want to skip this question? You won't be able to come back to it.")) {
+      skipQuestion();
+    }
   };
 
   // Handle end early
@@ -288,6 +296,15 @@ export default function LiveInterviewPage({
                   maxDuration={300}
                   onRecordingStateChange={setIsRecording}
                 />
+                <div className="mt-6 text-center">
+                  <button
+                    onClick={handleSkipQuestion}
+                    disabled={isRecording}
+                    className="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 text-sm underline disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Skip this question
+                  </button>
+                </div>
               </div>
             )}
 
@@ -335,6 +352,14 @@ export default function LiveInterviewPage({
                     className="flex-1 px-6 py-3 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white rounded-lg font-semibold transition-all transform hover:scale-105"
                   >
                     Confirm & Next Question
+                  </button>
+                </div>
+                <div className="mt-4 text-center">
+                  <button
+                    onClick={handleSkipQuestion}
+                    className="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 text-sm underline"
+                  >
+                    Skip this question
                   </button>
                 </div>
               </div>
