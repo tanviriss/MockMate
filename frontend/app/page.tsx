@@ -220,6 +220,16 @@ export default function Home() {
                 loop
                 muted
                 playsInline
+                preload="auto"
+                onError={(e) => {
+                  console.error('Video error:', e);
+                }}
+                onLoadStart={() => {
+                  console.log('Video loading started');
+                }}
+                onLoadedData={() => {
+                  console.log('Video loaded');
+                }}
               >
                 <source src="/tutorial.mp4" type="video/mp4" />
                 Your browser does not support the video tag.
