@@ -60,6 +60,31 @@ async def validate_token(token: str) -> Optional[dict]:
         return None
 
 
+def generate_welcome_message(interview: Interview) -> str:
+    """Generate a personalized welcome message based on interview type and data"""
+    interview_type = interview.interview_type
+
+    if interview_type == "company_prep" and interview.target_company:
+        company = interview.target_company
+        job_title = interview.jd_analysis.get('job_title', 'this position') if interview.jd_analysis else 'this position'
+        return f"Welcome! Today we'll be preparing you for your interview at {company} for the {job_title} role. I'm going to ask you questions that are commonly asked at {company} to help you get ready for the real thing. Let's get started when you're ready."
+
+    elif interview_type == "resume_grill":
+        return "Welcome to the Resume Grill! I've carefully reviewed your resume, and I'm going to ask you some in-depth questions about your experience, projects, and skills. This is designed to help you articulate your background clearly and confidently. Are you ready to begin?"
+
+    elif interview_type == "standard" and interview.jd_analysis:
+        job_title = interview.jd_analysis.get('job_title', 'this position')
+        company = interview.jd_analysis.get('company_name', '')
+
+        if company:
+            return f"Welcome! Today we'll be conducting a mock interview for the {job_title} position at {company}. I'll be asking you questions based on the job requirements and your resume. Take your time with each answer, and remember - this is practice, so don't worry about being perfect. Let's begin when you're ready."
+        else:
+            return f"Welcome! Today we'll be conducting a mock interview for the {job_title} position. I'll be asking you questions based on the job requirements and your resume. Take your time with each answer, and remember - this is practice, so don't worry about being perfect. Let's begin when you're ready."
+
+    else:
+        return "Welcome to your mock interview! I'll be asking you a series of questions to help you practice your interview skills. Take your time with each answer, and don't hesitate to think before you respond. Let's get started when you're ready."
+
+
 @sio.event
 async def connect(sid, environ, auth):
     """Handle client connection with authentication"""
@@ -178,7 +203,27 @@ async def start_interview(sid, data):
             'current_question_index': 0
         }, room=sid)
 
-        await send_question(sid, first_question, 0, len(questions))
+        # Generate personalized welcome message
+        welcome_text = generate_welcome_message(interview)
+
+        await sio.emit('welcome_message', {
+            'message': welcome_text
+        }, room=sid)
+
+        # Generate TTS for welcome message
+        try:
+            welcome_audio_bytes = await text_to_speech_service.generate_speech(
+                text=welcome_text,
+                voice="professional_female"
+            )
+            welcome_audio_b64 = base64.b64encode(welcome_audio_bytes).decode('utf-8')
+
+            await sio.emit('welcome_audio', {
+                'audio_data': welcome_audio_b64,
+                'format': 'mp3'
+            }, room=sid)
+        except Exception as tts_error:
+            logger.warning(f"TTS failed for welcome message: {tts_error}")
 
     except SQLAlchemyError as e:
         logger.error(f"Database error starting interview: {e}")
@@ -232,6 +277,55 @@ async def send_question(sid, question: Question, question_index: int, total_ques
         await sio.emit('error', {
             'message': f'Error sending question: {str(e)}'
         }, room=sid)
+
+
+@sio.event
+async def begin_questions(sid, data):
+    """
+    User is ready to begin answering questions after welcome message
+
+    Expected data:
+    {
+        "interview_id": int
+    }
+    """
+    db: Session = SessionLocal()
+    try:
+        interview_id = data.get('interview_id')
+
+        session = session_manager.get_session(sid)
+        if not session:
+            await sio.emit('error', {
+                'message': 'Session not found'
+            }, room=sid)
+            return
+
+        questions = db.query(Question).filter(
+            Question.interview_id == interview_id
+        ).order_by(Question.order_number).all()
+
+        if not questions:
+            await sio.emit('error', {
+                'message': 'No questions found for this interview'
+            }, room=sid)
+            return
+
+        first_question = questions[0]
+        await send_question(sid, first_question, 0, len(questions))
+
+    except SQLAlchemyError as e:
+        logger.error(f"Database error beginning questions: {e}")
+        db.rollback()
+        await sio.emit('error', {
+            'message': 'Database error. Please try again.'
+        }, room=sid)
+    except Exception as e:
+        logger.error(f"Error beginning questions: {e}")
+        await sio.emit('error', {
+            'message': f'Error beginning questions: {str(e)}'
+        }, room=sid)
+    finally:
+        db.close()
 
 
 @sio.event

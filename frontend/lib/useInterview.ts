@@ -20,6 +20,9 @@ interface InterviewState {
   isTranscribing: boolean;
   totalQuestions: number;
   currentQuestionNumber: number;
+  welcomeMessage: string | null;
+  welcomeAudio: string | null;
+  showWelcome: boolean;
 }
 
 export function useInterview(interviewId: number, userId: string, token: string) {
@@ -34,6 +37,9 @@ export function useInterview(interviewId: number, userId: string, token: string)
     isTranscribing: false,
     totalQuestions: 0,
     currentQuestionNumber: 0,
+    welcomeMessage: null,
+    welcomeAudio: null,
+    showWelcome: false,
   });
 
   const socketRef = useRef<Socket | null>(null);
@@ -122,6 +128,23 @@ export function useInterview(interviewId: number, userId: string, token: string)
         isStarted: true,
         totalQuestions: data.total_questions,
         currentQuestionNumber: 1,
+      }));
+    });
+
+    socket.on("welcome_message", (data) => {
+      console.log("Received welcome message:", data.message);
+      setState((prev) => ({
+        ...prev,
+        welcomeMessage: data.message,
+        showWelcome: true,
+      }));
+    });
+
+    socket.on("welcome_audio", (data) => {
+      console.log("Received welcome audio");
+      setState((prev) => ({
+        ...prev,
+        welcomeAudio: data.audio_data,
       }));
     });
 
@@ -214,6 +237,19 @@ export function useInterview(interviewId: number, userId: string, token: string)
       });
     }
   }, [interviewId, userId, state.isConnected]);
+
+  // Begin questions after welcome message
+  const beginQuestions = useCallback(() => {
+    if (socketRef.current && state.isConnected) {
+      socketRef.current.emit("begin_questions", {
+        interview_id: interviewId,
+      });
+      setState((prev) => ({
+        ...prev,
+        showWelcome: false,
+      }));
+    }
+  }, [interviewId, state.isConnected]);
 
   // Submit answer audio
   const submitAnswer = useCallback(
@@ -374,6 +410,7 @@ export function useInterview(interviewId: number, userId: string, token: string)
   return {
     ...state,
     startInterview,
+    beginQuestions,
     submitAnswer,
     confirmAnswer,
     skipQuestion,

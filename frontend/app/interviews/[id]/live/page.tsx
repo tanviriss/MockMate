@@ -63,7 +63,11 @@ export default function LiveInterviewPage({
     isTranscribing,
     totalQuestions,
     currentQuestionNumber,
+    welcomeMessage,
+    welcomeAudio,
+    showWelcome,
     startInterview,
+    beginQuestions,
     submitAnswer,
     confirmAnswer,
     skipQuestion,
@@ -77,6 +81,40 @@ export default function LiveInterviewPage({
       setEditedTranscript(transcript);
     }
   }, [transcript]);
+
+  // Auto-play welcome audio
+  useEffect(() => {
+    if (welcomeAudio && showWelcome) {
+      // Convert base64 to blob
+      const byteCharacters = atob(welcomeAudio);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'audio/mp3' });
+      const url = URL.createObjectURL(blob);
+
+      // Create and play audio
+      const audio = new Audio(url);
+      audioRef.current = audio;
+
+      audio.onplay = () => setIsAudioPlaying(true);
+      audio.onended = () => setIsAudioPlaying(false);
+      audio.onpause = () => setIsAudioPlaying(false);
+
+      audio.play().catch(err => {
+        console.error('Error playing welcome audio:', err);
+        setIsAudioPlaying(false);
+      });
+
+      return () => {
+        audio.pause();
+        URL.revokeObjectURL(url);
+        setIsAudioPlaying(false);
+      };
+    }
+  }, [welcomeAudio, showWelcome]);
 
   // Auto-play question audio in background
   useEffect(() => {
@@ -250,8 +288,49 @@ export default function LiveInterviewPage({
           </div>
         )}
 
+        {/* Welcome Screen */}
+        {isStarted && showWelcome && !isCompleted && (
+          <div className="space-y-8">
+            {/* Interviewer Avatar */}
+            <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-8">
+              <InterviewerAvatar
+                state={isAudioPlaying ? 'talking' : 'idle'}
+                audioPlaying={isAudioPlaying}
+              />
+            </div>
+
+            {/* Welcome Message */}
+            <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-8">
+              <div className="text-center space-y-6">
+                <div className="text-4xl mb-4">👋</div>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                  Welcome!
+                </h2>
+                <p className="text-lg text-slate-700 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto">
+                  {welcomeMessage}
+                </p>
+                {isAudioPlaying && (
+                  <div className="flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400 text-sm">
+                    <svg className="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                    </svg>
+                    <span>Interviewer is speaking...</span>
+                  </div>
+                )}
+                <button
+                  onClick={beginQuestions}
+                  disabled={isAudioPlaying}
+                  className="mt-8 px-10 py-4 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 disabled:bg-slate-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-full font-semibold text-lg transition-all transform hover:scale-105"
+                >
+                  {isAudioPlaying ? "Please wait..." : "I'm Ready, Let's Begin"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Interview In Progress */}
-        {isStarted && currentQuestion && !isCompleted && (
+        {isStarted && currentQuestion && !isCompleted && !showWelcome && (
           <div className="space-y-8">
             {/* Interviewer Avatar */}
             <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-8">
