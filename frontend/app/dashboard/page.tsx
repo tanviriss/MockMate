@@ -171,8 +171,9 @@ export default function DashboardPage() {
           </button>
 
           {/* Company-Specific Prep Card */}
-          <div
-            className="group relative overflow-hidden bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-8 text-left opacity-60 cursor-not-allowed"
+          <button
+            onClick={() => router.push('/interviews/company-prep')}
+            className="group relative overflow-hidden bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-8 hover:border-slate-300 dark:hover:border-slate-700 transition-all hover:scale-105 transform text-left"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 dark:bg-emerald-500/5 rounded-bl-full"></div>
             <div className="relative">
@@ -182,20 +183,17 @@ export default function DashboardPage() {
                 </svg>
               </div>
               <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">Company Prep</h3>
-              <div className="inline-block px-2 py-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-semibold rounded-full mb-3">
-                COMING SOON
-              </div>
               <p className="text-slate-600 dark:text-slate-400 mb-4">
                 Practice with company-specific questions from Google, Meta, Amazon
               </p>
-              <div className="flex items-center text-emerald-600 dark:text-emerald-400 font-semibold">
-                Coming soon
+              <div className="flex items-center text-emerald-600 dark:text-emerald-400 font-semibold group-hover:translate-x-2 transition-transform">
+                Start preparing
                 <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </div>
             </div>
-          </div>
+          </button>
 
           {/* My Interviews Card */}
           <button
