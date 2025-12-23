@@ -171,13 +171,13 @@ export default function DashboardPage() {
           </button>
 
           {/* Company-Specific Prep Card */}
-          <button
-            onClick={() => router.push('/interviews/company-prep')}
-            className="group relative overflow-hidden bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-8 hover:border-slate-300 dark:hover:border-slate-700 transition-all hover:scale-105 transform text-left"
-          >
+          <div className="relative group overflow-hidden bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-8 opacity-60 cursor-not-allowed">
+            <div className="absolute top-4 right-4 bg-emerald-500 dark:bg-emerald-400 text-white dark:text-slate-900 px-3 py-1 rounded-full text-xs font-semibold">
+              COMING SOON
+            </div>
             <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 dark:bg-emerald-500/5 rounded-bl-full"></div>
             <div className="relative">
-              <div className="w-14 h-14 bg-emerald-500 dark:bg-emerald-400 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <div className="w-14 h-14 bg-emerald-500 dark:bg-emerald-400 rounded-xl flex items-center justify-center mb-6">
                 <svg className="w-7 h-7 text-white dark:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
@@ -186,14 +186,14 @@ export default function DashboardPage() {
               <p className="text-slate-600 dark:text-slate-400 mb-4">
                 Practice with company-specific questions from Google, Meta, Amazon
               </p>
-              <div className="flex items-center text-emerald-600 dark:text-emerald-400 font-semibold group-hover:translate-x-2 transition-transform">
-                Start preparing
+              <div className="flex items-center text-emerald-600 dark:text-emerald-400 font-semibold">
+                Coming soon
                 <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
               </div>
             </div>
-          </button>
+          </div>
 
           {/* My Interviews Card */}
           <button
