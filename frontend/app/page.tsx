@@ -120,7 +120,7 @@ export default function Home() {
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.4 }}
-          className="absolute top-24 left-1/2 transform -translate-x-1/2 z-20"
+          className="hidden md:block absolute top-24 left-1/2 transform -translate-x-1/2 z-20"
         >
           <Badge variant="outline" className="px-4 py-2 bg-slate-100 dark:bg-slate-900 backdrop-blur-xl border-slate-300 dark:border-slate-700">
             <span className="flex items-center gap-2">
