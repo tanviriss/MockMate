@@ -81,11 +81,11 @@ export default function VideoFeed({ isVisible = true }: VideoFeedProps) {
   // Show permission request button
   if (!hasPermission && !error) {
     return (
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
         <button
           onClick={startCamera}
           disabled={isRequesting}
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white rounded-full font-semibold flex items-center gap-2 shadow-lg transition-all transform hover:scale-105 disabled:scale-100"
+          className="px-4 py-2 sm:px-6 sm:py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white rounded-full font-semibold flex items-center gap-2 shadow-lg transition-all transform hover:scale-105 disabled:scale-100 text-sm sm:text-base min-h-[44px]"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -98,7 +98,7 @@ export default function VideoFeed({ isVisible = true }: VideoFeedProps) {
 
   if (error) {
     return (
-      <div className="fixed bottom-6 right-6 w-64 h-48 bg-red-500/10 backdrop-blur-md border border-red-500/30 rounded-2xl flex items-center justify-center z-50">
+      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-48 h-36 sm:w-64 sm:h-48 bg-red-500/10 backdrop-blur-md border border-red-500/30 rounded-2xl flex items-center justify-center z-50">
         <div className="text-center p-4">
           <svg className="w-12 h-12 mx-auto mb-2 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -114,7 +114,7 @@ export default function VideoFeed({ isVisible = true }: VideoFeedProps) {
     return (
       <button
         onClick={handleShowCamera}
-        className="fixed bottom-6 right-6 p-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-full hover:bg-white/20 transition z-50"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 p-3 sm:p-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-full hover:bg-white/20 transition z-50 min-w-[44px] min-h-[44px]"
         title="Show camera"
       >
         <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,7 +125,7 @@ export default function VideoFeed({ isVisible = true }: VideoFeedProps) {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 w-64 h-48 bg-black/20 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden shadow-2xl z-50 group">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-48 h-36 sm:w-64 sm:h-48 bg-black/20 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden shadow-2xl z-50 group">
       <video
         ref={videoRef}
         autoPlay
@@ -141,7 +141,7 @@ export default function VideoFeed({ isVisible = true }: VideoFeedProps) {
               stopCamera();
               setIsHidden(true);
             }}
-            className="p-2 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition"
+            className="p-2 sm:p-2.5 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition min-w-[44px] min-h-[44px] flex items-center justify-center"
             title="Hide camera"
           >
             <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
