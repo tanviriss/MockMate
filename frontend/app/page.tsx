@@ -79,9 +79,9 @@ export default function Home() {
         transition={{ duration: 0.6 }}
         className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800"
       >
-        <div className="flex items-center justify-between p-6 max-w-7xl mx-auto">
+        <div className="flex items-center justify-between p-4 sm:p-5 md:p-6 max-w-7xl mx-auto">
           <Logo className="text-neutral-900 dark:text-white" />
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
             <Button
               variant="ghost"
               className="cursor-target"
@@ -108,7 +108,7 @@ export default function Home() {
       {/* Hero Section */}
       <motion.section
         style={{ opacity, scale }}
-        className="relative min-h-screen flex flex-col items-center justify-center px-6 text-center overflow-hidden pt-32"
+        className="relative min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 text-center overflow-hidden pt-24 sm:pt-28 md:pt-32"
       >
         {/* Dot Shader Background */}
         <div className="absolute inset-0 z-0 opacity-30 dark:opacity-20">
@@ -141,7 +141,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
-            className="text-6xl md:text-8xl font-bold text-slate-900 dark:text-white leading-tight"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-bold text-slate-900 dark:text-white leading-tight"
           >
             Ace Your Next{' '}
             <br />
@@ -162,7 +162,7 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 1 }}
-            className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 max-w-4xl mx-auto"
+            className="text-base sm:text-lg md:text-xl lg:text-2xl text-slate-600 dark:text-slate-400 max-w-4xl mx-auto px-4 sm:px-0"
           >
             Practice with AI-generated questions tailored to your resume.
             Get real-time voice feedback and{' '}
@@ -173,13 +173,13 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.2 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center pt-8"
+            className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center pt-6 sm:pt-8"
           >
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
                 size="lg"
                 onClick={() => router.push('/sign-up')}
-                className="cursor-target group px-10 py-5 text-lg"
+                className="cursor-target group px-6 sm:px-8 md:px-10 py-4 sm:py-5 text-base sm:text-lg min-h-[44px] w-full sm:w-auto"
               >
                 <span className="flex items-center justify-center gap-2">
                   Start Practicing Free
@@ -199,7 +199,7 @@ export default function Home() {
                 onClick={() => {
                   document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="cursor-target px-10 py-5 text-lg"
+                className="cursor-target px-6 sm:px-8 md:px-10 py-4 sm:py-5 text-base sm:text-lg min-h-[44px] w-full sm:w-auto"
               >
                 Learn More
               </Button>
@@ -309,24 +309,24 @@ export default function Home() {
       </motion.section>
 
       {/* Features Section */}
-      <section id="features" className="relative z-10 py-32 px-6 bg-white dark:bg-slate-900">
+      <section id="features" className="relative z-10 py-16 sm:py-24 md:py-32 px-4 sm:px-6 bg-white dark:bg-slate-900">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8 }}
-            className="text-center mb-20"
+            className="text-center mb-12 sm:mb-16 md:mb-20"
           >
-            <h2 className="text-5xl md:text-6xl font-bold text-slate-900 dark:text-white mb-6">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6 px-4">
               Everything You Need to Succeed
             </h2>
-            <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto px-4">
               Powered by cutting-edge AI to give you the edge in your job search
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {[
               {
                 icon: (
@@ -363,18 +363,18 @@ export default function Home() {
                 className="cursor-target group h-full"
               >
                 <Card className="h-full bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700 transition-all">
-                  <CardContent className="p-8 flex flex-col h-full">
+                  <CardContent className="p-5 sm:p-6 md:p-8 flex flex-col h-full">
                     <motion.div
                       whileHover={{ rotate: 360 }}
                       transition={{ duration: 0.6 }}
-                      className={`w-16 h-16 ${feature.bg} rounded-2xl flex items-center justify-center mb-6`}
+                      className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 ${feature.bg} rounded-2xl flex items-center justify-center mb-4 sm:mb-5 md:mb-6`}
                     >
-                      <svg className="w-8 h-8 text-white dark:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white dark:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         {feature.icon}
                       </svg>
                     </motion.div>
-                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{feature.title}</h3>
-                    <p className="text-slate-600 dark:text-slate-400 text-lg leading-relaxed grow">{feature.description}</p>
+                    <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-3 sm:mb-4">{feature.title}</h3>
+                    <p className="text-slate-600 dark:text-slate-400 text-base sm:text-lg leading-relaxed grow">{feature.description}</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -384,22 +384,22 @@ export default function Home() {
       </section>
 
       {/* How It Works Section */}
-      <section className="relative z-10 py-32 px-6 bg-slate-50 dark:bg-slate-900/50">
+      <section className="relative z-10 py-16 sm:py-24 md:py-32 px-4 sm:px-6 bg-slate-50 dark:bg-slate-900/50">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="text-center mb-20"
+            className="text-center mb-12 sm:mb-16 md:mb-20"
           >
-            <h2 className="text-5xl md:text-6xl font-bold text-slate-900 dark:text-white mb-6">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6 px-4">
               How It Works
             </h2>
-            <p className="text-xl text-slate-600 dark:text-slate-400">Get started in 3 simple steps</p>
+            <p className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-400 px-4">Get started in 3 simple steps</p>
           </motion.div>
 
-          <div className="space-y-24">
+          <div className="space-y-12 sm:space-y-16 md:space-y-24">
             {[
               {
                 step: '01',
@@ -442,7 +442,7 @@ export default function Home() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: "-100px" }}
                 transition={{ duration: 0.8 }}
-                className={`flex flex-col md:flex-row items-center gap-12 ${
+                className={`flex flex-col md:flex-row items-center gap-8 sm:gap-10 md:gap-12 ${
                   item.direction === 'right' ? 'md:flex-row-reverse' : ''
                 }`}
               >
@@ -454,14 +454,14 @@ export default function Home() {
                     transition={{ duration: 0.6, delay: 0.2 }}
                     whileHover={{ scale: 1.1, rotate: 5 }}
                   >
-                    <Card className="cursor-target w-48 h-48 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700 transition-all">
+                    <Card className="cursor-target w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700 transition-all">
                       <CardContent className="w-full h-full flex items-center justify-center p-0">
                         <motion.div
                           whileHover={{ rotate: 360 }}
                           transition={{ duration: 0.6 }}
-                          className={`w-24 h-24 ${item.bg} rounded-2xl flex items-center justify-center`}
+                          className={`w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 ${item.bg} rounded-2xl flex items-center justify-center`}
                         >
-                          <svg className="w-12 h-12 text-white dark:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-white dark:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             {item.icon}
                           </svg>
                         </motion.div>
@@ -469,12 +469,12 @@ export default function Home() {
                     </Card>
                   </motion.div>
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 w-full">
                   <Card className="cursor-target bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700 transition-all">
-                    <CardContent className="p-8">
-                      <div className="text-6xl font-bold text-slate-200 dark:text-slate-800 mb-4">{item.step}</div>
-                      <h3 className="text-4xl font-bold text-slate-900 dark:text-white mb-6">{item.title}</h3>
-                      <p className="text-xl text-slate-600 dark:text-slate-400 leading-relaxed">{item.description}</p>
+                    <CardContent className="p-5 sm:p-6 md:p-8">
+                      <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-slate-200 dark:text-slate-800 mb-3 sm:mb-4">{item.step}</div>
+                      <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-5 md:mb-6">{item.title}</h3>
+                      <p className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-400 leading-relaxed">{item.description}</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -515,11 +515,11 @@ export default function Home() {
       <section className="relative z-10 bg-white dark:bg-slate-900">
         <ContainerScroll
           titleComponent={
-            <div className="space-y-4">
-              <h2 className="text-5xl md:text-7xl font-bold text-slate-900 dark:text-white">
+            <div className="space-y-3 sm:space-y-4 px-4">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-slate-900 dark:text-white">
                 Experience Real Interview Scenarios
               </h2>
-              <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">
+              <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">
                 Practice with AI-powered interviews that adapt to your resume and target role
               </p>
             </div>
@@ -601,7 +601,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="relative z-10 py-32 px-6 bg-slate-50 dark:bg-slate-900/50">
+      <section className="relative z-10 py-16 sm:py-24 md:py-32 px-4 sm:px-6 bg-slate-50 dark:bg-slate-900/50">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
@@ -610,18 +610,18 @@ export default function Home() {
           className="max-w-5xl mx-auto text-center"
         >
           <Card className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800">
-            <CardContent className="p-12 md:p-20">
-              <h2 className="text-5xl md:text-6xl font-bold text-slate-900 dark:text-white mb-8">
+            <CardContent className="p-6 sm:p-10 md:p-16 lg:p-20">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white mb-6 sm:mb-8">
                 Ready to Land Your Dream Job?
               </h2>
-              <p className="text-xl text-slate-600 dark:text-slate-400 mb-12 max-w-2xl mx-auto">
+              <p className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-400 mb-8 sm:mb-10 md:mb-12 max-w-2xl mx-auto px-4 sm:px-0">
                 Join thousands of job seekers who improved their interview skills with Reherse
               </p>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button
                   size="lg"
                   onClick={() => router.push('/sign-up')}
-                  className="cursor-target px-12 py-6 text-xl bg-zinc-600 hover:bg-zinc-700 dark:bg-zinc-400 dark:hover:bg-zinc-300 text-white dark:text-zinc-900"
+                  className="cursor-target px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 text-base sm:text-lg md:text-xl bg-zinc-600 hover:bg-zinc-700 dark:bg-zinc-400 dark:hover:bg-zinc-300 text-white dark:text-zinc-900 min-h-[44px] w-full sm:w-auto"
                 >
                   Start Practicing For Free →
                 </Button>
@@ -632,9 +632,9 @@ export default function Home() {
         </motion.div>
       </section>
 
-      <footer className="relative z-10 py-16 px-6 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
+      <footer className="relative z-10 py-12 sm:py-14 md:py-16 px-4 sm:px-6 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 md:gap-12 mb-10 sm:mb-12">
             {/* Brand */}
             <div className="col-span-1 md:col-span-1">
               <Logo />
