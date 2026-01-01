@@ -206,13 +206,13 @@ export default function LiveInterviewPage({
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-800 p-8">
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-800 p-4 sm:p-6 md:p-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-6 mb-8">
-          <div className="flex items-center justify-between">
+        <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-5 md:p-6 mb-6 md:mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
             <div>
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2">
                 Live Interview
               </h1>
               {isConnected && (
@@ -230,8 +230,8 @@ export default function LiveInterviewPage({
             </div>
 
             {isStarted && (
-              <div className="text-right">
-                <div className="text-4xl font-bold text-slate-900 dark:text-white">
+              <div className="text-left sm:text-right">
+                <div className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">
                   {currentQuestionNumber}/{totalQuestions}
                 </div>
                 <div className="text-sm text-slate-500 dark:text-slate-400">Questions</div>
@@ -263,7 +263,7 @@ export default function LiveInterviewPage({
 
         {/* Start Screen */}
         {!hasStarted && !isCompleted && (
-          <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-12 text-center">
+          <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-6 sm:p-8 md:p-12 text-center">
             <div className="mb-6 flex justify-center">
               <div className="w-20 h-20 bg-blue-500 dark:bg-blue-400 rounded-full flex items-center justify-center">
                 <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -271,17 +271,17 @@ export default function LiveInterviewPage({
                 </svg>
               </div>
             </div>
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-4">
               Ready to Start?
             </h2>
-            <p className="text-slate-600 dark:text-slate-300 mb-8 max-w-md mx-auto">
+            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 mb-6 sm:mb-8 max-w-md mx-auto px-4 sm:px-0">
               Make sure you&apos;re in a quiet environment with a working microphone.
               You&apos;ll be asked {interviewQuestionCount} {interviewQuestionCount === 1 ? 'question' : 'questions'}.
             </p>
             <button
               onClick={handleStart}
               disabled={!isConnected}
-              className="px-8 py-4 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 disabled:bg-slate-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-full font-semibold text-lg transition-all transform hover:scale-105"
+              className="px-6 py-3 sm:px-8 sm:py-4 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 disabled:bg-slate-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-full font-semibold text-base sm:text-lg transition-all transform hover:scale-105 min-h-[44px]"
             >
               {isConnected ? "Start Interview" : "Connecting..."}
             </button>
@@ -290,9 +290,9 @@ export default function LiveInterviewPage({
 
         {/* Welcome Screen */}
         {isStarted && showWelcome && !isCompleted && (
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
             {/* Interviewer Avatar */}
-            <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-8">
+            <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-6 md:p-8">
               <InterviewerAvatar
                 state={isAudioPlaying ? 'talking' : 'idle'}
                 audioPlaying={isAudioPlaying}
@@ -300,13 +300,13 @@ export default function LiveInterviewPage({
             </div>
 
             {/* Welcome Message */}
-            <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-8">
-              <div className="text-center space-y-6">
-                <div className="text-4xl mb-4">👋</div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+            <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-6 md:p-8">
+              <div className="text-center space-y-4 sm:space-y-6">
+                <div className="text-3xl sm:text-4xl mb-2 sm:mb-4">👋</div>
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
                   Welcome!
                 </h2>
-                <p className="text-lg text-slate-700 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto">
+                <p className="text-base sm:text-lg text-slate-700 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto px-4 sm:px-0">
                   {welcomeMessage}
                 </p>
                 {isAudioPlaying && (
@@ -320,7 +320,7 @@ export default function LiveInterviewPage({
                 <button
                   onClick={beginQuestions}
                   disabled={isAudioPlaying}
-                  className="mt-8 px-10 py-4 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 disabled:bg-slate-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-full font-semibold text-lg transition-all transform hover:scale-105"
+                  className="mt-6 sm:mt-8 px-6 py-3 sm:px-10 sm:py-4 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 disabled:bg-slate-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-full font-semibold text-base sm:text-lg transition-all transform hover:scale-105 min-h-[44px]"
                 >
                   {isAudioPlaying ? "Please wait..." : "I'm Ready, Let's Begin"}
                 </button>
@@ -331,9 +331,9 @@ export default function LiveInterviewPage({
 
         {/* Interview In Progress */}
         {isStarted && currentQuestion && !isCompleted && !showWelcome && (
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
             {/* Interviewer Avatar */}
-            <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-8">
+            <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-6 md:p-8">
               <InterviewerAvatar
                 state={getAvatarState()}
                 audioPlaying={isAudioPlaying}
@@ -341,15 +341,15 @@ export default function LiveInterviewPage({
             </div>
 
             {/* Question Display */}
-            <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-8">
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 bg-blue-600 dark:bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-white font-bold text-lg">
+            <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-6 md:p-8">
+              <div className="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 dark:bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-bold text-base sm:text-lg">
                     {currentQuestionNumber}
                   </span>
                 </div>
                 <div className="flex-1">
-                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
+                  <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 dark:text-white mb-2 sm:mb-4">
                     {currentQuestion.question_text}
                   </h2>
                   {isAudioPlaying && (
@@ -366,8 +366,8 @@ export default function LiveInterviewPage({
 
             {/* Recording Section */}
             {!transcript && !isTranscribing && (
-              <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-8">
-                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-6 text-center">
+              <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-6 md:p-8">
+                <h3 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-4 sm:mb-6 text-center">
                   Record Your Answer
                 </h3>
                 <AudioRecorder
@@ -389,9 +389,9 @@ export default function LiveInterviewPage({
 
             {/* Transcribing State */}
             {isTranscribing && (
-              <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-12 text-center">
-                <div className="text-4xl mb-4">⏳</div>
-                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+              <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-6 sm:p-8 md:p-12 text-center">
+                <div className="text-3xl sm:text-4xl mb-4">⏳</div>
+                <h3 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-2">
                   Transcribing...
                 </h3>
                 <p className="text-slate-500 dark:text-slate-400">
@@ -402,8 +402,8 @@ export default function LiveInterviewPage({
 
             {/* Transcript Review */}
             {transcript && !isTranscribing && (
-              <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-8">
-                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
+              <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-6 md:p-8">
+                <h3 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-4">
                   Review Your Answer
                 </h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
@@ -413,22 +413,22 @@ export default function LiveInterviewPage({
                 <textarea
                   value={editedTranscript}
                   onChange={(e) => setEditedTranscript(e.target.value)}
-                  className="w-full h-40 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-lg p-4 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full h-32 sm:h-40 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-lg p-3 sm:p-4 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                 />
 
-                <div className="flex gap-4 mt-6">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-4 sm:mt-6">
                   <button
                     onClick={() => {
                       setEditedTranscript("");
                       resetTranscript();
                     }}
-                    className="flex-1 px-6 py-3 bg-slate-600 dark:bg-slate-500 hover:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-lg font-semibold transition-all"
+                    className="flex-1 px-6 py-3 bg-slate-600 dark:bg-slate-500 hover:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-lg font-semibold transition-all min-h-[44px]"
                   >
                     Re-record
                   </button>
                   <button
                     onClick={handleConfirmAndNext}
-                    className="flex-1 px-6 py-3 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white rounded-lg font-semibold transition-all transform hover:scale-105"
+                    className="flex-1 px-6 py-3 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white rounded-lg font-semibold transition-all transform hover:scale-105 min-h-[44px]"
                   >
                     Confirm & Next Question
                   </button>
@@ -458,12 +458,12 @@ export default function LiveInterviewPage({
 
         {/* Completion Screen */}
         {isCompleted && (
-          <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-12 text-center">
-            <div className="text-6xl mb-6">🎉</div>
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">
+          <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-6 sm:p-8 md:p-12 text-center">
+            <div className="text-5xl sm:text-6xl mb-4 sm:mb-6">🎉</div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-4">
               Interview Complete!
             </h2>
-            <p className="text-slate-600 dark:text-slate-300 mb-8">
+            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 mb-6 sm:mb-8 px-4 sm:px-0">
               Great job! We&apos;re processing your responses and generating feedback.
               You&apos;ll be redirected to the results page shortly.
             </p>
