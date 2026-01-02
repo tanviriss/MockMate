@@ -200,13 +200,13 @@ export default function AudioRecorder({
   }, [audioURL]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {/* Timer Display */}
       <div className="text-center">
-        <div className="text-4xl font-bold text-white mb-2">
+        <div className="text-3xl sm:text-4xl font-bold text-white mb-2">
           {formatTime(recordingTime)}
         </div>
-        <div className="text-sm text-gray-400">
+        <div className="text-xs sm:text-sm text-gray-400">
           {isRecording
             ? isPaused
               ? "Paused"
@@ -219,7 +219,7 @@ export default function AudioRecorder({
 
       {/* Waveform Visualization (Simple) */}
       {isRecording && !isPaused && (
-        <div className="flex items-center justify-center gap-1 h-16">
+        <div className="flex items-center justify-center gap-1 h-12 sm:h-16">
           {[...Array(20)].map((_, i) => (
             <div
               key={i}
@@ -241,11 +241,11 @@ export default function AudioRecorder({
       )}
 
       {/* Recording Controls */}
-      <div className="flex items-center justify-center gap-4">
+      <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
         {!isRecording && !hasRecorded && (
           <button
             onClick={startRecording}
-            className="px-8 py-4 bg-red-600 hover:bg-red-700 text-white rounded-full font-semibold flex items-center gap-2 transition-all transform hover:scale-105"
+            className="px-6 sm:px-8 py-3 sm:py-4 bg-red-600 hover:bg-red-700 text-white rounded-full font-semibold flex items-center gap-2 transition-all transform hover:scale-105 min-h-[44px] text-sm sm:text-base"
           >
             <div className="w-4 h-4 bg-white rounded-full" />
             Start Recording
@@ -257,14 +257,14 @@ export default function AudioRecorder({
             {!isPaused ? (
               <button
                 onClick={pauseRecording}
-                className="px-6 py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded-full font-semibold transition-all"
+                className="px-5 sm:px-6 py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded-full font-semibold transition-all min-h-[44px] text-sm sm:text-base"
               >
                 Pause
               </button>
             ) : (
               <button
                 onClick={resumeRecording}
-                className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-full font-semibold transition-all"
+                className="px-5 sm:px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-full font-semibold transition-all min-h-[44px] text-sm sm:text-base"
               >
                 Resume
               </button>
@@ -272,7 +272,7 @@ export default function AudioRecorder({
 
             <button
               onClick={stopRecording}
-              className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-full font-semibold flex items-center gap-2 transition-all"
+              className="px-5 sm:px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-full font-semibold flex items-center gap-2 transition-all min-h-[44px] text-sm sm:text-base"
             >
               <div className="w-3 h-3 bg-white" />
               Stop
@@ -284,14 +284,14 @@ export default function AudioRecorder({
           <>
             <button
               onClick={resetRecording}
-              className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-full font-semibold transition-all"
+              className="px-5 sm:px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-full font-semibold transition-all min-h-[44px] text-sm sm:text-base"
             >
               Re-record
             </button>
 
             <button
               onClick={submitRecording}
-              className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-semibold transition-all transform hover:scale-105"
+              className="px-6 sm:px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-semibold transition-all transform hover:scale-105 min-h-[44px] text-sm sm:text-base"
             >
               Submit Answer
             </button>
