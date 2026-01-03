@@ -205,14 +205,14 @@ export default function InterviewsPage() {
 
       {/* Navigation */}
       <nav className="relative z-10 border-b border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex justify-between items-center">
             <button onClick={() => router.push('/dashboard')}>
               <Logo />
             </button>
             <button
               onClick={() => router.push('/dashboard')}
-              className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center gap-2"
+              className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center gap-2 text-sm sm:text-base"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -224,19 +224,19 @@ export default function InterviewsPage() {
       </nav>
 
       {/* Main Content */}
-      <div className="relative z-10 max-w-6xl mx-auto px-6 py-12">
-        <div className="flex justify-between items-center mb-12">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10 md:py-12">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-8 sm:mb-10 md:mb-12">
           <div>
-            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-3 sm:mb-4">
               My Interviews
             </h1>
-            <p className="text-xl text-slate-600 dark:text-slate-400">
+            <p className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-400">
               View and manage your interview sessions
             </p>
           </div>
           <button
             onClick={() => router.push('/interviews/new')}
-            className="px-6 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-700 dark:hover:bg-blue-600 hover:shadow-lg transition"
+            className="px-5 sm:px-6 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-700 dark:hover:bg-blue-600 hover:shadow-lg transition min-h-[44px] text-sm sm:text-base w-full sm:w-auto"
           >
             + New Interview
           </button>
@@ -250,20 +250,20 @@ export default function InterviewsPage() {
 
         {/* Tabs */}
         {interviews.length > 0 && (
-          <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-2 mb-6 flex gap-2">
+          <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-2 mb-6 flex flex-col sm:flex-row gap-2">
             <button
               onClick={() => {
                 setActiveTab('standard');
                 setSearchQuery('');
                 setStatusFilter('all');
               }}
-              className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
+              className={`flex-1 px-4 sm:px-6 py-3 rounded-lg font-semibold transition-all text-sm sm:text-base min-h-[44px] ${
                 activeTab === 'standard'
                   ? 'bg-blue-600 dark:bg-blue-500 text-white shadow-lg'
                   : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
-              <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center justify-center gap-2 flex-wrap">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
@@ -281,13 +281,13 @@ export default function InterviewsPage() {
                 setSearchQuery('');
                 setStatusFilter('all');
               }}
-              className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
+              className={`flex-1 px-4 sm:px-6 py-3 rounded-lg font-semibold transition-all text-sm sm:text-base min-h-[44px] ${
                 activeTab === 'resume_grill'
                   ? 'bg-amber-600 dark:bg-amber-500 text-white shadow-lg'
                   : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
-              <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center justify-center gap-2 flex-wrap">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
                 </svg>
@@ -304,7 +304,7 @@ export default function InterviewsPage() {
 
         {/* Search and Filters */}
         {interviews.length > 0 && (
-          <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-6 mb-6">
+          <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-5 md:p-6 mb-6">
             {/* Search Bar */}
             <div className="relative mb-4">
               <svg
@@ -320,7 +320,7 @@ export default function InterviewsPage() {
                 placeholder="Search by job title, company, or description..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full pl-10 sm:pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm sm:text-base min-h-[44px]"
               />
               {searchQuery && (
                 <button
@@ -335,12 +335,12 @@ export default function InterviewsPage() {
             </div>
 
             {/* Status Filters and Sort */}
-            <div className="flex flex-wrap items-center gap-4">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
               {/* Status Filter Pills */}
               <div className="flex items-center gap-2 flex-wrap">
                 <button
                   onClick={() => setStatusFilter('all')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                  className={`px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition min-h-[44px] ${
                     statusFilter === 'all'
                       ? 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600'
                       : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
@@ -350,7 +350,7 @@ export default function InterviewsPage() {
                 </button>
                 <button
                   onClick={() => setStatusFilter('pending')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                  className={`px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition min-h-[44px] ${
                     statusFilter === 'pending'
                       ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800'
                       : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
@@ -360,7 +360,7 @@ export default function InterviewsPage() {
                 </button>
                 <button
                   onClick={() => setStatusFilter('in_progress')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                  className={`px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition min-h-[44px] ${
                     statusFilter === 'in_progress'
                       ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
                       : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
@@ -370,7 +370,7 @@ export default function InterviewsPage() {
                 </button>
                 <button
                   onClick={() => setStatusFilter('completed')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                  className={`px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition min-h-[44px] ${
                     statusFilter === 'completed'
                       ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800'
                       : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
@@ -381,11 +381,11 @@ export default function InterviewsPage() {
               </div>
 
               {/* Sort Dropdown */}
-              <div className="ml-auto">
+              <div className="w-full sm:w-auto sm:ml-auto mt-3 sm:mt-0">
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  className="w-full sm:w-auto px-3 sm:px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition min-h-[44px]"
                 >
                   <option value="recent" className="bg-white dark:bg-slate-800">Most Recent</option>
                   <option value="oldest" className="bg-white dark:bg-slate-800">Oldest First</option>
@@ -406,14 +406,14 @@ export default function InterviewsPage() {
 
         {/* Interviews List */}
         <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden">
-          <div className="p-6 border-b border-slate-200 dark:border-slate-700">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+          <div className="p-4 sm:p-5 md:p-6 border-b border-slate-200 dark:border-slate-700">
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
               {searchQuery || statusFilter !== 'all' ? 'Filtered Interviews' : 'All Interviews'} ({filteredAndSortedInterviews.length})
             </h2>
           </div>
 
           {interviews.length === 0 ? (
-            <div className="p-12 text-center">
+            <div className="p-8 sm:p-10 md:p-12 text-center">
               <div className="w-16 h-16 mx-auto mb-4 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
                 <svg className="w-8 h-8 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
@@ -452,15 +452,15 @@ export default function InterviewsPage() {
               {filteredAndSortedInterviews.map((interview) => {
                 const isResumeGrill = interview.interview_type?.toLowerCase() === 'resume_grill';
                 return (
-                <div key={interview.id} className="p-6 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition group">
-                  <div className="flex gap-6">
+                <div key={interview.id} className="p-4 sm:p-5 md:p-6 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition group">
+                  <div className="flex gap-3 sm:gap-4 md:gap-6">
                     <div className="flex-shrink-0">
-                      <div className={`w-16 h-16 rounded-xl flex items-center justify-center ${
+                      <div className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-xl flex items-center justify-center ${
                         isResumeGrill
                           ? 'bg-amber-500 dark:bg-amber-400'
                           : 'bg-purple-500 dark:bg-purple-400'
                       }`}>
-                        <svg className="w-8 h-8 text-white dark:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white dark:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           {isResumeGrill ? (
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
                           ) : (
@@ -471,9 +471,9 @@ export default function InterviewsPage() {
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                      <div className="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-0 mb-2">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white break-words">
                             {isResumeGrill
                               ? `Resume Grill${interview.resume?.parsed_data?.name ? ` - ${interview.resume.parsed_data.name}` : ''}`
                               : (interview.jd_analysis?.job_title || 'Interview')
@@ -487,13 +487,13 @@ export default function InterviewsPage() {
                             </p>
                           )}
                         </div>
-                        <span className={`px-3 py-1 border text-xs font-semibold rounded-full ${getStatusBadge(interview.status)}`}>
+                        <span className={`px-3 py-1 border text-xs font-semibold rounded-full flex-shrink-0 ${getStatusBadge(interview.status)}`}>
                           {interview.status.replace('_', ' ')}
                         </span>
                       </div>
 
                       {interview.job_description && (
-                        <p className="text-slate-600 dark:text-slate-400 text-sm mb-3 line-clamp-2">
+                        <p className="text-slate-600 dark:text-slate-400 text-sm mb-3 line-clamp-2 break-words">
                           {interview.job_description}
                         </p>
                       )}
@@ -544,25 +544,25 @@ export default function InterviewsPage() {
                       )}
                     </div>
 
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col sm:flex-row md:flex-col gap-2 w-full sm:w-auto mt-4 sm:mt-0">
                       {interview.status.toLowerCase() === 'completed' ? (
                         <button
                           onClick={() => router.push(`/interviews/${interview.id}/results`)}
-                          className="px-4 py-2 bg-green-600 dark:bg-green-500 hover:bg-green-700 dark:hover:bg-green-600 text-white rounded-lg text-sm font-medium transition text-center"
+                          className="px-4 py-2 bg-green-600 dark:bg-green-500 hover:bg-green-700 dark:hover:bg-green-600 text-white rounded-lg text-sm font-medium transition text-center min-h-[44px]"
                         >
                           View Results
                         </button>
                       ) : (
                         <button
                           onClick={() => router.push(`/interviews/${interview.id}`)}
-                          className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-lg text-sm font-medium transition text-center"
+                          className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-lg text-sm font-medium transition text-center min-h-[44px]"
                         >
                           View Details
                         </button>
                       )}
                       <button
                         onClick={() => handleDelete(interview.id)}
-                        className="px-4 py-2 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg text-sm font-medium transition"
+                        className="px-4 py-2 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg text-sm font-medium transition min-h-[44px]"
                       >
                         Delete
                       </button>
@@ -581,38 +581,38 @@ export default function InterviewsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-900 border border-red-200 dark:border-red-800 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all">
             {/* Header with icon */}
-            <div className="bg-red-50 dark:bg-red-900/10 border-b border-red-200 dark:border-red-800 p-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center flex-shrink-0">
-                  <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-red-50 dark:bg-red-900/10 border-b border-red-200 dark:border-red-800 p-4 sm:p-5 md:p-6">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">Delete Interview</h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">This action cannot be undone</p>
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Delete Interview</h3>
+                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">This action cannot be undone</p>
                 </div>
               </div>
             </div>
 
             {/* Content */}
-            <div className="p-6">
-              <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+            <div className="p-4 sm:p-5 md:p-6">
+              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
                 Are you sure you want to permanently delete this interview? All questions, answers, and results will be lost forever.
               </p>
             </div>
 
             {/* Actions */}
-            <div className="bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700 p-6 flex gap-3">
+            <div className="bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700 p-4 sm:p-5 md:p-6 flex flex-col sm:flex-row gap-3">
               <button
                 onClick={cancelDelete}
-                className="flex-1 px-6 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-lg font-semibold transition-all transform hover:scale-105"
+                className="flex-1 px-6 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-lg font-semibold transition-all transform hover:scale-105 min-h-[44px]"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmDelete}
-                className="flex-1 px-6 py-3 bg-red-600 dark:bg-red-500 hover:bg-red-700 dark:hover:bg-red-600 text-white rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg"
+                className="flex-1 px-6 py-3 bg-red-600 dark:bg-red-500 hover:bg-red-700 dark:hover:bg-red-600 text-white rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg min-h-[44px]"
               >
                 Delete Forever
               </button>
