@@ -16,10 +16,10 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
   title: {
-    default: "Mockmate - AI Voice Interview Coach | Master Your Interviews",
-    template: "%s | Mockmate"
+    default: "Reherse - AI Voice Interview Coach | Master Your Interviews",
+    template: "%s | Reherse"
   },
-  description: "Master your interviews with Mockmate's AI-powered voice interview coach. Get real-time feedback, practice unlimited mock interviews, and land your dream job. Free interview preparation platform.",
+  description: "Master your interviews with Reherse's AI-powered voice interview coach. Get real-time feedback, practice unlimited mock interviews, and land your dream job. Free interview preparation platform.",
   keywords: [
     "interview practice",
     "mock interview",
@@ -37,9 +37,9 @@ export const metadata: Metadata = {
     "practice interviews online",
     "interview preparation software"
   ],
-  authors: [{ name: "Mockmate Team" }],
-  creator: "Mockmate",
-  publisher: "Mockmate",
+  authors: [{ name: "Reherse Team" }],
+  creator: "Reherse",
+  publisher: "Reherse",
   formatDetection: {
     email: false,
     address: false,
@@ -49,21 +49,21 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "/",
-    title: "Mockmate - AI Voice Interview Coach",
+    title: "Reherse - AI Voice Interview Coach",
     description: "Practice real interviews with AI-powered coaching. Get instant feedback and ace your next interview.",
-    siteName: "Mockmate",
+    siteName: "Reherse",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Mockmate - AI Interview Coach Platform",
+        alt: "Reherse - AI Interview Coach Platform",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Mockmate - AI Voice Interview Coach",
+    title: "Reherse - AI Voice Interview Coach",
     description: "Practice real interviews with AI-powered coaching. Get instant feedback and ace your next interview.",
     images: ["/og-image.png"],
   },
