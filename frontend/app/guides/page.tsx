@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getAllGuides } from '@/lib/guides';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import BackToHomeButton from '@/components/BackToHomeButton';
 
 export const metadata: Metadata = {
   title: 'Interview Preparation Guides | Reherse',
@@ -53,12 +54,7 @@ export default async function GuidesPage() {
               Expert strategies, tips, and techniques to help you ace behavioral interviews,
               technical assessments, and land your dream job.
             </p>
-            <Link
-              href="/"
-              className="text-purple-600 dark:text-purple-400 hover:underline font-semibold"
-            >
-              ← Back to Home
-            </Link>
+            <BackToHomeButton />
           </div>
         </section>
 
