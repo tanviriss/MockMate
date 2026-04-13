@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     # AI Services
     GEMINI_API_KEY: str
     GROQ_API_KEY: str
-    ELEVENLABS_API_KEY: str
+    OPENAI_API_KEY: str
 
     # Supabase
     SUPABASE_URL: str

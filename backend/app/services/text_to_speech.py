@@ -1,40 +1,39 @@
 """
-Text-to-Speech service using ElevenLabs API
+Text-to-Speech service using OpenAI API
 """
-from typing import Optional
-from elevenlabs import ElevenLabs
+from openai import OpenAI
 from app.config import settings
 
 
 class TextToSpeechService:
-    """Service for generating speech from text using ElevenLabs"""
+    """Service for generating speech from text using OpenAI TTS"""
 
     VOICES = {
-        "professional_female": "21m00Tcm4TlvDq8ikWAM",  # Rachel - Natural & Conversational
-        "professional_male": "pNInz6obpgDQGcFmaJgB",    # Adam - Natural Male
-        "friendly": "21m00Tcm4TlvDq8ikWAM",              # Rachel - Friendly
-        "default": "21m00Tcm4TlvDq8ikWAM"                # Default to Rachel (most natural)
+        "professional_female": "nova",   # Clear, professional female voice
+        "professional_male": "onyx",     # Deep, professional male voice
+        "friendly": "shimmer",           # Warm, friendly voice
+        "default": "onyx"                # Default to onyx (professional interviewer)
     }
 
     def __init__(self):
-        """Initialize ElevenLabs client"""
-        self.client = ElevenLabs(api_key=settings.ELEVENLABS_API_KEY)
+        """Initialize OpenAI client"""
+        self.client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
     async def generate_speech(
         self,
         text: str,
         voice: str = "default",
-        model: str = "eleven_turbo_v2_5",
+        model: str = "tts-1",
         timeout: int = 30
     ) -> bytes:
         """
-        Generate speech from text using ElevenLabs
+        Generate speech from text using OpenAI TTS
 
         Args:
             text: Text to convert to speech
-            voice: Voice persona to use (key from VOICES dict or voice_id)
-            model: ElevenLabs model to use (eleven_multilingual_v2 for quality)
-            timeout: Timeout in seconds (default: 30)
+            voice: Voice persona to use (key from VOICES dict or voice name)
+            model: OpenAI TTS model to use
+            timeout: Timeout in seconds
 
         Returns:
             Audio data as bytes (MP3 format)
@@ -42,40 +41,26 @@ class TextToSpeechService:
         import asyncio
 
         try:
-            voice_id = self.VOICES.get(voice, voice)
+            voice_name = self.VOICES.get(voice, voice)
 
-            # Run TTS with timeout
             async def _generate():
-                # Generate audio using ElevenLabs with voice settings for natural sound
                 loop = asyncio.get_event_loop()
-                audio_generator = await loop.run_in_executor(
+                response = await loop.run_in_executor(
                     None,
-                    lambda: self.client.text_to_speech.convert(
-                        voice_id=voice_id,
-                        text=text,
-                        model_id=model,
-                        output_format="mp3_44100_64",
-                        voice_settings={
-                            "stability": 0.5,
-                            "similarity_boost": 0.75,
-                            "style": 0.0,
-                            "use_speaker_boost": True
-                        }
+                    lambda: self.client.audio.speech.create(
+                        model=model,
+                        voice=voice_name,
+                        input=text,
+                        response_format="mp3"
                     )
                 )
-
-                audio_bytes = b""
-                for chunk in audio_generator:
-                    if chunk:
-                        audio_bytes += chunk
-
-                return audio_bytes
+                return response.content
 
             audio_bytes = await asyncio.wait_for(_generate(), timeout=timeout)
             return audio_bytes
 
         except asyncio.TimeoutError:
-            raise Exception(f"Text-to-speech timeout after {timeout} seconds. Text may be too long.")
+            raise Exception(f"Text-to-speech timeout after {timeout} seconds.")
         except Exception as e:
             raise Exception(f"Error generating speech: {str(e)}")
 
@@ -83,69 +68,55 @@ class TextToSpeechService:
         self,
         text: str,
         voice: str = "default",
-        model: str = "eleven_turbo_v2_5"
+        model: str = "tts-1"
     ):
         """
-        Generate speech from text with streaming (for real-time playback)
+        Generate speech from text with streaming
 
         Args:
             text: Text to convert to speech
             voice: Voice persona to use
-            model: ElevenLabs model to use
+            model: OpenAI TTS model to use
 
         Yields:
             Audio chunks as bytes
         """
         try:
-            voice_id = self.VOICES.get(voice, voice)
+            voice_name = self.VOICES.get(voice, voice)
 
-            # Generate audio stream with voice settings
-            audio_generator = self.client.text_to_speech.convert(
-                voice_id=voice_id,
-                text=text,
-                model_id=model,
-                output_format="mp3_44100_128",
-                voice_settings={
-                    "stability": 0.5,
-                    "similarity_boost": 0.75,
-                    "style": 0.0,
-                    "use_speaker_boost": True
-                }
-            )
-
-            for chunk in audio_generator:
-                if chunk:
+            with self.client.audio.speech.with_streaming_response.create(
+                model=model,
+                voice=voice_name,
+                input=text,
+                response_format="mp3"
+            ) as response:
+                for chunk in response.iter_bytes(chunk_size=4096):
                     yield chunk
 
         except Exception as e:
             raise Exception(f"Error generating speech stream: {str(e)}")
 
     def get_available_voices(self) -> dict:
-        """
-        Get list of available voice personas
-
-        Returns:
-            Dict of voice names and descriptions
-        """
+        """Get list of available voice personas"""
         return {
             "professional_female": {
-                "name": "Rachel",
-                "description": "Natural, conversational female voice - sounds human",
+                "name": "Nova",
+                "description": "Clear, professional female voice",
                 "voice_id": self.VOICES["professional_female"]
             },
             "professional_male": {
-                "name": "Adam",
-                "description": "Natural, warm male voice - sounds human",
+                "name": "Onyx",
+                "description": "Deep, professional male voice",
                 "voice_id": self.VOICES["professional_male"]
             },
             "friendly": {
-                "name": "Rachel",
-                "description": "Friendly and natural voice",
+                "name": "Shimmer",
+                "description": "Warm, friendly voice",
                 "voice_id": self.VOICES["friendly"]
             },
             "default": {
-                "name": "Rachel (Default)",
-                "description": "Default natural voice - most human-sounding",
+                "name": "Onyx (Default)",
+                "description": "Default professional interviewer voice",
                 "voice_id": self.VOICES["default"]
             }
         }
