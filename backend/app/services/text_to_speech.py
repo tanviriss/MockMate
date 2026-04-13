@@ -24,7 +24,7 @@ class TextToSpeechService:
         self,
         text: str,
         voice: str = "default",
-        model: str = "eleven_multilingual_v2",
+        model: str = "eleven_turbo_v2_5",
         timeout: int = 30
     ) -> bytes:
         """
@@ -54,7 +54,7 @@ class TextToSpeechService:
                         voice_id=voice_id,
                         text=text,
                         model_id=model,
-                        output_format="mp3_44100_128",
+                        output_format="mp3_44100_64",
                         voice_settings={
                             "stability": 0.5,
                             "similarity_boost": 0.75,
@@ -83,7 +83,7 @@ class TextToSpeechService:
         self,
         text: str,
         voice: str = "default",
-        model: str = "eleven_multilingual_v2"
+        model: str = "eleven_turbo_v2_5"
     ):
         """
         Generate speech from text with streaming (for real-time playback)
