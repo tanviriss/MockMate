@@ -77,7 +77,7 @@ async def get_progress(
     current_user = Depends(get_current_user)
 ):
     """
-    Get user's progress analytics
+    Get user's progress analytics (Pro feature)
 
     Returns:
     - Total interviews completed
@@ -87,7 +87,6 @@ async def get_progress(
     - Improvement rate
     - AI-generated insights
     """
-
     # Get all completed interviews for the user
     interviews = db.query(Interview).filter(
         Interview.user_id == current_user.id,

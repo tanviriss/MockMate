@@ -20,6 +20,7 @@ from app.services.evaluation_service import (
     aggregate_skill_performance
 )
 from app.services.interview_service import generate_ideal_answer
+from app.services.subscription_service import check_premium_feature
 
 router = APIRouter(prefix="/evaluation", tags=["Evaluation"])
 limiter = Limiter(key_func=get_remote_address)
@@ -227,6 +228,8 @@ async def get_ideal_answer(
     Generate an ideal answer example for a question
     Uses the user's actual answer for context if available
     """
+    check_premium_feature(current_user.id, db, "ideal_answer")
+
     # Get question
     question = db.query(Question).filter(Question.id == question_id).first()
     if not question:

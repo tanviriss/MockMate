@@ -30,6 +30,15 @@ class Settings(BaseSettings):
     GROQ_API_KEY: str
     OPENAI_API_KEY: str
 
+    # Stripe
+    STRIPE_SECRET_KEY: str = ""
+    STRIPE_WEBHOOK_SECRET: str = ""
+    STRIPE_PRICE_ID_MONTHLY: str = ""
+    STRIPE_PRICE_ID_ANNUAL: str = ""
+
+    # Frontend URL (for Stripe redirect URLs)
+    FRONTEND_URL: str = "http://localhost:3000"
+
     # Supabase
     SUPABASE_URL: str
     SUPABASE_KEY: str

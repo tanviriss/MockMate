@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useUser, UserButton } from '@clerk/nextjs';
 import { api } from '@/lib/api';
+import { useBilling } from '@/lib/useBilling';
 import Logo from '@/components/Logo';
 
 interface DashboardStats {
@@ -19,6 +20,7 @@ export default function DashboardPage() {
   const { user } = useUser();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const { billing, isPremium, interviewsRemaining, upgrade, manageSubscription } = useBilling();
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -64,7 +66,24 @@ export default function DashboardPage() {
           <div className="flex justify-between items-center">
             <Logo />
             <div className="flex items-center gap-3 sm:gap-4 md:gap-6">
-              <span className="text-slate-600 dark:text-slate-400 text-sm">
+              {billing && (
+                isPremium ? (
+                  <button
+                    onClick={manageSubscription}
+                    className="px-3 py-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs font-semibold rounded-full hover:opacity-90 transition-opacity"
+                  >
+                    ⚡ Pro
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => upgrade('monthly')}
+                    className="px-3 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-full hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors border border-slate-200 dark:border-slate-600"
+                  >
+                    Upgrade to Pro
+                  </button>
+                )
+              )}
+              <span className="text-slate-600 dark:text-slate-400 text-sm hidden sm:block">
                 {user.fullName || user.primaryEmailAddress?.emailAddress}
               </span>
               <UserButton
@@ -91,6 +110,28 @@ export default function DashboardPage() {
             Ready to practice and ace your next interview?
           </p>
         </div>
+
+        {/* Free tier usage banner */}
+        {billing && !isPremium && (
+          <div className="mb-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+                {interviewsRemaining === 0
+                  ? "You've used all your free interviews"
+                  : `${interviewsRemaining} free interview${interviewsRemaining === 1 ? '' : 's'} remaining`}
+              </p>
+              <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
+                Upgrade to Pro for unlimited interviews, Company Prep, and more.
+              </p>
+            </div>
+            <button
+              onClick={() => upgrade('monthly')}
+              className="shrink-0 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-lg transition-colors"
+            >
+              Upgrade to Pro →
+            </button>
+          </div>
+        )}
 
         {/* Feature Cards Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
@@ -171,29 +212,34 @@ export default function DashboardPage() {
           </button>
 
           {/* Company-Specific Prep Card */}
-          <div className="relative group overflow-hidden bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 md:p-8 opacity-60 cursor-not-allowed">
-            <div className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-emerald-500 dark:bg-emerald-400 text-white dark:text-slate-900 px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-semibold">
-              COMING SOON
-            </div>
+          <button
+            onClick={() => router.push('/interviews/company-prep')}
+            className="group relative overflow-hidden bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 md:p-8 hover:border-slate-300 dark:hover:border-slate-700 transition-all hover:scale-105 transform text-left"
+          >
+            {!isPremium && (
+              <div className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-semibold">
+                PRO
+              </div>
+            )}
             <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 dark:bg-emerald-500/5 rounded-bl-full"></div>
             <div className="relative">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-emerald-500 dark:bg-emerald-400 rounded-xl flex items-center justify-center mb-4 sm:mb-5 md:mb-6">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-emerald-500 dark:bg-emerald-400 rounded-xl flex items-center justify-center mb-4 sm:mb-5 md:mb-6 group-hover:scale-110 transition-transform">
                 <svg className="w-6 h-6 sm:w-7 sm:h-7 text-white dark:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2 sm:mb-3">Company Prep</h3>
               <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mb-3 sm:mb-4">
-                Practice with company-specific questions from Google, Meta, Amazon
+                Practice with real questions from Google, Meta, Amazon and more
               </p>
-              <div className="flex items-center text-emerald-600 dark:text-emerald-400 font-semibold">
-                Coming soon
+              <div className="flex items-center text-emerald-600 dark:text-emerald-400 font-semibold group-hover:translate-x-2 transition-transform">
+                Start prep
                 <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </div>
             </div>
-          </div>
+          </button>
 
           {/* My Interviews Card */}
           <button

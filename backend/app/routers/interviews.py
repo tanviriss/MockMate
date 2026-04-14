@@ -11,6 +11,7 @@ from app.models.resume import Resume
 from app.models.question import Question
 from app.services.interview_service import analyze_job_description, generate_interview_questions, generate_resume_grill_questions
 from app.services.company_research_service import generate_company_specific_questions
+from app.services.subscription_service import check_interview_limit, check_question_limit, check_premium_feature
 from app.logging_config import logger
 
 router = APIRouter(prefix="/interviews", tags=["Interviews"])
@@ -36,6 +37,12 @@ async def create_interview(
     """
     Create a new interview by analyzing JD and generating questions
     """
+    # Check plan limits
+    check_interview_limit(current_user.id, db)
+    check_question_limit(interview_request.num_questions, current_user.id, db)
+    if interview_request.target_company or interview_request.target_role:
+        check_premium_feature(current_user.id, db, "company_prep")
+
     try:
         # Get resume
         resume = db.query(Resume).filter(
@@ -248,6 +255,9 @@ async def create_resume_grill(
     Create a Resume Grill interview - tests if candidate knows their resume
     No job description needed - purely based on resume content
     """
+    check_premium_feature(current_user.id, db, "resume_grill")
+    check_question_limit(grill_request.num_questions, current_user.id, db)
+
     try:
         # Get resume
         resume = db.query(Resume).filter(

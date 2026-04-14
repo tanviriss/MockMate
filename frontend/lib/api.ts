@@ -149,7 +149,14 @@ export const api = {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.detail || 'Failed to create interview');
+      const detail = error.detail;
+      if (typeof detail === 'object' && detail !== null) {
+        const e = new Error(detail.message || 'Failed to create interview') as Error & { code?: string; upgrade_required?: boolean };
+        e.code = detail.code;
+        e.upgrade_required = detail.upgrade_required;
+        throw e;
+      }
+      throw new Error(detail || 'Failed to create interview');
     }
 
     return response.json();
@@ -275,6 +282,37 @@ export const api = {
       throw new Error('Failed to fetch analytics');
     }
 
+    return response.json();
+  },
+
+  // Billing endpoints
+  async getBillingStatus(token: string) {
+    const response = await fetch(`${API_URL}/billing/status`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    if (!response.ok) throw new Error('Failed to fetch billing status');
+    return response.json();
+  },
+
+  async createCheckoutSession(priceId: 'monthly' | 'annual', token: string) {
+    const response = await fetch(`${API_URL}/billing/checkout`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ price_id: priceId }),
+    });
+    if (!response.ok) throw new Error('Failed to create checkout session');
+    return response.json();
+  },
+
+  async createPortalSession(token: string) {
+    const response = await fetch(`${API_URL}/billing/portal`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    if (!response.ok) throw new Error('Failed to create portal session');
     return response.json();
   },
 };

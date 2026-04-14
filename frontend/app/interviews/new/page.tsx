@@ -6,6 +6,8 @@ import { useClerkAuth } from '@/hooks/useClerkAuth';
 import { api } from '@/lib/api';
 import Logo from '@/components/Logo';
 import LoadingMessages from '@/components/LoadingMessages';
+import { useBilling } from '@/lib/useBilling';
+import UpgradeModal from '@/components/UpgradeModal';
 
 interface Resume {
   id: number;
@@ -19,10 +21,15 @@ interface Resume {
 export default function NewInterviewPage() {
   const router = useRouter();
   const { isReady, getToken } = useClerkAuth();
+  const { isPremium } = useBilling();
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState('');
+
+  const maxQuestions = isPremium ? 15 : 5;
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [upgradeReason, setUpgradeReason] = useState<'interview_limit' | 'more_questions'>('interview_limit');
 
   const [formData, setFormData] = useState({
     resume_id: '',
@@ -91,7 +98,14 @@ export default function NewInterviewPage() {
       // Navigate to interview details page (keep creating state to prevent flash)
       router.push(`/interviews/${response.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      const e = err as Error & { code?: string; upgrade_required?: boolean };
+      if (e.upgrade_required) {
+        setUpgradeReason(e.code === 'question_limit_reached' ? 'more_questions' : 'interview_limit');
+        setShowUpgradeModal(true);
+        setCreating(false);
+        return;
+      }
+      setError(e.message || 'Something went wrong. Please try again.');
       setCreating(false);
     }
   };
@@ -113,6 +127,7 @@ export default function NewInterviewPage() {
 
   return (
     <main className="min-h-screen bg-slate-100 dark:bg-slate-800">
+      {showUpgradeModal && <UpgradeModal reason={upgradeReason} onClose={() => setShowUpgradeModal(false)} />}
       {/* Neutral slate theme background */}
       <div className="fixed inset-0 z-0 bg-slate-100 dark:bg-slate-800">
         {/* Subtle colored accents */}
@@ -214,20 +229,25 @@ export default function NewInterviewPage() {
 
               {/* Number of Questions */}
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
-                  Number of Questions: {formData.num_questions}
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    Number of Questions: {formData.num_questions}
+                  </label>
+                  {!isPremium && (
+                    <span className="text-xs text-slate-500 dark:text-slate-400">Pro: up to 15</span>
+                  )}
+                </div>
                 <input
                   type="range"
                   min="1"
-                  max="15"
-                  value={formData.num_questions}
+                  max={maxQuestions}
+                  value={Math.min(formData.num_questions, maxQuestions)}
                   onChange={(e) => setFormData({ ...formData, num_questions: parseInt(e.target.value) })}
                   className="w-full"
                 />
                 <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1">
                   <span>1 question</span>
-                  <span>15 questions</span>
+                  <span>{maxQuestions} questions{!isPremium ? ' (free plan)' : ''}</span>
                 </div>
               </div>
 

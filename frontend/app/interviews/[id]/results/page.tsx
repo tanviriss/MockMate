@@ -6,6 +6,8 @@ import { useClerkAuth } from "@/hooks/useClerkAuth";
 import { api } from "@/lib/api";
 import LoadingMessages from "@/components/LoadingMessages";
 import SpeakingAnalysisCard from "@/components/SpeakingAnalysis";
+import { useBilling } from "@/lib/useBilling";
+import UpgradeModal from "@/components/UpgradeModal";
 
 interface IdealAnswer {
   ideal_answer: string;
@@ -71,11 +73,13 @@ export default function InterviewResultsPage({
   const interviewId = parseInt(resolvedParams.id);
   const router = useRouter();
   const { isReady, getToken } = useClerkAuth();
+  const { isPremium } = useBilling();
   const [results, setResults] = useState<InterviewResults | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [idealAnswers, setIdealAnswers] = useState<{ [key: number]: IdealAnswer }>({});
   const [loadingIdeal, setLoadingIdeal] = useState<{ [key: number]: boolean }>({});
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   useEffect(() => {
     if (isReady) {
@@ -174,6 +178,7 @@ export default function InterviewResultsPage({
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-800 p-8">
+      {showUpgradeModal && <UpgradeModal reason="ideal_answer" onClose={() => setShowUpgradeModal(false)} />}
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -357,7 +362,7 @@ export default function InterviewResultsPage({
                 <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
                   {!idealAnswers[result.question_id] && (
                     <button
-                      onClick={() => fetchIdealAnswer(result.question_id)}
+                      onClick={() => isPremium ? fetchIdealAnswer(result.question_id) : setShowUpgradeModal(true)}
                       disabled={loadingIdeal[result.question_id]}
                       className="w-full px-4 py-3 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 text-white rounded-lg font-semibold transition flex items-center justify-center gap-2"
                     >
@@ -366,10 +371,16 @@ export default function InterviewResultsPage({
                           <div className="inline-block animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
                           <span>Generating Ideal Answer...</span>
                         </>
-                      ) : (
+                      ) : isPremium ? (
                         <>
                           <span>✨</span>
                           <span>Show Ideal Answer Example</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>🔒</span>
+                          <span>Show Ideal Answer Example</span>
+                          <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">Pro</span>
                         </>
                       )}
                     </button>

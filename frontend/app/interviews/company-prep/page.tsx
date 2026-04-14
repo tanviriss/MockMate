@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useClerkAuth } from '@/hooks/useClerkAuth';
 import { api } from '@/lib/api';
 import Logo from '@/components/Logo';
+import { useBilling } from '@/lib/useBilling';
+import UpgradeModal from '@/components/UpgradeModal';
 
 interface ParsedData {
   name?: string;
@@ -20,10 +22,14 @@ interface Resume {
 export default function CompanyPrepPage() {
   const router = useRouter();
   const { isReady, getToken } = useClerkAuth();
+  const { isPremium, loading: billingLoading } = useBilling();
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState('');
+
+  const maxQuestions = isPremium ? 15 : 5;
 
   const [formData, setFormData] = useState({
     resume_id: '',
@@ -102,7 +108,7 @@ export default function CompanyPrepPage() {
     }
   };
 
-  if (loading) {
+  if (loading || billingLoading) {
     return (
       <div className="min-h-screen bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
         <div className="text-center">
@@ -113,8 +119,13 @@ export default function CompanyPrepPage() {
     );
   }
 
+  if (!isPremium) {
+    return <UpgradeModal reason="company_prep" onClose={() => router.push('/dashboard')} />;
+  }
+
   return (
     <main className="min-h-screen bg-slate-100 dark:bg-slate-800">
+      {showUpgradeModal && <UpgradeModal reason="company_prep" onClose={() => setShowUpgradeModal(false)} />}
       {/* Background */}
       <div className="fixed inset-0 z-0 bg-slate-100 dark:bg-slate-800">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-slate-200/50 dark:bg-slate-700/30 rounded-full blur-3xl"></div>
@@ -245,14 +256,14 @@ export default function CompanyPrepPage() {
                 <input
                   type="range"
                   min="1"
-                  max="15"
-                  value={formData.num_questions}
+                  max={maxQuestions}
+                  value={Math.min(formData.num_questions, maxQuestions)}
                   onChange={(e) => setFormData({ ...formData, num_questions: parseInt(e.target.value) })}
                   className="w-full"
                 />
                 <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1">
                   <span>1 question</span>
-                  <span>15 questions</span>
+                  <span>{maxQuestions} questions</span>
                 </div>
               </div>
 

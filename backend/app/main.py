@@ -9,7 +9,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from app.config import settings
 from app.database import get_db
-from app.routers import auth, test, resumes, interviews, audio, evaluation, analytics
+from app.routers import auth, test, resumes, interviews, audio, evaluation, analytics, billing, webhooks
 from app.websocket.interview_handler import sio
 from app.logging_config import logger
 
@@ -115,6 +115,8 @@ app.include_router(interviews.router)
 app.include_router(audio.router)
 app.include_router(evaluation.router)
 app.include_router(analytics.router)
+app.include_router(billing.router)
+app.include_router(webhooks.router)
 
 
 @app.on_event("startup")

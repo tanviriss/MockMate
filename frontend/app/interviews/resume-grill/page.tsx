@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
 import { api } from '@/lib/api';
 import LoadingMessages from '@/components/LoadingMessages';
+import { useBilling } from '@/lib/useBilling';
+import UpgradeModal from '@/components/UpgradeModal';
 
 interface Resume {
   id: number;
@@ -20,11 +22,14 @@ interface Resume {
 export default function ResumeGrillPage() {
   const router = useRouter();
   const { getToken } = useAuth();
+  const { isPremium, loading: billingLoading } = useBilling();
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [selectedResume, setSelectedResume] = useState<number | null>(null);
-  const [numQuestions, setNumQuestions] = useState<number>(10);
+  const [numQuestions, setNumQuestions] = useState<number>(5);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
+
+  const maxQuestions = isPremium ? 10 : 5;
 
   useEffect(() => {
     fetchResumes();
@@ -78,18 +83,35 @@ export default function ResumeGrillPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create resume grill');
+        const errorData = await response.json();
+        const detail = errorData.detail;
+        if (typeof detail === 'object' && detail !== null && detail.upgrade_required) {
+          setCreating(false);
+          return;
+        }
+        throw new Error(typeof detail === 'string' ? detail : 'Failed to create resume grill');
       }
 
       const interview = await response.json();
       router.push(`/interviews/${interview.id}`);
-      // Don't set creating to false here - let the navigation happen
     } catch (error) {
       console.error('Failed to create resume grill:', error);
-      alert('Failed to create resume grill. Please try again.');
+      alert(error instanceof Error ? error.message : 'Failed to create resume grill. Please try again.');
       setCreating(false);
     }
   };
+
+  if (billingLoading) {
+    return (
+      <div className="min-h-screen bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+        <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 dark:border-blue-400"></div>
+      </div>
+    );
+  }
+
+  if (!isPremium) {
+    return <UpgradeModal reason="resume_grill" onClose={() => router.push('/dashboard')} />;
+  }
 
   if (creating) {
     return <LoadingMessages interval={1500} type="resume-grill" />;
@@ -201,14 +223,14 @@ export default function ResumeGrillPage() {
               <input
                 type="range"
                 min="1"
-                max="10"
-                value={numQuestions}
+                max={maxQuestions}
+                value={Math.min(numQuestions, maxQuestions)}
                 onChange={(e) => setNumQuestions(parseInt(e.target.value))}
                 className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-orange-500"
               />
               <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1">
                 <span>1 question</span>
-                <span>10 questions</span>
+                <span>{maxQuestions} questions</span>
               </div>
             </div>
           )}

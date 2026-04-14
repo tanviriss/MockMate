@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.database import Base
 from app.config import settings
-from app.models import User, Resume, Interview, Question, Answer
+from app.models import User, Resume, Interview, Question, Answer, Subscription
 
 
 config = context.config
