@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import Logo from '@/components/Logo';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -15,6 +15,7 @@ import TargetCursor from '@/components/ui/TargetCursor';
 export default function Home() {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
+  const [pricingCycle, setPricingCycle] = useState<'monthly' | 'annual'>('monthly');
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"]
@@ -88,6 +89,13 @@ export default function Home() {
               onClick={() => router.push('/guides')}
             >
               Guides
+            </Button>
+            <Button
+              variant="ghost"
+              className="cursor-target"
+              onClick={() => router.push('/pricing')}
+            >
+              Pricing
             </Button>
             <Button
               className="cursor-target"
@@ -600,8 +608,8 @@ export default function Home() {
         </ContainerScroll>
       </section>
 
-      {/* CTA Section */}
-      <section className="relative z-10 py-16 sm:py-24 md:py-32 px-4 sm:px-6 bg-slate-50 dark:bg-slate-900/50">
+      {/* CTA + Pricing Section */}
+      <section id="pricing" className="relative z-10 py-16 sm:py-24 md:py-32 px-4 sm:px-6 bg-slate-50 dark:bg-slate-900/50">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
@@ -610,27 +618,95 @@ export default function Home() {
           className="max-w-5xl mx-auto text-center"
         >
           <Card className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800">
-            <CardContent className="p-6 sm:p-10 md:p-16 lg:p-20">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white mb-6 sm:mb-8">
+            <CardContent className="p-6 sm:p-10 md:p-16">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6">
                 Ready to Land Your Dream Job?
               </h2>
-              <p className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-400 mb-8 sm:mb-10 md:mb-12 max-w-2xl mx-auto px-4 sm:px-0">
+              <p className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-400 mb-10 max-w-2xl mx-auto px-4 sm:px-0">
                 Join thousands of job seekers who improved their interview skills with Reherse
               </p>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button
-                  size="lg"
-                  onClick={() => router.push('/sign-up')}
-                  className="cursor-target px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 text-base sm:text-lg md:text-xl bg-zinc-600 hover:bg-zinc-700 dark:bg-zinc-400 dark:hover:bg-zinc-300 text-white dark:text-zinc-900 min-h-[44px] w-full sm:w-auto"
-                >
-                  Start Practicing For Free →
-                </Button>
-              </motion.div>
-              <p className="text-slate-500 dark:text-slate-400 mt-6">No credit card required • Get started in 2 minutes</p>
+
+              {/* Billing toggle */}
+              <div className="flex justify-center mb-8">
+                <div className="inline-flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
+                  <button
+                    onClick={() => setPricingCycle('monthly')}
+                    className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${pricingCycle === 'monthly' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm' : 'text-slate-600 dark:text-slate-400'}`}
+                  >
+                    Monthly
+                  </button>
+                  <button
+                    onClick={() => setPricingCycle('annual')}
+                    className={`px-5 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${pricingCycle === 'annual' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm' : 'text-slate-600 dark:text-slate-400'}`}
+                  >
+                    Annual
+                    <span className="text-xs bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full font-semibold">Save 33%</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Pricing cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto text-left">
+                {/* Free */}
+                <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-8">
+                  <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">Free</p>
+                  <div className="flex items-end gap-1 mb-1"><span className="text-5xl font-bold text-slate-900 dark:text-white">$0</span></div>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">forever</p>
+                  <button onClick={() => router.push('/sign-up')} className="w-full py-3 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-xl font-semibold text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition mb-6">
+                    Get started free
+                  </button>
+                  <ul className="space-y-3">
+                    {[
+                      { text: '2 lifetime interviews', on: true },
+                      { text: 'Up to 5 questions per interview', on: true },
+                      { text: 'Standard interview mode', on: true },
+                      { text: 'AI scoring & feedback', on: true },
+                      { text: 'Analytics & progress tracking', on: true },
+                      { text: 'Unlimited resume uploads', on: true },
+                      { text: 'Resume Grill', on: false },
+                      { text: 'Company-Specific Prep', on: false },
+                      { text: 'Ideal Answer examples', on: false },
+                    ].map((f) => (
+                      <li key={f.text} className="flex items-center gap-3 text-sm">
+                        <span className={f.on ? 'text-green-500' : 'text-slate-300 dark:text-slate-600'}>✓</span>
+                        <span className={f.on ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400 dark:text-slate-600'}>{f.text}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                {/* Pro */}
+                <div className="bg-blue-600 border border-blue-500 rounded-2xl p-8 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/30 rounded-full blur-2xl" />
+                  <div className="relative">
+                    <div className="flex items-center gap-2 mb-2">
+                      <p className="text-sm font-semibold text-blue-200 uppercase tracking-wide">Pro</p>
+                      <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full font-semibold">Most popular</span>
+                    </div>
+                    <div className="flex items-end gap-1 mb-1">
+                      <span className="text-5xl font-bold text-white">{pricingCycle === 'annual' ? '$8' : '$12'}</span>
+                      <span className="text-blue-200 mb-2">/month</span>
+                    </div>
+                    <p className="text-blue-200 text-sm mb-6">{pricingCycle === 'annual' ? '$96 billed annually' : 'billed monthly'}</p>
+                    <button onClick={() => router.push('/sign-up')} className="w-full py-3 bg-white text-blue-600 rounded-xl font-semibold text-sm hover:bg-blue-50 transition mb-6">
+                      Get started →
+                    </button>
+                    <ul className="space-y-3">
+                      {['Unlimited interviews', 'Up to 15 questions per interview', 'Standard interview mode', 'AI scoring & feedback', 'Analytics & progress tracking', 'Unlimited resume uploads', 'Resume Grill', 'Company-Specific Prep', 'Ideal Answer examples'].map((f) => (
+                        <li key={f} className="flex items-center gap-3 text-sm">
+                          <span className="text-white">✓</span>
+                          <span className="text-white">{f}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <p className="text-center text-sm text-slate-400 mt-8">Cancel anytime. No hidden fees.</p>
             </CardContent>
           </Card>
         </motion.div>
       </section>
+
 
       <footer className="relative z-10 py-12 sm:py-14 md:py-16 px-4 sm:px-6 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
         <div className="max-w-7xl mx-auto">
@@ -660,6 +736,11 @@ export default function Home() {
                 <li>
                   <button onClick={() => router.push('/interviews/company-prep')} className="text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
                     Company Prep
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => router.push('/pricing')} className="text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+                    Pricing
                   </button>
                 </li>
               </ul>
