@@ -57,7 +57,17 @@ async def get_current_user(
 
             logger.debug(f"Clerk token verified for user: {clerk_user_id}")
 
-            # Get full user details from Clerk API
+            # Fast path: user already exists in local DB — no Clerk API call needed
+            try:
+                local_user = db.query(User).filter(User.id == clerk_user_id).first()
+                if local_user:
+                    logger.debug(f"Local user found: {local_user.email}")
+                    return AuthenticatedUser(local_user, token)
+            except (OperationalError, SQLTimeoutError) as db_error:
+                logger.warning(f"Database unavailable during auth fast path: {db_error}")
+                db.rollback()
+
+            # Slow path: user not in local DB — fetch from Clerk to create/migrate
             clerk_user_data = await get_clerk_user(clerk_user_id)
 
             if not clerk_user_data:
@@ -73,9 +83,8 @@ async def get_current_user(
                 email_addresses[0]["email_address"] if email_addresses else None
             )
 
-            logger.info(f"User authenticated via Clerk: {primary_email}")
+            logger.info(f"User authenticated via Clerk (new/migrating): {primary_email}")
 
-            # Create a simplified user object for compatibility
             class ClerkUserAdapter:
                 def __init__(self, user_data):
                     self.id = user_data.get("id")
@@ -89,69 +98,58 @@ async def get_current_user(
 
             # Try to sync user to local database
             try:
-                # Check by user ID first
-                local_user = db.query(User).filter(User.id == clerk_user_adapted.id).first()
+                # Check if email exists with different user ID (migration case)
+                existing_user = db.query(User).filter(User.email == clerk_user_adapted.email).first()
 
-                if not local_user:
-                    # Check if email exists with different user ID
-                    existing_user = db.query(User).filter(User.email == clerk_user_adapted.email).first()
+                if existing_user and existing_user.id != clerk_user_adapted.id:
+                    # Migrate user data from old Clerk ID to new Clerk ID
+                    logger.info(f"Migrating user {clerk_user_adapted.email} from old ID to production Clerk ID")
 
-                    if existing_user and existing_user.id != clerk_user_adapted.id:
-                        # Migrate user data from old Clerk ID to new Clerk ID
-                        logger.info(f"Migrating user {clerk_user_adapted.email} from old ID to production Clerk ID")
+                    from app.models.resume import Resume
+                    from app.models.interview import Interview
+                    from app.models.subscription import Subscription
 
-                        # Import models here to avoid circular imports
-                        from app.models.resume import Resume
-                        from app.models.interview import Interview
-                        from app.models.subscription import Subscription
+                    old_user_id = existing_user.id
+                    existing_user.email = f"migrating_{existing_user.email}"
+                    db.flush()
 
-                        # Temporarily change old user's email to avoid unique constraint
-                        old_user_id = existing_user.id
-                        existing_user.email = f"migrating_{existing_user.email}"
-                        db.flush()
+                    local_user = User(
+                        id=clerk_user_adapted.id,
+                        email=clerk_user_adapted.email,
+                        full_name=clerk_user_adapted.user_metadata.get("full_name")
+                    )
+                    db.add(local_user)
+                    db.flush()
 
-                        # Create new user with production Clerk ID first
-                        local_user = User(
-                            id=clerk_user_adapted.id,
-                            email=clerk_user_adapted.email,
-                            full_name=clerk_user_adapted.user_metadata.get("full_name")
-                        )
-                        db.add(local_user)
-                        db.flush()
+                    db.query(Resume).filter(Resume.user_id == old_user_id).update(
+                        {Resume.user_id: clerk_user_adapted.id}
+                    )
+                    db.query(Interview).filter(Interview.user_id == old_user_id).update(
+                        {Interview.user_id: clerk_user_adapted.id}
+                    )
+                    db.query(Subscription).filter(Subscription.user_id == old_user_id).update(
+                        {Subscription.user_id: clerk_user_adapted.id}
+                    )
 
-                        # Update all related records to point to new user ID
-                        db.query(Resume).filter(Resume.user_id == old_user_id).update(
-                            {Resume.user_id: clerk_user_adapted.id}
-                        )
-                        db.query(Interview).filter(Interview.user_id == old_user_id).update(
-                            {Interview.user_id: clerk_user_adapted.id}
-                        )
-                        db.query(Subscription).filter(Subscription.user_id == old_user_id).update(
-                            {Subscription.user_id: clerk_user_adapted.id}
-                        )
-
-                        # Delete old user record
-                        db.delete(existing_user)
-                        db.commit()
-                        db.refresh(local_user)
-                        logger.info("User migration completed successfully")
-                    elif existing_user:
-                        # Email exists with same ID, just use it
-                        local_user = existing_user
-                    else:
-                        # Create new user
-                        logger.info(f"Creating new local user from Clerk: {clerk_user_adapted.email}")
-                        local_user = User(
-                            id=clerk_user_adapted.id,
-                            email=clerk_user_adapted.email,
-                            full_name=clerk_user_adapted.user_metadata.get("full_name")
-                        )
-                        db.add(local_user)
-                        db.commit()
-                        db.refresh(local_user)
-                        logger.info("Local user created successfully")
+                    db.delete(existing_user)
+                    db.commit()
+                    db.refresh(local_user)
+                    logger.info("User migration completed successfully")
+                elif existing_user:
+                    local_user = existing_user
                 else:
-                    logger.debug(f"Local user found: {local_user.email}")
+                    logger.info(f"Creating new local user from Clerk: {clerk_user_adapted.email}")
+                    local_user = User(
+                        id=clerk_user_adapted.id,
+                        email=clerk_user_adapted.email,
+                        full_name=clerk_user_adapted.user_metadata.get("full_name")
+                    )
+                    db.add(local_user)
+                    db.commit()
+                    db.refresh(local_user)
+                    logger.info("Local user created successfully")
+
+                return AuthenticatedUser(local_user, token)
             except (OperationalError, SQLTimeoutError) as db_error:
                 logger.warning(f"Database unavailable during auth (user will be authenticated without local sync): {db_error}")
                 db.rollback()
