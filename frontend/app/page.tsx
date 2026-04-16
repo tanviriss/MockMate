@@ -1,802 +1,1331 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef, useState } from 'react';
+import { motion, useInView, useMotionValue, useTransform, animate } from 'framer-motion';
+import { useRef, useState, useEffect } from 'react';
 import Logo from '@/components/Logo';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { ContainerScroll } from '@/components/ui/container-scroll-animation';
-import { DotScreenShader } from '@/components/ui/dot-shader-background';
-import AnimatedShaderHero from '@/components/ui/animated-shader-hero';
-import TargetCursor from '@/components/ui/TargetCursor';
+import { GlassButton } from '@/components/ui/glass-button';
+import { SolarSystem } from '@/components/ui/solar-system';
+import { RemotionPlayerWrapper } from '@/components/remotion/PlayerWrapper';
+import {
+  Mic, FileText, Zap, Building2, Star, TrendingUp,
+  ChevronRight, Check, ArrowRight
+} from 'lucide-react';
 
+// ─── SplitWords: word-by-word reveal ─────────────────────────────────────────
+function SplitWords({ text, style, className, baseDelay = 0 }: {
+  text: string; style?: React.CSSProperties; className?: string; baseDelay?: number;
+}) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const isInView = useInView(ref, { once: true, margin: '-40px' });
+  return (
+    <span ref={ref} className={className} style={{ ...style, display: 'inline' }}>
+      {text.split(' ').map((word, i) => (
+        <span key={i} style={{ display: 'inline-block', overflow: 'hidden', verticalAlign: 'bottom', marginRight: '0.28em' }}>
+          <motion.span
+            initial={{ y: '110%', opacity: 0 }}
+            animate={isInView ? { y: 0, opacity: 1 } : { y: '110%', opacity: 0 }}
+            transition={{ duration: 0.55, delay: baseDelay + i * 0.07, ease: [0.22, 1, 0.36, 1] as [number,number,number,number] }}
+            style={{ display: 'inline-block' }}
+          >
+            {word}
+          </motion.span>
+        </span>
+      ))}
+    </span>
+  );
+}
+
+// ─── CountUp: animated number ────────────────────────────────────────────────
+function CountUp({ to, suffix = '' }: { to: number; suffix?: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const isInView = useInView(ref, { once: true });
+  const count = useMotionValue(0);
+  const rounded = useTransform(count, v => Math.round(v));
+  const [display, setDisplay] = useState(0);
+  useEffect(() => {
+    if (!isInView) return;
+    const ctrl = animate(count, to, { duration: 1.6, ease: 'easeOut' });
+    const unsub = rounded.on('change', v => setDisplay(v));
+    return () => { ctrl.stop(); unsub(); };
+  }, [isInView]);
+  return <span ref={ref}>{display}{suffix}</span>;
+}
+
+// ─── Bento micro-visuals ──────────────────────────────────────────────────────
+
+// Waveform — deterministic heights, no random()
+const WAVE_PAIRS: [number, number][] = [
+  [16,44],[28,58],[44,22],[36,62],[52,30],[40,66],
+  [24,50],[50,18],[42,58],[30,48],[58,26],[38,60],
+  [22,46],[46,24],[34,54],[18,42],
+];
+function BentoWave() {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 4, height: 64, padding: '0 4px' }}>
+      {WAVE_PAIRS.map(([lo, hi], i) => (
+        <motion.div
+          key={i}
+          animate={{ height: [lo, hi, lo] }}
+          transition={{ duration: 1.1 + i * 0.07, repeat: Infinity, ease: 'easeInOut', delay: i * 0.06 }}
+          style={{ width: 5, borderRadius: 3, background: `rgba(212,163,90,${0.35 + 0.65 * (hi / 100)})`, flexShrink: 0 }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// Skills chips — stagger in, then loop
+const SKILL_LIST = ['React', 'TypeScript', 'Node.js', 'AWS', 'GraphQL', 'Figma'];
+function BentoSkills() {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true });
+  return (
+    <div ref={ref} style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+      {SKILL_LIST.map((s, i) => (
+        <motion.div
+          key={s}
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={inView ? { scale: 1, opacity: 1 } : {}}
+          transition={{ type: 'spring', stiffness: 260, damping: 16, delay: i * 0.09 }}
+          style={{
+            padding: '5px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600,
+            background: 'rgba(212,163,90,0.10)', border: '1px solid rgba(212,163,90,0.22)',
+            color: '#d4a35a',
+          }}
+        >
+          {s}
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+// Score ring
+function BentoScore() {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true });
+  const circ = 2 * Math.PI * 44;
+  return (
+    <div ref={ref} style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+      <div style={{ position: 'relative', width: 100, height: 100, flexShrink: 0 }}>
+        <svg width={100} height={100} style={{ transform: 'rotate(-90deg)', display: 'block' }}>
+          <circle cx={50} cy={50} r={44} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth={8} />
+          <motion.circle
+            cx={50} cy={50} r={44} fill="none" stroke="#d4a35a" strokeWidth={8} strokeLinecap="round"
+            strokeDasharray={circ}
+            initial={{ strokeDashoffset: circ }}
+            animate={inView ? { strokeDashoffset: circ - 0.92 * circ } : {}}
+            transition={{ duration: 1.4, ease: 'easeOut', delay: 0.3 }}
+          />
+        </svg>
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <span style={{ color: '#d4a35a', fontSize: 22, fontWeight: 800, lineHeight: 1 }}>92</span>
+          <span style={{ color: 'rgba(240,232,216,0.4)', fontSize: 10 }}>/100</span>
+        </div>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {['Clarity', 'Depth', 'Confidence'].map((l, i) => (
+          <div key={l}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+              <span style={{ color: 'rgba(240,232,216,0.5)', fontSize: 11 }}>{l}</span>
+              <span style={{ color: '#d4a35a', fontSize: 11, fontWeight: 700 }}>{[94, 89, 93][i]}</span>
+            </div>
+            <div style={{ width: 100, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.07)', overflow: 'hidden' }}>
+              <motion.div
+                initial={{ width: 0 }}
+                animate={inView ? { width: `${[94, 89, 93][i]}%` } : {}}
+                transition={{ duration: 1, delay: 0.5 + i * 0.12, ease: 'easeOut' }}
+                style={{ height: '100%', borderRadius: 2, background: '#d4a35a' }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Company chips cycling
+const TECH_COS = ['Google', 'Meta', 'Amazon', 'Stripe', 'Netflix', 'Apple', 'Notion', 'Figma'];
+function BentoCompanies() {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true });
+  return (
+    <div ref={ref} style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+      {TECH_COS.map((co, i) => (
+        <motion.div
+          key={co}
+          initial={{ y: 12, opacity: 0 }}
+          animate={inView ? { y: 0, opacity: 1 } : {}}
+          transition={{ delay: i * 0.06, type: 'spring', stiffness: 300, damping: 22 }}
+          style={{
+            padding: '4px 11px', borderRadius: 8, fontSize: 11, fontWeight: 600,
+            background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.10)',
+            color: 'rgba(240,232,216,0.65)',
+          }}
+        >
+          {co}
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+// S-T-A-R letter cycler
+const STAR_LABELS = [
+  { l: 'S', full: 'Situation' },
+  { l: 'T', full: 'Task'      },
+  { l: 'A', full: 'Action'    },
+  { l: 'R', full: 'Result'    },
+];
+function BentoSTAR() {
+  const [active, setActive] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setActive(p => (p + 1) % 4), 750);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <div style={{ display: 'flex', gap: 10 }}>
+      {STAR_LABELS.map(({ l, full }, i) => (
+        <motion.div
+          key={l}
+          animate={{ scale: active === i ? 1.1 : 1 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 18 }}
+          style={{
+            flex: 1, borderRadius: 12, padding: '10px 6px', textAlign: 'center',
+            background: active === i ? 'rgba(212,163,90,0.15)' : 'rgba(255,255,255,0.04)',
+            border: active === i ? '1px solid rgba(212,163,90,0.35)' : '1px solid rgba(255,255,255,0.08)',
+          }}
+        >
+          <div style={{ color: active === i ? '#d4a35a' : 'rgba(240,232,216,0.4)', fontSize: 22, fontWeight: 900, lineHeight: 1 }}>{l}</div>
+          <div style={{ color: active === i ? 'rgba(240,232,216,0.7)' : 'rgba(240,232,216,0.25)', fontSize: 9, marginTop: 4 }}>{full}</div>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+// Progress bar chart
+const PROG_SCORES = [58, 65, 70, 74, 79, 84, 92];
+function BentoChart() {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true });
+  return (
+    <div ref={ref} style={{ display: 'flex', gap: 8, alignItems: 'flex-end', height: 64 }}>
+      {PROG_SCORES.map((s, i) => {
+        const isLast = i === PROG_SCORES.length - 1;
+        return (
+          <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, height: '100%', justifyContent: 'flex-end' }}>
+            <motion.div
+              initial={{ height: 0 }}
+              animate={inView ? { height: `${s}%` } : {}}
+              transition={{ duration: 0.7, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] as [number,number,number,number] }}
+              style={{
+                width: '100%', borderRadius: '3px 3px 0 0', minHeight: 3,
+                background: isLast ? '#d4a35a' : `rgba(212,163,90,${0.2 + 0.45 * (s / 100)})`,
+                border: isLast ? '1px solid rgba(212,163,90,0.5)' : 'none',
+              }}
+            />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── How It Works micro-visuals ──────────────────────────────────────────────
+
+function StepUploadVisual() {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true });
+  return (
+    <div ref={ref} style={{ marginTop: 20 }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px',
+        borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+        marginBottom: 10,
+      }}>
+        <FileText size={16} style={{ color: '#d4a35a', flexShrink: 0 }} />
+        <span style={{ fontSize: 12, color: 'rgba(240,232,216,0.6)', flex: 1 }}>resume.pdf</span>
+        <span style={{ fontSize: 10, color: '#d4a35a', fontWeight: 600 }}>✓</span>
+      </div>
+      <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+        <motion.div
+          initial={{ width: 0 }}
+          animate={inView ? { width: '100%' } : {}}
+          transition={{ duration: 1.2, delay: 0.4, ease: 'easeOut' }}
+          style={{ height: '100%', borderRadius: 2, background: 'linear-gradient(90deg, #d4a35a, #f0c878)' }}
+        />
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+        <span style={{ fontSize: 10, color: 'rgba(122,111,98,0.6)' }}>Analyzing skills…</span>
+        <motion.span
+          initial={{ opacity: 0 }}
+          animate={inView ? { opacity: 1 } : {}}
+          transition={{ delay: 1.4 }}
+          style={{ fontSize: 10, color: '#d4a35a', fontWeight: 600 }}
+        >
+          Done
+        </motion.span>
+      </div>
+    </div>
+  );
+}
+
+const JOB_ROLES = ['Software Engineer', 'Product Manager', 'Data Scientist', 'UX Designer', 'DevOps Lead'];
+function StepRoleVisual() {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setIdx(p => (p + 1) % JOB_ROLES.length), 1400);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 7 }}>
+      <motion.div
+        key={idx}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -8 }}
+        transition={{ duration: 0.35 }}
+        style={{
+          padding: '8px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600,
+          background: 'rgba(212,163,90,0.12)', border: '1px solid rgba(212,163,90,0.28)',
+          color: '#d4a35a',
+        }}
+      >
+        {JOB_ROLES[idx]}
+      </motion.div>
+      <div style={{ display: 'flex', gap: 5 }}>
+        {JOB_ROLES.map((_, i) => (
+          <div key={i} style={{
+            flex: 1, height: 3, borderRadius: 2,
+            background: i === idx ? '#d4a35a' : 'rgba(255,255,255,0.08)',
+            transition: 'background 0.3s',
+          }} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function StepScoreVisual() {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true });
+  const circ = 2 * Math.PI * 32;
+  return (
+    <div ref={ref} style={{ marginTop: 20, display: 'flex', alignItems: 'center', gap: 14 }}>
+      <div style={{ position: 'relative', width: 72, height: 72, flexShrink: 0 }}>
+        <svg width={72} height={72} style={{ transform: 'rotate(-90deg)', display: 'block' }}>
+          <circle cx={36} cy={36} r={32} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth={6} />
+          <motion.circle
+            cx={36} cy={36} r={32} fill="none" stroke="#d4a35a" strokeWidth={6} strokeLinecap="round"
+            strokeDasharray={circ}
+            initial={{ strokeDashoffset: circ }}
+            animate={inView ? { strokeDashoffset: circ - 0.91 * circ } : {}}
+            transition={{ duration: 1.3, delay: 0.3, ease: 'easeOut' }}
+          />
+        </svg>
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <span style={{ color: '#d4a35a', fontSize: 16, fontWeight: 800 }}>91</span>
+        </div>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
+        {['Clarity', 'Confidence', 'Depth'].map((label, i) => (
+          <div key={label}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+              <span style={{ fontSize: 10, color: 'rgba(240,232,216,0.45)' }}>{label}</span>
+              <span style={{ fontSize: 10, color: '#d4a35a', fontWeight: 700 }}>{[95, 88, 91][i]}</span>
+            </div>
+            <div style={{ height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.07)', overflow: 'hidden' }}>
+              <motion.div
+                initial={{ width: 0 }}
+                animate={inView ? { width: `${[95, 88, 91][i]}%` } : {}}
+                transition={{ duration: 0.9, delay: 0.5 + i * 0.1, ease: 'easeOut' }}
+                style={{ height: '100%', borderRadius: 2, background: '#d4a35a' }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── structured data for SEO ────────────────────────────────────────────────
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'Reherse',
+  applicationCategory: 'EducationalApplication',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  description: 'AI-powered voice interview coach for job interview preparation',
+  operatingSystem: 'Web',
+  aggregateRating: { '@type': 'AggregateRating', ratingValue: '4.8', ratingCount: '150' },
+};
+
+// ─── constants ───────────────────────────────────────────────────────────────
+const FEATURES = [
+  { Icon: Mic,        title: 'Voice Practice',     desc: 'Answer questions out loud with real-time transcription and natural AI voice interaction.' },
+  { Icon: FileText,   title: 'Resume Analysis',    desc: 'AI extracts your skills and experience to generate hyper-personalised interview questions.' },
+  { Icon: Zap,        title: 'Instant Feedback',   desc: 'Get AI-powered analysis with strengths, gaps, and specific improvement tips after each answer.' },
+  { Icon: Building2,  title: 'Company Prep',       desc: 'Prepare for specific companies with tailored questions based on their culture and interview style.' },
+  { Icon: Star,       title: 'STAR Method',        desc: 'Guided coaching to structure behavioural answers using the proven STAR framework.' },
+  { Icon: TrendingUp, title: 'Progress Tracking',  desc: 'Track your improvement across sessions with detailed analytics and performance trends.' },
+];
+
+const STEPS = [
+  { n: '01', title: 'Upload Your Resume', desc: 'Our AI reads your resume to understand your unique background, skills, and experience.' },
+  { n: '02', title: 'Pick Role & Company', desc: "Add the job description you're targeting. We generate questions that match the role perfectly." },
+  { n: '03', title: 'Practice & Score', desc: 'Answer with your voice, get instant AI feedback, and track your progress over time.' },
+];
+
+const FREE_FEATURES = [
+  { text: '2 lifetime interviews', on: true },
+  { text: 'Up to 5 questions per interview', on: true },
+  { text: 'AI scoring & feedback', on: true },
+  { text: 'Analytics & progress tracking', on: true },
+  { text: 'Unlimited resume uploads', on: true },
+  { text: 'Resume Grill', on: false },
+  { text: 'Company-Specific Prep', on: false },
+  { text: 'Ideal Answer examples', on: false },
+];
+
+const PRO_FEATURES = [
+  'Unlimited interviews',
+  'Up to 15 questions per interview',
+  'AI scoring & feedback',
+  'Analytics & progress tracking',
+  'Unlimited resume uploads',
+  'Resume Grill',
+  'Company-Specific Prep',
+  'Ideal Answer examples',
+];
+
+const COMPANIES = ['Google', 'Meta', 'Amazon', 'Netflix', 'Stripe', 'Shopify', 'Airbnb', 'Figma', 'Apple', 'Notion'];
+
+// ─── card tilt hook ──────────────────────────────────────────────────────────
+function useTilt() {
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientY - r.top)  / r.height - 0.5;
+    const y = (e.clientX - r.left) / r.width  - 0.5;
+    setTilt({ x: x * 10, y: -y * 10 });
+  };
+  const onLeave = () => setTilt({ x: 0, y: 0 });
+  const style = {
+    transform: `perspective(900px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+    transition: 'transform 0.15s ease',
+  };
+  return { onMove, onLeave, style };
+}
+
+// ─── sub-components ──────────────────────────────────────────────────────────
+function FeatureCard({ Icon, title, desc }: typeof FEATURES[0]) {
+  const { onMove, onLeave, style } = useTilt();
+  return (
+    <div
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      style={style}
+      className="glass rounded-2xl p-8 flex flex-col gap-4 cursor-default"
+    >
+      <div
+        className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+        style={{ background: 'rgba(212,163,90,0.12)', border: '1px solid rgba(212,163,90,0.25)' }}
+      >
+        <Icon size={18} style={{ color: '#d4a35a' }} />
+      </div>
+      <h3 className="text-lg font-semibold" style={{ color: '#f0e8d8' }}>{title}</h3>
+      <p className="text-sm leading-relaxed" style={{ color: '#7a6f62' }}>{desc}</p>
+    </div>
+  );
+}
+
+// ─── page ─────────────────────────────────────────────────────────────────────
 export default function Home() {
   const router = useRouter();
-  const containerRef = useRef<HTMLDivElement>(null);
   const [pricingCycle, setPricingCycle] = useState<'monthly' | 'annual'>('monthly');
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"]
+
+  const fadeUp = (delay = 0) => ({
+    initial: { opacity: 0, y: 24 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.7, delay, ease: 'easeOut' as const },
   });
 
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.8]);
-
-  // Structured data for SEO
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "Reherse",
-    "applicationCategory": "EducationalApplication",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
-    },
-    "description": "AI-powered voice interview coach for job interview preparation",
-    "operatingSystem": "Web",
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "ratingCount": "150"
-    },
-    "featureList": [
-      "AI-powered voice interview practice",
-      "Real-time feedback and scoring",
-      "Company-specific interview prep",
-      "Technical and behavioral questions",
-      "Resume-based interview practice"
-    ]
-  };
+  const inView = (delay = 0) => ({
+    initial: { opacity: 0, y: 32 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, margin: '-80px' },
+    transition: { duration: 0.7, delay, ease: 'easeOut' as const },
+  });
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-      />
-      <div ref={containerRef} className="bg-neutral-50 dark:bg-neutral-950">
-      {/* Target Cursor */}
-      <TargetCursor spinDuration={2} hideDefaultCursor={true} parallaxOn={true} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
 
-      {/* Background - clean with subtle pattern and accent colors */}
-      <div className="fixed inset-0 z-0 bg-slate-50 dark:bg-slate-950">
-        {/* Subtle grid pattern */}
-        <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.03]" style={{
-          backgroundImage: 'linear-gradient(#64748b 1px, transparent 1px), linear-gradient(90deg, #64748b 1px, transparent 1px)',
-          backgroundSize: '80px 80px'
-        }}></div>
-        {/* Subtle colored accents */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-slate-200/40 dark:bg-slate-800/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-zinc-200/30 dark:bg-zinc-800/15 rounded-full blur-3xl"></div>
-      </div>
+      <div style={{ background: '#1a1822', minHeight: '100vh', position: 'relative', overflowX: 'hidden' }}>
 
-      {/* Navigation */}
-      <motion.nav
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6 }}
-        className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800"
-      >
-        <div className="flex items-center justify-between p-4 sm:p-5 md:p-6 max-w-7xl mx-auto">
-          <Logo className="text-neutral-900 dark:text-white" />
-          <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
-            <Button
-              variant="ghost"
-              className="cursor-target"
-              onClick={() => router.push('/guides')}
-            >
-              Guides
-            </Button>
-            <Button
-              variant="ghost"
-              className="cursor-target"
-              onClick={() => router.push('/pricing')}
-            >
-              Pricing
-            </Button>
-            <Button
-              className="cursor-target"
-              onClick={() => router.push('/sign-in')}
-            >
-              Login
-            </Button>
-            <Button
-              className="cursor-target"
-              onClick={() => router.push('/sign-up')}
-            >
-              Get Started
-            </Button>
-          </div>
-        </div>
-      </motion.nav>
+        {/* Film grain overlay — fixed, not a gradient, just texture */}
+        <div
+          aria-hidden
+          style={{
+            position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)'/%3E%3C/svg%3E")`,
+            backgroundSize: '256px 256px',
+            opacity: 0.06,
+            mixBlendMode: 'overlay',
+          }}
+        />
 
-      {/* Hero Section */}
-      <motion.section
-        style={{ opacity, scale }}
-        className="relative min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 text-center overflow-hidden pt-24 sm:pt-28 md:pt-32"
-      >
-        {/* Dot Shader Background */}
-        <div className="absolute inset-0 z-0 opacity-30 dark:opacity-20">
-          <DotScreenShader />
-        </div>
-
-        {/* Badge - positioned above hero content */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          className="hidden md:block absolute top-24 left-1/2 transform -translate-x-1/2 z-20"
+        {/* ── Navbar ────────────────────────────────────────────────────────── */}
+        <motion.nav
+          initial={{ y: -80, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+          className="sticky top-0 z-50"
+          style={{
+            background: 'rgba(26,24,34,0.90)',
+            borderBottom: '1px solid rgba(255,255,255,0.06)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+          }}
         >
-          <Badge variant="outline" className="px-4 py-2 bg-slate-100 dark:bg-slate-900 backdrop-blur-xl border-slate-300 dark:border-slate-700">
-            <span className="flex items-center gap-2">
-              <span className="text-lg"></span>
-              <span className="text-slate-700 dark:text-slate-300">AI-Powered Interview Coaching</span>
-            </span>
-          </Badge>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="relative z-10 max-w-5xl space-y-8 text-center"
-        >
-
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-bold text-slate-900 dark:text-white leading-tight"
-          >
-            Ace Your Next{' '}
-            <br />
-            <span className="relative inline-block">
-              <span className="bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
-                Job Interview
-              </span>
-              <motion.span
-                initial={{ width: 0 }}
-                animate={{ width: "100%" }}
-                transition={{ duration: 0.8, delay: 1.2 }}
-                className="absolute bottom-2 left-0 h-1 bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400"
-              />
-            </span>
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 1 }}
-            className="text-base sm:text-lg md:text-xl lg:text-2xl text-slate-600 dark:text-slate-400 max-w-4xl mx-auto px-4 sm:px-0"
-          >
-            Practice with AI-generated questions tailored to your resume.
-            Get real-time voice feedback and{' '}
-            <span className="text-slate-900 dark:text-white font-semibold">crush your interviews</span>.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.2 }}
-            className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center pt-6 sm:pt-8"
-          >
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button
-                size="lg"
-                onClick={() => router.push('/sign-up')}
-                className="cursor-target group px-6 sm:px-8 md:px-10 py-4 sm:py-5 text-base sm:text-lg min-h-[44px] w-full sm:w-auto"
-              >
-                <span className="flex items-center justify-center gap-2">
-                  Start Practicing Free
-                  <motion.span
-                    animate={{ x: [0, 5, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                  >
-                    →
-                  </motion.span>
-                </span>
-              </Button>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => {
-                  document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="cursor-target px-6 sm:px-8 md:px-10 py-4 sm:py-5 text-base sm:text-lg min-h-[44px] w-full sm:w-auto"
-              >
-                Learn More
-              </Button>
-            </motion.div>
-          </motion.div>
-
-          {/* Demo Video */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 1.4 }}
-            className="relative z-20 max-w-3xl mx-auto pt-12 pb-8"
-          >
-            <div className="relative rounded-xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 bg-slate-900">
-              <video
-                className="w-full relative z-10"
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="auto"
-                onError={(e) => {
-                  console.error('Video error:', e);
-                }}
-                onLoadStart={() => {
-                  console.log('Video loading started');
-                }}
-                onLoadedData={() => {
-                  console.log('Video loaded');
-                }}
-              >
-                <source src="/tutorial.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
+          <div className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
+            <Logo />
+            <div className="hidden md:flex items-center gap-8">
+              {[['Features', '#features'], ['Pricing', '#pricing'], ['Guides', '/guides']].map(([label, href]) => (
+                <button
+                  key={label}
+                  onClick={() => href.startsWith('#')
+                    ? document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' })
+                    : router.push(href)
+                  }
+                  className="text-sm font-medium transition-colors duration-200"
+                  style={{ color: '#7a6f62' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#f0e8d8')}
+                  onMouseLeave={e => (e.currentTarget.style.color = '#7a6f62')}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
-          </motion.div>
-
-          {/* Key Features */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.6 }}
-            className="flex flex-wrap justify-center gap-8 pt-8"
-          >
-            {[
-              {
-                label: 'AI-Powered Questions',
-                bg: 'bg-blue-500 dark:bg-blue-400',
-                icon: (
-                  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                  </svg>
-                )
-              },
-              {
-                label: 'Voice Practice',
-                bg: 'bg-purple-500 dark:bg-purple-400',
-                icon: (
-                  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                  </svg>
-                )
-              },
-              {
-                label: 'Instant Feedback',
-                bg: 'bg-amber-500 dark:bg-amber-400',
-                icon: (
-                  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                )
-              }
-            ].map((feature, index) => (
-              <motion.div
-                key={feature.label}
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 1.6 + index * 0.1 }}
-                whileHover={{ scale: 1.05 }}
-                className="w-[200px]"
-              >
-                <Card className="cursor-target text-center px-8 py-6 bg-white dark:bg-slate-900 backdrop-blur-xl border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all h-full">
-                  <CardContent className="p-0 flex flex-col items-center">
-                    <motion.div
-                      animate={{
-                        y: [0, -5, 0],
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                        delay: index * 0.3
-                      }}
-                      className="mb-3 flex items-center justify-center"
-                    >
-                      <div className={`${feature.bg} rounded-xl w-12 h-12 flex items-center justify-center text-white dark:text-slate-900`}>
-                        {feature.icon}
-                      </div>
-                    </motion.div>
-                    <div className="text-sm font-semibold text-slate-700 dark:text-slate-300">{feature.label}</div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
-        </motion.div>
-      </motion.section>
-
-      {/* Features Section */}
-      <section id="features" className="relative z-10 py-16 sm:py-24 md:py-32 px-4 sm:px-6 bg-white dark:bg-slate-900">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-12 sm:mb-16 md:mb-20"
-          >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6 px-4">
-              Everything You Need to Succeed
-            </h2>
-            <p className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto px-4">
-              Powered by cutting-edge AI to give you the edge in your job search
-            </p>
-          </motion.div>
-
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-            {[
-              {
-                icon: (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                ),
-                title: 'Smart Resume Analysis',
-                description: 'AI extracts your skills, experience, and strengths to generate personalized interview questions',
-                bg: 'bg-blue-500 dark:bg-blue-400'
-              },
-              {
-                icon: (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                ),
-                title: 'Real Voice Practice',
-                description: 'Practice speaking your answers out loud with natural AI voice interactions',
-                bg: 'bg-purple-500 dark:bg-purple-400'
-              },
-              {
-                icon: (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                ),
-                title: 'Detailed Feedback',
-                description: 'Get AI-powered analysis with strengths, weaknesses, and specific improvement tips',
-                bg: 'bg-emerald-500 dark:bg-emerald-400'
-              }
-            ].map((feature, i) => (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.6, delay: i * 0.2 }}
-                whileHover={{ y: -10, scale: 1.02 }}
-                className="cursor-target group h-full"
-              >
-                <Card className="h-full bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700 transition-all">
-                  <CardContent className="p-5 sm:p-6 md:p-8 flex flex-col h-full">
-                    <motion.div
-                      whileHover={{ rotate: 360 }}
-                      transition={{ duration: 0.6 }}
-                      className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 ${feature.bg} rounded-2xl flex items-center justify-center mb-4 sm:mb-5 md:mb-6`}
-                    >
-                      <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white dark:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        {feature.icon}
-                      </svg>
-                    </motion.div>
-                    <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-3 sm:mb-4">{feature.title}</h3>
-                    <p className="text-slate-600 dark:text-slate-400 text-base sm:text-lg leading-relaxed grow">{feature.description}</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+            <div className="flex items-center gap-3">
+              <GlassButton variant="neutral" size="sm" onClick={() => router.push('/sign-in')}>
+                Log in
+              </GlassButton>
+              <GlassButton variant="amber" size="sm" onClick={() => router.push('/sign-up')}>
+                Get Started
+              </GlassButton>
+            </div>
           </div>
-        </div>
-      </section>
+        </motion.nav>
 
-      {/* How It Works Section */}
-      <section className="relative z-10 py-16 sm:py-24 md:py-32 px-4 sm:px-6 bg-slate-50 dark:bg-slate-900/50">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-12 sm:mb-16 md:mb-20"
-          >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6 px-4">
-              How It Works
-            </h2>
-            <p className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-400 px-4">Get started in 3 simple steps</p>
-          </motion.div>
-
-          <div className="space-y-12 sm:space-y-16 md:space-y-24">
-            {[
-              {
-                step: '01',
-                title: 'Upload Your Resume',
-                description: 'Our AI analyzes your resume to understand your unique background, skills, and experience.',
-                icon: (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                ),
-                direction: 'left',
-                bg: 'bg-blue-500 dark:bg-blue-400'
-              },
-              {
-                step: '02',
-                title: 'Paste Job Description',
-                description: "Add the job description you're targeting. We'll generate questions that match the role perfectly.",
-                icon: (
-                  <>
-                    <circle cx="12" cy="12" r="10" strokeWidth={2} />
-                    <circle cx="12" cy="12" r="6" strokeWidth={2} />
-                    <circle cx="12" cy="12" r="2" strokeWidth={2} fill="currentColor" />
-                  </>
-                ),
-                direction: 'right',
-                bg: 'bg-purple-500 dark:bg-purple-400'
-              },
-              {
-                step: '03',
-                title: 'Practice & Improve',
-                description: 'Answer questions with your voice, get instant feedback, and track your progress over time.',
-                icon: (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                ),
-                direction: 'left',
-                bg: 'bg-emerald-500 dark:bg-emerald-400'
-              }
-            ].map((item) => (
-              <motion.div
-                key={item.step}
-                initial={{ opacity: 0, x: item.direction === 'left' ? -100 : 100 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.8 }}
-                className={`flex flex-col md:flex-row items-center gap-8 sm:gap-10 md:gap-12 ${
-                  item.direction === 'right' ? 'md:flex-row-reverse' : ''
-                }`}
-              >
-                <div className="flex-1 flex justify-center">
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6, delay: 0.2 }}
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                  >
-                    <Card className="cursor-target w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700 transition-all">
-                      <CardContent className="w-full h-full flex items-center justify-center p-0">
-                        <motion.div
-                          whileHover={{ rotate: 360 }}
-                          transition={{ duration: 0.6 }}
-                          className={`w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 ${item.bg} rounded-2xl flex items-center justify-center`}
-                        >
-                          <svg className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-white dark:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            {item.icon}
-                          </svg>
-                        </motion.div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                </div>
-                <div className="flex-1 w-full">
-                  <Card className="cursor-target bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700 transition-all">
-                    <CardContent className="p-5 sm:p-6 md:p-8">
-                      <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-slate-200 dark:text-slate-800 mb-3 sm:mb-4">{item.step}</div>
-                      <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-5 md:mb-6">{item.title}</h3>
-                      <p className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-400 leading-relaxed">{item.description}</p>
-                    </CardContent>
-                  </Card>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
-        {/* Animated Shader Hero Section */}
-        <div className="mt-32">
-          <AnimatedShaderHero
-            trustBadge={{
-              text: "AI-Powered Interview Practice",
-              icons: ["✨"]
-            }}
-            headline={{
-              line1: "Master Your",
-              line2: "Interview Skills"
-            }}
-            subtitle="Get personalized AI feedback on your answers in real-time. Practice with confidence and land your dream job."
-            buttons={{
-              primary: {
-                text: "Start Practicing Now",
-                onClick: () => router.push('/sign-up')
-              },
-              secondary: {
-                text: "See How It Works",
-                onClick: () => {
-                  document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
-                }
-              }
+        {/* ── Hero ──────────────────────────────────────────────────────────── */}
+        <section
+          className="relative min-h-screen grid md:grid-cols-2 items-center px-6 max-w-7xl mx-auto gap-12 py-24 md:py-0"
+          style={{ zIndex: 1 }}
+        >
+          {/* Dot grid — not a gradient, purely structural texture */}
+          <div
+            aria-hidden
+            style={{
+              position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
+              backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.12) 1px, transparent 1px)',
+              backgroundSize: '48px 48px',
+              maskImage: 'radial-gradient(ellipse 80% 80% at 60% 50%, black 40%, transparent 100%)',
+              WebkitMaskImage: 'radial-gradient(ellipse 80% 80% at 60% 50%, black 40%, transparent 100%)',
             }}
           />
-        </div>
-      </section>
-
-      {/* Scroll Animation Showcase */}
-      <section className="relative z-10 bg-white dark:bg-slate-900">
-        <ContainerScroll
-          titleComponent={
-            <div className="space-y-3 sm:space-y-4 px-4">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-slate-900 dark:text-white">
-                Experience Real Interview Scenarios
-              </h2>
-              <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">
-                Practice with AI-powered interviews that adapt to your resume and target role
-              </p>
-            </div>
-          }
-        >
-          <div className="h-full w-full bg-slate-100 dark:bg-slate-900 p-8 overflow-auto border border-slate-200 dark:border-slate-800 rounded-xl">
-            {/* Mock Interview Interface */}
-            <div className="space-y-6">
-              {/* Question Section */}
-              <Card className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-800">
-                      <span className="text-2xl">💼</span>
-                    </div>
-                    <div>
-                      <p className="text-sm text-slate-500 dark:text-slate-400">Question 3 of 5</p>
-                      <p className="text-slate-900 dark:text-white font-semibold">Behavioral - Leadership</p>
-                    </div>
-                  </div>
-                  <p className="text-xl text-slate-900 dark:text-white leading-relaxed">
-                    &quot;Tell me about a time when you had to lead a team through a difficult project deadline. How did you handle the pressure and ensure success?&quot;
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <p className="text-slate-700 dark:text-slate-300 font-medium">Your Answer</p>
-                    <div className="flex gap-2">
-                      <Badge variant="outline" className="bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-900">
-                        🎤 Recording...
-                      </Badge>
-                      <Badge variant="outline" className="bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-900">
-                        ⏸️ Pause
-                      </Badge>
-                    </div>
-                  </div>
-                  <div className="bg-white dark:bg-slate-950 rounded-lg p-4 min-h-[120px] border border-slate-200 dark:border-slate-800">
-                    <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-                      &quot;In my previous role as a senior developer, we faced a critical product launch with only two weeks remaining...&quot;
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-slate-100 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-2xl">🤖</span>
-                    <p className="text-slate-900 dark:text-white font-semibold">AI Analysis</p>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <div className="text-green-600 dark:text-green-400">✓</div>
-                      <p className="text-slate-700 dark:text-slate-300 text-sm">Strong STAR method structure</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="text-green-600 dark:text-green-400">✓</div>
-                      <p className="text-slate-700 dark:text-slate-300 text-sm">Clear demonstration of leadership</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="text-yellow-600 dark:text-yellow-400">⚠</div>
-                      <p className="text-slate-700 dark:text-slate-300 text-sm">Consider adding more specific metrics</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <div className="flex justify-center">
-                <Badge className="bg-zinc-600 dark:bg-zinc-400 hover:bg-zinc-700 dark:hover:bg-zinc-300 text-white dark:text-zinc-900 px-8 py-3 text-lg">
-                  Score: 8.5/10
-                </Badge>
+          {/* Left */}
+          <div className="flex flex-col gap-8 relative z-10">
+            {/* Badge */}
+            <motion.div {...fadeUp(0.1)} className="inline-flex w-fit">
+              <div
+                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium"
+                style={{
+                  background: 'rgba(212,163,90,0.08)',
+                  border: '1px solid rgba(212,163,90,0.20)',
+                  color: '#d4a35a',
+                }}
+              >
+                <span
+                  className="inline-block w-1.5 h-1.5 rounded-full animate-pulse"
+                  style={{ background: '#d4a35a' }}
+                />
+                AI-Powered Interview Coaching
               </div>
+            </motion.div>
+
+            {/* Headline */}
+            <motion.h1
+              {...fadeUp(0.25)}
+              className="font-bold leading-[1.05]"
+              style={{
+                fontSize: 'clamp(2.6rem, 5.5vw, 5rem)',
+                color: '#f0e8d8',
+                fontFamily: 'var(--font-rubik)',
+              }}
+            >
+              Interview Like{' '}
+              <br />
+              <span
+                style={{
+                  color: '#d4a35a',
+                  position: 'relative',
+                  display: 'inline-block',
+                }}
+              >
+                You Mean It
+                <motion.span
+                  initial={{ width: 0 }}
+                  animate={{ width: '100%' }}
+                  transition={{ duration: 0.8, delay: 1.2 }}
+                  style={{
+                    position: 'absolute',
+                    bottom: 4,
+                    left: 0,
+                    height: 2,
+                    background: '#d4a35a',
+                    borderRadius: 1,
+                    opacity: 0.5,
+                  }}
+                />
+              </span>
+            </motion.h1>
+
+            {/* Subtext */}
+            <motion.p
+              {...fadeUp(0.4)}
+              className="text-lg leading-relaxed max-w-md"
+              style={{ color: '#7a6f62' }}
+            >
+              Practice with AI-generated questions tailored to your resume.
+              Get real-time voice feedback and{' '}
+              <span style={{ color: '#f0e8d8', fontWeight: 600 }}>crush your interviews</span>.
+            </motion.p>
+
+            {/* CTAs */}
+            <motion.div {...fadeUp(0.55)} className="flex items-center gap-4 flex-wrap">
+              <GlassButton variant="amber" size="lg" onClick={() => router.push('/sign-up')}>
+                Start Practicing Free
+                <ArrowRight size={16} />
+              </GlassButton>
+              <GlassButton
+                variant="neutral"
+                size="lg"
+                onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                Watch Demo
+              </GlassButton>
+            </motion.div>
+
+            {/* Trust stats */}
+            <motion.div {...fadeUp(0.7)} className="flex items-center gap-6 flex-wrap">
+              {[
+                { val: <><CountUp to={1000} suffix="+" /></>, label: 'Interviews' },
+                { val: <><CountUp to={4} suffix="" />.9★</>, label: 'Rating' },
+                { val: 'Free', label: 'to Start' },
+              ].map(({ val, label }, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  {i > 0 && <span style={{ color: 'rgba(255,255,255,0.1)', fontSize: 20 }}>|</span>}
+                  <div>
+                    <div className="text-sm font-bold" style={{ color: '#d4a35a' }}>{val}</div>
+                    <div className="text-xs" style={{ color: '#7a6f62' }}>{label}</div>
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+          </div>
+
+          {/* Right — Solar System */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, delay: 0.3, ease: 'easeOut' }}
+            className="hidden md:flex items-center justify-center"
+          >
+            <SolarSystem />
+          </motion.div>
+        </section>
+
+        {/* ── Marquee ───────────────────────────────────────────────────────── */}
+        <div
+          className="relative overflow-hidden py-6"
+          style={{
+            background: '#151420',
+            borderTop: '1px solid rgba(255,255,255,0.05)',
+            borderBottom: '1px solid rgba(255,255,255,0.05)',
+            zIndex: 1,
+          }}
+        >
+          <p
+            className="text-center text-xs font-semibold tracking-widest uppercase mb-5"
+            style={{ color: 'rgba(122,111,98,0.7)' }}
+          >
+            Used by candidates from
+          </p>
+          <div
+            style={{
+              display: 'flex',
+              gap: 16,
+              animation: 'marquee-scroll 25s linear infinite',
+              width: 'max-content',
+            }}
+          >
+            {[...COMPANIES, ...COMPANIES].map((c, i) => (
+              <div
+                key={i}
+                className="flex-shrink-0 px-5 py-2 rounded-full text-sm font-medium"
+                style={{
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.07)',
+                  color: 'rgba(240,232,216,0.45)',
+                }}
+              >
+                {c}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Video Demo ────────────────────────────────────────────────────── */}
+        <section id="demo" className="px-6 py-24 max-w-5xl mx-auto" style={{ zIndex: 1, position: 'relative' }}>
+          <motion.div {...inView()} className="text-center mb-12">
+            <div
+              className="inline-block text-xs font-semibold tracking-widest uppercase px-4 py-2 rounded-full mb-6"
+              style={{ color: '#d4a35a', background: 'rgba(212,163,90,0.08)', border: '1px solid rgba(212,163,90,0.15)' }}
+            >
+              See It In Action
+            </div>
+            <h2
+              className="font-bold leading-tight"
+              style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)', color: '#f0e8d8' }}
+            >
+              <SplitWords text="Your entire interview journey," baseDelay={0.1} />
+              <br />
+              <SplitWords text="animated." baseDelay={0.5} style={{ color: '#d4a35a' }} />
+            </h2>
+          </motion.div>
+
+          <motion.div
+            {...inView(0.15)}
+            className="rounded-2xl overflow-hidden"
+            style={{
+              border: '1px solid rgba(212,163,90,0.15)',
+              boxShadow: '0 0 60px rgba(212,163,90,0.06)',
+            }}
+          >
+            <RemotionPlayerWrapper />
+          </motion.div>
+        </section>
+
+        {/* ── Features ──────────────────────────────────────────────────────── */}
+        <section
+          id="features"
+          className="px-6 py-24"
+          style={{
+            background: '#201e2b',
+            borderTop: '1px solid rgba(255,255,255,0.04)',
+            position: 'relative', zIndex: 1,
+          }}
+        >
+        <div className="max-w-7xl mx-auto">
+          <motion.div {...inView()} className="text-center mb-16">
+            <div
+              className="inline-block text-xs font-semibold tracking-widest uppercase px-4 py-2 rounded-full mb-6"
+              style={{ color: '#d4a35a', background: 'rgba(212,163,90,0.08)', border: '1px solid rgba(212,163,90,0.15)' }}
+            >
+              Features
+            </div>
+            <h2
+              className="font-bold"
+              style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)', color: '#f0e8d8' }}
+            >
+              <SplitWords text="Everything You Need to Succeed" />
+            </h2>
+            <motion.p {...inView(0.3)} className="mt-4 text-lg" style={{ color: '#7a6f62' }}>
+              Cutting-edge AI tools to give you the edge in your job search
+            </motion.p>
+          </motion.div>
+
+          {/* Bento grid */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gridTemplateRows: 'auto auto auto',
+              gap: 16,
+            }}
+            className="max-sm:flex max-sm:flex-col"
+          >
+            {/* 1 — Voice Practice (tall, col 1, rows 1-2) */}
+            <motion.div
+              initial={{ opacity: 0, y: 40, scale: 0.94 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.6, delay: 0, type: 'spring', stiffness: 100, damping: 18 }}
+              style={{ gridColumn: '1', gridRow: '1 / 3' }}
+              className="glass rounded-2xl p-7 flex flex-col gap-5 cursor-default relative overflow-hidden group"
+            >
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'rgba(212,163,90,0.12)', border: '1px solid rgba(212,163,90,0.25)' }}
+              >
+                <Mic size={18} style={{ color: '#d4a35a' }} />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold mb-2" style={{ color: '#f0e8d8' }}>Voice Practice</h3>
+                <p className="text-sm leading-relaxed" style={{ color: '#7a6f62' }}>
+                  Answer questions out loud with real-time transcription and natural AI voice interaction.
+                </p>
+              </div>
+              <div className="flex-1 flex flex-col justify-end gap-4">
+                <BentoWave />
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-2 h-2 rounded-full animate-pulse"
+                    style={{ background: '#d4a35a' }}
+                  />
+                  <span className="text-xs font-semibold" style={{ color: '#d4a35a' }}>Recording…</span>
+                </div>
+              </div>
+              {/* hover shimmer */}
+              <div
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(212,163,90,0.06) 0%, transparent 70%)' }}
+              />
+            </motion.div>
+
+            {/* 2 — Resume Analysis (col 2, row 1) */}
+            <motion.div
+              initial={{ opacity: 0, y: 40, scale: 0.94 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.6, delay: 0.08, type: 'spring', stiffness: 100, damping: 18 }}
+              style={{ gridColumn: '2', gridRow: '1' }}
+              className="glass rounded-2xl p-7 flex flex-col gap-4 cursor-default relative overflow-hidden group"
+            >
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'rgba(212,163,90,0.12)', border: '1px solid rgba(212,163,90,0.25)' }}
+              >
+                <FileText size={18} style={{ color: '#d4a35a' }} />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold mb-1" style={{ color: '#f0e8d8' }}>Resume Analysis</h3>
+                <p className="text-sm leading-relaxed" style={{ color: '#7a6f62' }}>
+                  AI extracts your skills to generate hyper-personalised questions.
+                </p>
+              </div>
+              <BentoSkills />
+              <div
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(212,163,90,0.06) 0%, transparent 70%)' }}
+              />
+            </motion.div>
+
+            {/* 3 — Instant Feedback (tall, col 3, rows 1-2) */}
+            <motion.div
+              initial={{ opacity: 0, y: 40, scale: 0.94 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.6, delay: 0.16, type: 'spring', stiffness: 100, damping: 18 }}
+              style={{ gridColumn: '3', gridRow: '1 / 3' }}
+              className="glass rounded-2xl p-7 flex flex-col gap-5 cursor-default relative overflow-hidden group"
+            >
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'rgba(212,163,90,0.12)', border: '1px solid rgba(212,163,90,0.25)' }}
+              >
+                <Zap size={18} style={{ color: '#d4a35a' }} />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold mb-2" style={{ color: '#f0e8d8' }}>Instant Feedback</h3>
+                <p className="text-sm leading-relaxed" style={{ color: '#7a6f62' }}>
+                  AI-powered analysis with strengths, gaps, and specific improvement tips after every answer.
+                </p>
+              </div>
+              <div className="flex-1 flex flex-col justify-end">
+                <BentoScore />
+              </div>
+              <div
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(212,163,90,0.06) 0%, transparent 70%)' }}
+              />
+            </motion.div>
+
+            {/* 4 — Company Prep (col 2, row 2) */}
+            <motion.div
+              initial={{ opacity: 0, y: 40, scale: 0.94 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.6, delay: 0.1, type: 'spring', stiffness: 100, damping: 18 }}
+              style={{ gridColumn: '2', gridRow: '2' }}
+              className="glass rounded-2xl p-7 flex flex-col gap-4 cursor-default relative overflow-hidden group"
+            >
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'rgba(212,163,90,0.12)', border: '1px solid rgba(212,163,90,0.25)' }}
+              >
+                <Building2 size={18} style={{ color: '#d4a35a' }} />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold mb-1" style={{ color: '#f0e8d8' }}>Company Prep</h3>
+                <p className="text-sm leading-relaxed" style={{ color: '#7a6f62' }}>
+                  Tailored questions based on each company's culture and interview style.
+                </p>
+              </div>
+              <BentoCompanies />
+              <div
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(212,163,90,0.06) 0%, transparent 70%)' }}
+              />
+            </motion.div>
+
+            {/* 5 — STAR Method (col 1, row 3) */}
+            <motion.div
+              initial={{ opacity: 0, y: 40, scale: 0.94 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.6, delay: 0.2, type: 'spring', stiffness: 100, damping: 18 }}
+              style={{ gridColumn: '1', gridRow: '3' }}
+              className="glass rounded-2xl p-7 flex flex-col gap-4 cursor-default relative overflow-hidden group"
+            >
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'rgba(212,163,90,0.12)', border: '1px solid rgba(212,163,90,0.25)' }}
+              >
+                <Star size={18} style={{ color: '#d4a35a' }} />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold mb-1" style={{ color: '#f0e8d8' }}>STAR Method</h3>
+                <p className="text-sm leading-relaxed" style={{ color: '#7a6f62' }}>
+                  Guided coaching to structure behavioural answers using the proven framework.
+                </p>
+              </div>
+              <BentoSTAR />
+              <div
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(212,163,90,0.06) 0%, transparent 70%)' }}
+              />
+            </motion.div>
+
+            {/* 6 — Progress Tracking (cols 2-3, row 3) */}
+            <motion.div
+              initial={{ opacity: 0, y: 40, scale: 0.94 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.6, delay: 0.28, type: 'spring', stiffness: 100, damping: 18 }}
+              style={{ gridColumn: '2 / 4', gridRow: '3' }}
+              className="glass rounded-2xl p-7 flex flex-col gap-4 cursor-default relative overflow-hidden group"
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: 'rgba(212,163,90,0.12)', border: '1px solid rgba(212,163,90,0.25)' }}
+                  >
+                    <TrendingUp size={18} style={{ color: '#d4a35a' }} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold" style={{ color: '#f0e8d8' }}>Progress Tracking</h3>
+                    <p className="text-sm" style={{ color: '#7a6f62' }}>Performance over 7 sessions</p>
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div className="text-2xl font-bold" style={{ color: '#d4a35a' }}>+59%</div>
+                  <div className="text-xs" style={{ color: '#7a6f62' }}>improvement</div>
+                </div>
+              </div>
+              <BentoChart />
+              <div
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(212,163,90,0.06) 0%, transparent 70%)' }}
+              />
+            </motion.div>
+          </div>
+        </div>
+        </section>
+
+        {/* ── How It Works ──────────────────────────────────────────────────── */}
+        <section className="px-6 py-24" style={{ position: 'relative', zIndex: 1 }}>
+          <div className="max-w-6xl mx-auto">
+            <motion.div {...inView()} className="text-center mb-16">
+              <div
+                className="inline-block text-xs font-semibold tracking-widest uppercase px-4 py-2 rounded-full mb-6"
+                style={{ color: '#d4a35a', background: 'rgba(212,163,90,0.08)', border: '1px solid rgba(212,163,90,0.15)' }}
+              >
+                How It Works
+              </div>
+              <h2
+                className="font-bold"
+                style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)', color: '#f0e8d8' }}
+              >
+                <SplitWords text="Get started in 3 steps" />
+              </h2>
+            </motion.div>
+
+            <div className="grid md:grid-cols-3 gap-6 relative" style={{ perspective: 1200 }}>
+              {/* Connecting line between cards */}
+              <div
+                className="hidden md:block absolute"
+                style={{
+                  top: 40, left: '18%', right: '18%', height: 1,
+                  background: 'linear-gradient(90deg, transparent, rgba(212,163,90,0.25) 20%, rgba(212,163,90,0.25) 80%, transparent)',
+                  zIndex: 0,
+                }}
+              />
+              {/* Animated dots on the line */}
+              {[0, 1].map(i => (
+                <motion.div
+                  key={i}
+                  className="hidden md:block absolute"
+                  style={{ top: 36, left: i === 0 ? '33.3%' : '66.6%', width: 8, height: 8, zIndex: 1 }}
+                  animate={{ scale: [1, 1.4, 1], opacity: [0.5, 1, 0.5] }}
+                  transition={{ duration: 2, repeat: Infinity, delay: i * 0.8, ease: 'easeInOut' }}
+                >
+                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#d4a35a' }} />
+                </motion.div>
+              ))}
+
+              {STEPS.map((step, i) => {
+                const visuals = [<StepUploadVisual key="upload" />, <StepRoleVisual key="role" />, <StepScoreVisual key="score" />];
+                return (
+                  <motion.div
+                    key={step.n}
+                    initial={{ opacity: 0, y: 60, rotateX: 12 }}
+                    whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+                    viewport={{ once: true, margin: '-60px' }}
+                    transition={{ type: 'spring', stiffness: 80, damping: 16, delay: i * 0.15 }}
+                    whileHover={{ y: -10, transition: { duration: 0.25, ease: 'easeOut' } }}
+                    style={{ transformStyle: 'preserve-3d', zIndex: 2, position: 'relative' }}
+                  >
+                    <div
+                      className="glass rounded-2xl p-8 h-full relative overflow-hidden cursor-default group"
+                      style={{ transformStyle: 'preserve-3d' }}
+                    >
+                      {/* Giant background step number */}
+                      <div
+                        aria-hidden
+                        style={{
+                          position: 'absolute', right: -6, top: -16,
+                          fontSize: 130, fontWeight: 900, lineHeight: 1,
+                          color: 'rgba(212,163,90,0.05)',
+                          userSelect: 'none', pointerEvents: 'none',
+                          fontFamily: 'var(--font-rubik)',
+                        }}
+                      >
+                        {step.n}
+                      </div>
+
+                      {/* Step badge */}
+                      <motion.div
+                        initial={{ scale: 0, rotate: -15 }}
+                        whileInView={{ scale: 1, rotate: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 18, delay: i * 0.15 + 0.25 }}
+                        style={{
+                          width: 44, height: 44, borderRadius: '50%',
+                          background: 'rgba(212,163,90,0.12)',
+                          border: '1px solid rgba(212,163,90,0.35)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          marginBottom: 18, position: 'relative', zIndex: 1,
+                          fontSize: 13, fontWeight: 700, color: '#d4a35a',
+                        }}
+                      >
+                        {step.n}
+                      </motion.div>
+
+                      <h3 className="text-xl font-bold mb-3 relative z-10" style={{ color: '#f0e8d8' }}>
+                        {step.title}
+                      </h3>
+                      <p className="text-sm leading-relaxed relative z-10" style={{ color: '#7a6f62' }}>
+                        {step.desc}
+                      </p>
+
+                      {/* Per-step micro-visual */}
+                      <div className="relative z-10">{visuals[i]}</div>
+
+                      {/* Hover shimmer */}
+                      <div
+                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                        style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(212,163,90,0.07) 0%, transparent 65%)' }}
+                      />
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
-        </ContainerScroll>
-      </section>
+        </section>
 
-      {/* CTA + Pricing Section */}
-      <section id="pricing" className="relative z-10 py-16 sm:py-24 md:py-32 px-4 sm:px-6 bg-slate-50 dark:bg-slate-900/50">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="max-w-5xl mx-auto text-center"
+        {/* ── Pricing ───────────────────────────────────────────────────────── */}
+        <section
+          id="pricing"
+          className="px-6 py-24"
+          style={{
+            background: '#201e2b',
+            borderTop: '1px solid rgba(255,255,255,0.04)',
+            position: 'relative', zIndex: 1,
+          }}
         >
-          <Card className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800">
-            <CardContent className="p-6 sm:p-10 md:p-16">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6">
-                Ready to Land Your Dream Job?
-              </h2>
-              <p className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-400 mb-10 max-w-2xl mx-auto px-4 sm:px-0">
-                Join thousands of job seekers who improved their interview skills with Reherse
+        <div className="max-w-5xl mx-auto">
+          <motion.div {...inView()} className="text-center mb-12">
+            <div
+              className="inline-block text-xs font-semibold tracking-widest uppercase px-4 py-2 rounded-full mb-6"
+              style={{ color: '#d4a35a', background: 'rgba(212,163,90,0.08)', border: '1px solid rgba(212,163,90,0.15)' }}
+            >
+              Pricing
+            </div>
+            <h2
+              className="font-bold"
+              style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)', color: '#f0e8d8' }}
+            >
+              Simple, transparent pricing
+            </h2>
+          </motion.div>
+
+          {/* Billing toggle */}
+          <motion.div {...inView(0.1)} className="flex justify-center mb-10">
+            <div
+              className="flex p-1 rounded-2xl"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+            >
+              {(['monthly', 'annual'] as const).map(cycle => (
+                <button
+                  key={cycle}
+                  onClick={() => setPricingCycle(cycle)}
+                  className="px-6 py-2 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-2"
+                  style={{
+                    background: pricingCycle === cycle ? 'rgba(212,163,90,0.15)' : 'transparent',
+                    color: pricingCycle === cycle ? '#d4a35a' : '#7a6f62',
+                    border: pricingCycle === cycle ? '1px solid rgba(212,163,90,0.30)' : '1px solid transparent',
+                  }}
+                >
+                  {cycle === 'monthly' ? 'Monthly' : 'Annual'}
+                  {cycle === 'annual' && (
+                    <span
+                      className="text-xs px-2 py-0.5 rounded-full font-semibold"
+                      style={{ background: 'rgba(212,163,90,0.2)', color: '#d4a35a' }}
+                    >
+                      Save 33%
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Cards */}
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Free */}
+            <motion.div
+              {...inView(0.15)}
+              className="glass rounded-2xl p-8 flex flex-col"
+            >
+              <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: '#7a6f62' }}>Free</p>
+              <div className="flex items-end gap-1 mb-1">
+                <span className="text-5xl font-bold" style={{ color: '#f0e8d8' }}>$0</span>
+              </div>
+              <p className="text-sm mb-8" style={{ color: '#7a6f62' }}>forever</p>
+              <GlassButton variant="neutral" size="md" className="w-full mb-8" onClick={() => router.push('/sign-up')}>
+                Get started free
+              </GlassButton>
+              <ul className="space-y-3 flex-1">
+                {FREE_FEATURES.map((f) => (
+                  <li key={f.text} className="flex items-center gap-3 text-sm">
+                    <Check
+                      size={14}
+                      style={{ color: f.on ? '#d4a35a' : 'rgba(122,111,98,0.3)', flexShrink: 0 }}
+                    />
+                    <span style={{ color: f.on ? 'rgba(240,232,216,0.8)' : 'rgba(122,111,98,0.4)' }}>
+                      {f.text}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+
+            {/* Pro */}
+            <motion.div
+              {...inView(0.25)}
+              className="glass-amber rounded-2xl p-8 flex flex-col relative overflow-hidden"
+              style={{ boxShadow: '0 0 48px rgba(212,163,90,0.10)' }}
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: '#d4a35a' }}>Pro</p>
+                <span
+                  className="text-xs px-3 py-1 rounded-full font-semibold"
+                  style={{ background: 'rgba(212,163,90,0.15)', color: '#d4a35a', border: '1px solid rgba(212,163,90,0.25)' }}
+                >
+                  Most Popular
+                </span>
+              </div>
+              <div className="flex items-end gap-1 mb-1">
+                <span className="text-5xl font-bold" style={{ color: '#f0e8d8' }}>
+                  {pricingCycle === 'annual' ? '$8' : '$12'}
+                </span>
+                <span className="mb-2 text-sm" style={{ color: '#7a6f62' }}>/month</span>
+              </div>
+              <p className="text-sm mb-8" style={{ color: '#7a6f62' }}>
+                {pricingCycle === 'annual' ? '$96 billed annually' : 'billed monthly'}
               </p>
+              <GlassButton variant="amber" size="md" className="w-full mb-8" onClick={() => router.push('/sign-up')}>
+                Get started →
+              </GlassButton>
+              <ul className="space-y-3 flex-1">
+                {PRO_FEATURES.map((f) => (
+                  <li key={f} className="flex items-center gap-3 text-sm">
+                    <Check size={14} style={{ color: '#d4a35a', flexShrink: 0 }} />
+                    <span style={{ color: 'rgba(240,232,216,0.85)' }}>{f}</span>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          </div>
 
-              {/* Billing toggle */}
-              <div className="flex justify-center mb-8">
-                <div className="inline-flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
-                  <button
-                    onClick={() => setPricingCycle('monthly')}
-                    className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${pricingCycle === 'monthly' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm' : 'text-slate-600 dark:text-slate-400'}`}
-                  >
-                    Monthly
-                  </button>
-                  <button
-                    onClick={() => setPricingCycle('annual')}
-                    className={`px-5 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${pricingCycle === 'annual' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm' : 'text-slate-600 dark:text-slate-400'}`}
-                  >
-                    Annual
-                    <span className="text-xs bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full font-semibold">Save 33%</span>
-                  </button>
-                </div>
+          <motion.p {...inView(0.3)} className="text-center text-sm mt-8" style={{ color: '#7a6f62' }}>
+            Cancel anytime. No hidden fees.
+          </motion.p>
+        </div>
+        </section>
+
+        {/* ── Final CTA ─────────────────────────────────────────────────────── */}
+        <section className="px-6 py-24 max-w-3xl mx-auto text-center" style={{ position: 'relative', zIndex: 1 }}>
+          <motion.div
+            {...inView()}
+            className="glass rounded-3xl p-16 relative overflow-hidden"
+          >
+            {/* Ambient glow */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'radial-gradient(ellipse at center, rgba(212,163,90,0.06) 0%, transparent 70%)',
+                pointerEvents: 'none',
+              }}
+            />
+            <div className="relative z-10">
+              <h2
+                className="font-bold mb-5 leading-tight"
+                style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', color: '#f0e8d8' }}
+              >
+                <SplitWords text="Ready to Land Your Dream Job?" />
+              </h2>
+              <p className="mb-10 text-lg" style={{ color: '#7a6f62' }}>
+                Join thousands of job seekers who sharpened their interview skills with Reherse.
+              </p>
+              <div className="flex items-center justify-center gap-4 flex-wrap">
+                <GlassButton variant="amber" size="lg" onClick={() => router.push('/sign-up')}>
+                  Start Practicing Free
+                  <ChevronRight size={16} />
+                </GlassButton>
+                <GlassButton variant="neutral" size="lg" onClick={() => router.push('/pricing')}>
+                  View Pricing
+                </GlassButton>
               </div>
+            </div>
+          </motion.div>
+        </section>
 
-              {/* Pricing cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto text-left">
-                {/* Free */}
-                <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-8">
-                  <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">Free</p>
-                  <div className="flex items-end gap-1 mb-1"><span className="text-5xl font-bold text-slate-900 dark:text-white">$0</span></div>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">forever</p>
-                  <button onClick={() => router.push('/sign-up')} className="w-full py-3 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-xl font-semibold text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition mb-6">
-                    Get started free
-                  </button>
-                  <ul className="space-y-3">
-                    {[
-                      { text: '2 lifetime interviews', on: true },
-                      { text: 'Up to 5 questions per interview', on: true },
-                      { text: 'Standard interview mode', on: true },
-                      { text: 'AI scoring & feedback', on: true },
-                      { text: 'Analytics & progress tracking', on: true },
-                      { text: 'Unlimited resume uploads', on: true },
-                      { text: 'Resume Grill', on: false },
-                      { text: 'Company-Specific Prep', on: false },
-                      { text: 'Ideal Answer examples', on: false },
-                    ].map((f) => (
-                      <li key={f.text} className="flex items-center gap-3 text-sm">
-                        <span className={f.on ? 'text-green-500' : 'text-slate-300 dark:text-slate-600'}>✓</span>
-                        <span className={f.on ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400 dark:text-slate-600'}>{f.text}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                {/* Pro */}
-                <div className="bg-blue-600 border border-blue-500 rounded-2xl p-8 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/30 rounded-full blur-2xl" />
-                  <div className="relative">
-                    <div className="flex items-center gap-2 mb-2">
-                      <p className="text-sm font-semibold text-blue-200 uppercase tracking-wide">Pro</p>
-                      <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full font-semibold">Most popular</span>
-                    </div>
-                    <div className="flex items-end gap-1 mb-1">
-                      <span className="text-5xl font-bold text-white">{pricingCycle === 'annual' ? '$8' : '$12'}</span>
-                      <span className="text-blue-200 mb-2">/month</span>
-                    </div>
-                    <p className="text-blue-200 text-sm mb-6">{pricingCycle === 'annual' ? '$96 billed annually' : 'billed monthly'}</p>
-                    <button onClick={() => router.push('/sign-up')} className="w-full py-3 bg-white text-blue-600 rounded-xl font-semibold text-sm hover:bg-blue-50 transition mb-6">
-                      Get started →
-                    </button>
-                    <ul className="space-y-3">
-                      {['Unlimited interviews', 'Up to 15 questions per interview', 'Standard interview mode', 'AI scoring & feedback', 'Analytics & progress tracking', 'Unlimited resume uploads', 'Resume Grill', 'Company-Specific Prep', 'Ideal Answer examples'].map((f) => (
-                        <li key={f} className="flex items-center gap-3 text-sm">
-                          <span className="text-white">✓</span>
-                          <span className="text-white">{f}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <p className="text-center text-sm text-slate-400 mt-8">Cancel anytime. No hidden fees.</p>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </section>
-
-
-      <footer className="relative z-10 py-12 sm:py-14 md:py-16 px-4 sm:px-6 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 md:gap-12 mb-10 sm:mb-12">
+        {/* ── Footer ────────────────────────────────────────────────────────── */}
+        <footer
+          className="px-6 py-16 max-w-7xl mx-auto"
+          style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 mb-12">
             {/* Brand */}
-            <div className="col-span-1 md:col-span-1">
+            <div>
               <Logo />
-              <p className="text-slate-600 dark:text-slate-400 mt-4 text-sm">
+              <p className="mt-4 text-sm leading-relaxed" style={{ color: '#7a6f62' }}>
                 AI-powered interview coaching to help you land your dream job.
               </p>
             </div>
 
             {/* Product */}
             <div>
-              <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Product</h3>
+              <h3 className="font-semibold text-sm mb-5" style={{ color: '#f0e8d8' }}>Product</h3>
               <ul className="space-y-3 text-sm">
-                <li>
-                  <button onClick={() => router.push('/interviews/new')} className="text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
-                    Practice Interviews
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => router.push('/interviews/resume-grill')} className="text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
-                    Resume Grill
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => router.push('/interviews/company-prep')} className="text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
-                    Company Prep
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => router.push('/pricing')} className="text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
-                    Pricing
-                  </button>
-                </li>
+                {[
+                  ['Practice Interviews', '/interviews/new'],
+                  ['Resume Grill', '/interviews/resume-grill'],
+                  ['Company Prep', '/interviews/company-prep'],
+                  ['Pricing', '/pricing'],
+                ].map(([label, href]) => (
+                  <li key={label}>
+                    <button
+                      onClick={() => router.push(href)}
+                      className="transition-colors duration-150"
+                      style={{ color: '#7a6f62' }}
+                      onMouseEnter={e => (e.currentTarget.style.color = '#d4a35a')}
+                      onMouseLeave={e => (e.currentTarget.style.color = '#7a6f62')}
+                    >
+                      {label}
+                    </button>
+                  </li>
+                ))}
               </ul>
             </div>
 
             {/* Resources */}
             <div>
-              <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Resources</h3>
+              <h3 className="font-semibold text-sm mb-5" style={{ color: '#f0e8d8' }}>Resources</h3>
               <ul className="space-y-3 text-sm">
-                <li>
-                  <button onClick={() => router.push('/guides')} className="text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
-                    Interview Guides
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => router.push('/guides/star-method-interview')} className="text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
-                    STAR Method
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => router.push('/guides/behavioral-interview-questions')} className="text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
-                    Behavioral Questions
-                  </button>
-                </li>
+                {[
+                  ['Interview Guides', '/guides'],
+                  ['STAR Method', '/guides/star-method-interview'],
+                  ['Behavioral Questions', '/guides/behavioral-interview-questions'],
+                ].map(([label, href]) => (
+                  <li key={label}>
+                    <button
+                      onClick={() => router.push(href)}
+                      className="transition-colors duration-150"
+                      style={{ color: '#7a6f62' }}
+                      onMouseEnter={e => (e.currentTarget.style.color = '#d4a35a')}
+                      onMouseLeave={e => (e.currentTarget.style.color = '#7a6f62')}
+                    >
+                      {label}
+                    </button>
+                  </li>
+                ))}
               </ul>
             </div>
 
             {/* Company */}
             <div>
-              <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Company</h3>
+              <h3 className="font-semibold text-sm mb-5" style={{ color: '#f0e8d8' }}>Company</h3>
               <ul className="space-y-3 text-sm">
-                <li>
-                  <a href="/about" className="text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
-                    About
-                  </a>
-                </li>
-                <li>
-                  <a href="/privacy" className="text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
-                    Privacy Policy
-                  </a>
-                </li>
-                <li>
-                  <a href="/terms" className="text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
-                    Terms of Service
-                  </a>
-                </li>
+                {[
+                  ['About', '/about'],
+                  ['Privacy Policy', '/privacy'],
+                  ['Terms of Service', '/terms'],
+                ].map(([label, href]) => (
+                  <li key={label}>
+                    <a
+                      href={href}
+                      className="transition-colors duration-150"
+                      style={{ color: '#7a6f62' }}
+                      onMouseEnter={e => (e.currentTarget.style.color = '#d4a35a')}
+                      onMouseLeave={e => (e.currentTarget.style.color = '#7a6f62')}
+                    >
+                      {label}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
 
-          {/* Bottom bar */}
-          <div className="pt-8 border-t border-slate-200 dark:border-slate-800 text-center text-sm text-slate-600 dark:text-slate-400">
-            <p>&copy; 2025 Reherse. All rights reserved.</p>
+          <div
+            className="pt-8 text-center text-sm"
+            style={{ borderTop: '1px solid rgba(255,255,255,0.05)', color: '#7a6f62' }}
+          >
+            © 2025 Reherse. All rights reserved.
           </div>
-        </div>
-      </footer>
+        </footer>
+
       </div>
     </>
   );

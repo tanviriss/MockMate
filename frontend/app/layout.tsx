@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Space_Grotesk } from "next/font/google";
+import { Rubik } from "next/font/google";
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -7,10 +7,10 @@ import { ClerkProvider } from '@clerk/nextjs';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import Analytics from '@/components/Analytics';
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
+const rubik = Rubik({
+  variable: "--font-rubik",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
 });
 
 export const metadata: Metadata = {
@@ -125,7 +125,7 @@ export default function RootLayout({
     >
       <html lang="en" suppressHydrationWarning>
         <body
-          className={`${spaceGrotesk.variable} ${GeistSans.variable} antialiased`}
+          className={`${rubik.variable} ${GeistSans.variable} antialiased`}
         >
           <Analytics />
           <ThemeProvider>

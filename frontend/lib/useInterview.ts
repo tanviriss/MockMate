@@ -46,14 +46,9 @@ export function useInterview(interviewId: number, userId: string, token: string)
 
   // Initialize WebSocket connection
   useEffect(() => {
-    if (!token || !userId) {
-      console.log("Waiting for token and userId...", { hasToken: !!token, hasUserId: !!userId, token: token?.substring(0, 10), userId });
-      return;
-    }
+    if (!token || !userId) return;
 
-    console.log("Initializing WebSocket connection...", { userId, hasToken: !!token });
     const WS_URL = process.env.NEXT_PUBLIC_WS_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-    console.log("WebSocket URL:", WS_URL);
 
     const socket = io(WS_URL, {
       auth: {
@@ -71,14 +66,10 @@ export function useInterview(interviewId: number, userId: string, token: string)
 
     // Connection handlers
     socket.on("connect", () => {
-      console.log("Connected to WebSocket");
       setState((prev) => {
-        // Clear any connection-related errors
         const newState = { ...prev, isConnected: true, error: prev.error?.includes("Connection") ? null : prev.error };
 
-        // Only auto-restart if we were in the middle of an interview
         if (prev.isStarted && !prev.isCompleted && prev.currentQuestion) {
-          console.log("Reconnected during active interview, resuming session");
           // Give socket a moment to fully establish before emitting
           setTimeout(() => {
             socket.emit("start_interview", {
@@ -93,7 +84,6 @@ export function useInterview(interviewId: number, userId: string, token: string)
     });
 
     socket.on("disconnect", (reason) => {
-      console.log("Disconnected from WebSocket. Reason:", reason);
       setState((prev) => {
         // Only show error if it's not a normal disconnect or client-initiated
         const shouldShowError = reason !== "io client disconnect" && reason !== "io server disconnect";
@@ -116,13 +106,10 @@ export function useInterview(interviewId: number, userId: string, token: string)
       }));
     });
 
-    socket.on("connected", (data) => {
-      console.log("Session connected:", data.sid);
-    });
+    socket.on("connected", (_data) => {});
 
     // Interview event handlers
     socket.on("interview_started", (data) => {
-      console.log("Interview started:", data);
       setState((prev) => ({
         ...prev,
         isStarted: true,
@@ -132,7 +119,6 @@ export function useInterview(interviewId: number, userId: string, token: string)
     });
 
     socket.on("welcome_message", (data) => {
-      console.log("Received welcome message:", data.message);
       setState((prev) => ({
         ...prev,
         welcomeMessage: data.message,
@@ -141,7 +127,6 @@ export function useInterview(interviewId: number, userId: string, token: string)
     });
 
     socket.on("welcome_audio", (data) => {
-      console.log("Received welcome audio");
       setState((prev) => ({
         ...prev,
         welcomeAudio: data.audio_data,
@@ -149,7 +134,6 @@ export function useInterview(interviewId: number, userId: string, token: string)
     });
 
     socket.on("question", (data: Question) => {
-      console.log("Received question:", data);
       setState((prev) => ({
         ...prev,
         currentQuestion: data,
@@ -160,7 +144,6 @@ export function useInterview(interviewId: number, userId: string, token: string)
     });
 
     socket.on("question_audio", (data) => {
-      console.log("Received question audio");
       setState((prev) => ({
         ...prev,
         questionAudio: data.audio_data,
@@ -168,7 +151,6 @@ export function useInterview(interviewId: number, userId: string, token: string)
     });
 
     socket.on("transcribing", () => {
-      console.log("Transcribing...");
       setState((prev) => ({
         ...prev,
         isTranscribing: true,
@@ -176,7 +158,6 @@ export function useInterview(interviewId: number, userId: string, token: string)
     });
 
     socket.on("transcript_ready", (data) => {
-      console.log("Transcript ready:", data.transcript);
       setState((prev) => ({
         ...prev,
         transcript: data.transcript,
@@ -185,7 +166,6 @@ export function useInterview(interviewId: number, userId: string, token: string)
     });
 
     socket.on("followup_question", (data) => {
-      console.log("Received follow-up question:", data);
       const cleanFollowupText = data.followup_text
         .replace(/\*\*/g, '')
         .replace(/\*/g, '')
@@ -202,8 +182,7 @@ export function useInterview(interviewId: number, userId: string, token: string)
       }));
     });
 
-    socket.on("interview_completed", (data) => {
-      console.log("Interview completed:", data);
+    socket.on("interview_completed", (_data) => {
       setState((prev) => ({
         ...prev,
         isCompleted: true,
@@ -337,8 +316,6 @@ export function useInterview(interviewId: number, userId: string, token: string)
             }));
             return;
           }
-
-          console.log("Submitting answer, audio size:", audioBlob.size, "bytes");
 
           socketRef.current!.emit("submit_answer", {
             question_id: state.currentQuestion!.question_id,

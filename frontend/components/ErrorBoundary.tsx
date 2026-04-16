@@ -22,8 +22,9 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Log error to console (in production, you'd send this to a logging service)
-    console.error('Error caught by boundary:', error, errorInfo);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error caught by boundary:', error, errorInfo);
+    }
   }
 
   render() {
@@ -39,17 +40,6 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
               <p className="text-gray-300 mb-6">
                 We encountered an unexpected error. Please try refreshing the page.
               </p>
-              {process.env.NODE_ENV === 'development' && this.state.error && (
-                <details className="text-left mb-6 bg-slate-900/50 rounded-lg p-4">
-                  <summary className="text-yellow-400 cursor-pointer mb-2 font-medium">
-                    Error Details (Dev Only)
-                  </summary>
-                  <pre className="text-xs text-red-300 overflow-auto">
-                    {this.state.error.toString()}
-                    {this.state.error.stack}
-                  </pre>
-                </details>
-              )}
               <div className="flex gap-3 justify-center">
                 <button
                   onClick={() => window.location.reload()}

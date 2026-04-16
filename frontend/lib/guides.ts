@@ -51,7 +51,7 @@ export async function getGuideBySlug(slug: string): Promise<Guide> {
 
   // Convert markdown to HTML
   const processedContent = await remark()
-    .use(html, { sanitize: false })
+    .use(html, { sanitize: true })
     .process(content);
   const contentHtml = processedContent.toString();
 

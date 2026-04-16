@@ -12,8 +12,9 @@ function AnalyticsTracker() {
   useEffect(() => {
     if (!GA_MEASUREMENT_ID) return;
 
-    const url = pathname + searchParams.toString();
-    pageview(url);
+    // Strip dynamic segments (IDs) from paths before sending to analytics
+    const sanitizedPath = pathname.replace(/\/[a-zA-Z0-9_-]{20,}/g, '/[id]');
+    pageview(sanitizedPath);
   }, [pathname, searchParams]);
 
   return null;
@@ -34,14 +35,12 @@ export default function Analytics() {
         id="google-analytics"
         strategy="afterInteractive"
         dangerouslySetInnerHTML={{
-          __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${GA_MEASUREMENT_ID}', {
-              page_path: window.location.pathname,
-            });
-          `,
+          __html: [
+            'window.dataLayer = window.dataLayer || [];',
+            'function gtag(){dataLayer.push(arguments);}',
+            'gtag("js", new Date());',
+            'gtag("config", "' + GA_MEASUREMENT_ID + '", { page_path: window.location.pathname });',
+          ].join('\n'),
         }}
       />
       <Suspense fallback={null}>
