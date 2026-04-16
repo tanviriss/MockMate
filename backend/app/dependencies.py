@@ -103,6 +103,7 @@ async def get_current_user(
                         # Import models here to avoid circular imports
                         from app.models.resume import Resume
                         from app.models.interview import Interview
+                        from app.models.subscription import Subscription
 
                         # Temporarily change old user's email to avoid unique constraint
                         old_user_id = existing_user.id
@@ -118,14 +119,15 @@ async def get_current_user(
                         db.add(local_user)
                         db.flush()
 
-                        # Now update all resumes to point to new user ID
+                        # Update all related records to point to new user ID
                         db.query(Resume).filter(Resume.user_id == old_user_id).update(
                             {Resume.user_id: clerk_user_adapted.id}
                         )
-
-                        # Update all interviews to point to new user ID
                         db.query(Interview).filter(Interview.user_id == old_user_id).update(
                             {Interview.user_id: clerk_user_adapted.id}
+                        )
+                        db.query(Subscription).filter(Subscription.user_id == old_user_id).update(
+                            {Subscription.user_id: clerk_user_adapted.id}
                         )
 
                         # Delete old user record
