@@ -4,10 +4,10 @@ export default function Logo({ className = "" }: { className?: string }) {
       <div className="relative group">
         <div className="relative w-12 h-12">
           {/* Pulsing glow */}
-          <div className="absolute inset-0 bg-purple-500/30 rounded-2xl blur-md animate-pulse"></div>
+          <div className="absolute inset-0 bg-[rgba(212,163,90,0.2)] rounded-2xl blur-md animate-pulse"></div>
 
-          {/* Main container - solid purple instead of gradient */}
-          <div className="absolute inset-0 bg-purple-600 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-lg shadow-purple-500/40">
+          {/* Main container */}
+          <div className="absolute inset-0 bg-[rgba(212,163,90,0.15)] border border-[rgba(212,163,90,0.4)] rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-lg shadow-[rgba(212,163,90,0.3)]">
             <svg
               className="w-7 h-7 text-white transition-transform duration-300 group-hover:scale-110"
               fill="none"
