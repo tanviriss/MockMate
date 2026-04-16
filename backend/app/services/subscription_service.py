@@ -2,11 +2,21 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from app.models.subscription import Subscription
 from app.models.interview import Interview
+from app.logging_config import logger
 
 
 def get_or_create_subscription(user_id: str, db: Session) -> Subscription:
     sub = db.query(Subscription).filter(Subscription.user_id == user_id).first()
     if not sub:
+        # Safety net: ensure user row exists before inserting subscription
+        from app.models.user import User
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            logger.warning(f"User {user_id} not in DB — webhook may have been missed. Skipping subscription creation.")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User account not fully set up yet. Please try again in a moment.",
+            )
         sub = Subscription(user_id=user_id, plan="free", status="active")
         db.add(sub)
         db.commit()

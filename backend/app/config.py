@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     # Clerk Authentication
     CLERK_SECRET_KEY: str | None = None
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: str | None = None
+    CLERK_WEBHOOK_SECRET: str | None = None
 
     # JWT Authentication (Legacy)
     JWT_SECRET_KEY: str
