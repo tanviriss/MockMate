@@ -128,32 +128,26 @@ async def get_progress(
         for interview in interviews[-10:]
     ]
 
-    # Category performance
+    # Category performance — single join query instead of N+1
     category_stats = {}
 
-    for interview in interviews:
-        # Get all questions and answers for this interview
-        questions = db.query(Question).filter(
-            Question.interview_id == interview.id
-        ).all()
-
-        for question in questions:
-            answer = db.query(Answer).filter(
-                Answer.question_id == question.id,
+    interview_ids = [i.id for i in interviews]
+    if interview_ids:
+        rows = (
+            db.query(Question.question_context, Answer.score)
+            .join(Answer, Answer.question_id == Question.id)
+            .filter(
+                Question.interview_id.in_(interview_ids),
                 Answer.score.isnot(None)
-            ).first()
-
-            if answer and answer.score is not None:
-                category = question.question_context.get('question_type', 'general')
-
-                if category not in category_stats:
-                    category_stats[category] = {
-                        'scores': [],
-                        'count': 0
-                    }
-
-                category_stats[category]['scores'].append(answer.score)
-                category_stats[category]['count'] += 1
+            )
+            .all()
+        )
+        for question_context, score in rows:
+            category = (question_context or {}).get('question_type', 'general')
+            if category not in category_stats:
+                category_stats[category] = {'scores': [], 'count': 0}
+            category_stats[category]['scores'].append(score)
+            category_stats[category]['count'] += 1
 
     # Convert to list format
     category_performance = [

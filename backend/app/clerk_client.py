@@ -8,11 +8,15 @@ from jwt.algorithms import RSAAlgorithm
 
 
 _jwks_cache = None
+_jwks_cache_time = 0.0
+_JWKS_TTL = 3600  # re-fetch JWKS once per hour
 
 
 async def get_jwks():
-    global _jwks_cache
-    if _jwks_cache is not None:
+    global _jwks_cache, _jwks_cache_time
+    import time
+    now = time.monotonic()
+    if _jwks_cache is not None and (now - _jwks_cache_time) < _JWKS_TTL:
         return _jwks_cache
 
     publishable_key = settings.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY or ""
@@ -43,6 +47,7 @@ async def get_jwks():
             raise ValueError(f"Failed to fetch JWKS: {response.status_code}")
 
         _jwks_cache = response.json()
+        _jwks_cache_time = now
         return _jwks_cache
 
 
