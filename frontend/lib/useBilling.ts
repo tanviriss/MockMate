@@ -22,7 +22,7 @@ export function useBilling() {
       const data = await api.getBillingStatus(token);
       setBilling(data);
     } catch (err) {
-      console.error('Failed to fetch billing status:', err);
+      console.error('Failed to fetch billing status:', err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setLoading(false);
     }
