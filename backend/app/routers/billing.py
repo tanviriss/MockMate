@@ -63,7 +63,7 @@ async def create_portal(
     current_user=Depends(get_current_user)
 ):
     try:
-        url = create_portal_session(user_id=current_user.id, db=db)
+        url = create_portal_session(user_id=current_user.id, email=current_user.email, db=db)
         return {"url": url}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

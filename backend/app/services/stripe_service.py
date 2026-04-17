@@ -40,13 +40,11 @@ def create_checkout_session(user_id: str, email: str, price_id: str, db: Session
     return session.url
 
 
-def create_portal_session(user_id: str, db: Session) -> str:
-    sub = db.query(Subscription).filter(Subscription.user_id == user_id).first()
-    if not sub or not sub.stripe_customer_id:
-        raise Exception("No Stripe customer found for this user")
+def create_portal_session(user_id: str, email: str, db: Session) -> str:
+    customer_id = get_or_create_customer(user_id, email, db)
 
     session = stripe.billing_portal.Session.create(
-        customer=sub.stripe_customer_id,
+        customer=customer_id,
         return_url=f"{settings.FRONTEND_URL}/dashboard",
     )
     return session.url
