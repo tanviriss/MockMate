@@ -6,6 +6,7 @@ import { useAuth, useUser, UserButton } from '@clerk/nextjs';
 import { api } from '@/lib/api';
 import { useBilling } from '@/lib/useBilling';
 import Logo from '@/components/Logo';
+import UpgradeModal from '@/components/UpgradeModal';
 
 interface DashboardStats {
   resumes_uploaded: number;
@@ -20,6 +21,7 @@ export default function DashboardPage() {
   const { user } = useUser();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [upgradeReason, setUpgradeReason] = useState<'resume_grill' | 'company_prep' | null>(null);
   const { billing, isPremium, interviewsRemaining, upgrade, manageSubscription } = useBilling();
 
   useEffect(() => {
@@ -185,9 +187,13 @@ export default function DashboardPage() {
             </div>
           </button>
 
+          {upgradeReason && (
+            <UpgradeModal reason={upgradeReason} onClose={() => setUpgradeReason(null)} />
+          )}
+
           {/* Resume Grill Card */}
           <button
-            onClick={() => router.push('/interviews/resume-grill')}
+            onClick={() => isPremium ? router.push('/interviews/resume-grill') : setUpgradeReason('resume_grill')}
             className="group relative overflow-hidden bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 md:p-8 hover:border-slate-300 dark:hover:border-slate-700 transition-all hover:scale-105 transform text-left"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 dark:bg-amber-500/5 rounded-bl-full"></div>
@@ -213,7 +219,7 @@ export default function DashboardPage() {
 
           {/* Company-Specific Prep Card */}
           <button
-            onClick={() => router.push('/interviews/company-prep')}
+            onClick={() => isPremium ? router.push('/interviews/company-prep') : setUpgradeReason('company_prep')}
             className="group relative overflow-hidden bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 md:p-8 hover:border-slate-300 dark:hover:border-slate-700 transition-all hover:scale-105 transform text-left"
           >
             {!isPremium && (
