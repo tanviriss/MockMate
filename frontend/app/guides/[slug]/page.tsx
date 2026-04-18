@@ -64,7 +64,6 @@ export default async function GuidePage({ params }: GuidePageProps) {
 
   const relatedGuides = await getRelatedGuides(slug, 3);
 
-  // JSON-LD structured data for article
   const articleSchema = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -75,6 +74,7 @@ export default async function GuidePage({ params }: GuidePageProps) {
       name: guide.author,
     },
     datePublished: guide.date,
+    dateModified: guide.date,
     publisher: {
       '@type': 'Organization',
       name: 'Reherse',
@@ -86,11 +86,25 @@ export default async function GuidePage({ params }: GuidePageProps) {
     image: guide.ogImage || 'https://reherse.dev/og-image.png',
   };
 
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://reherse.dev' },
+      { '@type': 'ListItem', position: 2, name: 'Guides', item: 'https://reherse.dev/guides' },
+      { '@type': 'ListItem', position: 3, name: guide.title, item: `https://reherse.dev/guides/${slug}` },
+    ],
+  };
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       <main className="min-h-screen bg-slate-50 dark:bg-slate-950">
         {/* Background */}

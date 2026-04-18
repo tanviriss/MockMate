@@ -364,6 +364,13 @@ const structuredData = {
   aggregateRating: { '@type': 'AggregateRating', ratingValue: '4.8', ratingCount: '150' },
 };
 
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Reherse',
+  url: 'https://reherse.dev',
+};
+
 // ─── constants ───────────────────────────────────────────────────────────────
 const FEATURES = [
   { Icon: Mic,        title: 'Voice Practice',     desc: 'Answer questions out loud with real-time transcription and natural AI voice interaction.' },
@@ -464,6 +471,7 @@ export default function Home() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
 
       <div style={{ background: '#1a1822', minHeight: '100vh', position: 'relative', overflowX: 'hidden' }}>
 
