@@ -11,6 +11,7 @@ interface GlassButtonProps {
   onClick?: () => void;
   className?: string;
   type?: 'button' | 'submit' | 'reset';
+  disabled?: boolean;
 }
 
 const sizeClasses = {
@@ -26,6 +27,7 @@ export function GlassButton({
   onClick,
   className,
   type = 'button',
+  disabled = false,
 }: GlassButtonProps) {
   const isAmber = variant === 'amber';
 
@@ -33,10 +35,12 @@ export function GlassButton({
     <motion.button
       type={type}
       onClick={onClick}
-      whileHover={{ scale: 1.03 }}
-      whileTap={{ scale: 0.97 }}
+      disabled={disabled}
+      whileHover={disabled ? {} : { scale: 1.03 }}
+      whileTap={disabled ? {} : { scale: 0.97 }}
       className={cn(
-        'relative inline-flex items-center justify-center gap-2 font-semibold cursor-pointer transition-all duration-200',
+        'relative inline-flex items-center justify-center gap-2 font-semibold transition-all duration-200',
+        disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
         sizeClasses[size],
         className
       )}

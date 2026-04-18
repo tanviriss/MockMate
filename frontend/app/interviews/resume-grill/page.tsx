@@ -7,6 +7,9 @@ import { api } from '@/lib/api';
 import LoadingMessages from '@/components/LoadingMessages';
 import { useBilling } from '@/lib/useBilling';
 import UpgradeModal from '@/components/UpgradeModal';
+import { motion } from 'framer-motion';
+import { GlassButton } from '@/components/ui/glass-button';
+import Logo from '@/components/Logo';
 
 interface Resume {
   id: number;
@@ -39,18 +42,9 @@ export default function ResumeGrillPage() {
   const fetchResumes = async () => {
     try {
       const token = await getToken();
-      if (!token) {
-        console.error('No token available');
-        setResumes([]);
-        setLoading(false);
-        return;
-      }
-
+      if (!token) { setResumes([]); setLoading(false); return; }
       const data = await api.getResumes(token);
-
-      // Backend returns { count, resumes }
-      const resumeList = data.resumes || [];
-      setResumes(resumeList);
+      setResumes(data.resumes || []);
     } catch (error) {
       console.error('Failed to fetch resumes:', error);
       setResumes([]);
@@ -61,37 +55,21 @@ export default function ResumeGrillPage() {
 
   const handleStartGrill = async () => {
     if (!selectedResume) return;
-
     setCreating(true);
     try {
       const token = await getToken();
-      if (!token) {
-        setCreating(false);
-        return;
-      }
-
+      if (!token) { setCreating(false); return; }
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/interviews/resume-grill`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          resume_id: selectedResume,
-          num_questions: numQuestions
-        })
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ resume_id: selectedResume, num_questions: numQuestions })
       });
-
       if (!response.ok) {
         const errorData = await response.json();
         const detail = errorData.detail;
-        if (typeof detail === 'object' && detail !== null && detail.upgrade_required) {
-          setCreating(false);
-          return;
-        }
+        if (typeof detail === 'object' && detail !== null && detail.upgrade_required) { setCreating(false); return; }
         throw new Error(typeof detail === 'string' ? detail : 'Failed to create resume grill');
       }
-
       const interview = await response.json();
       router.push(`/interviews/${interview.id}`);
     } catch (error) {
@@ -103,9 +81,10 @@ export default function ResumeGrillPage() {
 
   if (billingLoading) {
     return (
-      <div className="min-h-screen bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-        <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 dark:border-blue-400"></div>
-      </div>
+      <main style={{ minHeight: '100vh', background: '#1a1822', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '40px', height: '40px', border: '2px solid rgba(212,163,90,0.3)', borderTopColor: '#d4a35a', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </main>
     );
   }
 
@@ -113,96 +92,95 @@ export default function ResumeGrillPage() {
     return <UpgradeModal reason="resume_grill" onClose={() => router.push('/dashboard')} />;
   }
 
-  if (creating) {
-    return <LoadingMessages interval={1500} type="resume-grill" />;
-  }
+  if (creating) return <LoadingMessages interval={1500} type="resume-grill" />;
 
   return (
-    <main className="min-h-screen bg-slate-100 dark:bg-slate-800">
-      {/* Background */}
-      <div className="fixed inset-0 z-0 bg-slate-100 dark:bg-slate-800">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-slate-200/50 dark:bg-slate-700/30 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-zinc-200/40 dark:bg-slate-600/20 rounded-full blur-3xl"></div>
-      </div>
+    <main style={{ minHeight: '100vh', background: '#1a1822' }}>
+      {/* Navbar */}
+      <nav className="glass sticky top-0 z-50" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <button onClick={() => router.push('/dashboard')}>
+            <Logo />
+          </button>
+          <button
+            onClick={() => router.push('/dashboard')}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#7a6f62', fontSize: '14px', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.15s' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#f0e8d8')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#7a6f62')}
+          >
+            <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Dashboard
+          </button>
+        </div>
+      </nav>
 
-      {/* Content */}
-      <div className="relative z-10 max-w-4xl mx-auto px-6 py-12">
-        <button
-          onClick={() => router.push('/dashboard')}
-          className="mb-8 flex items-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
+      <div className="max-w-4xl mx-auto px-6 py-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+          className="glass rounded-2xl p-8"
+          style={{ border: '1px solid rgba(212,163,90,0.12)' }}
         >
-          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          Back to Dashboard
-        </button>
-
-        <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-8">
           {/* Header */}
-          <div className="flex items-start gap-4 mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center flex-shrink-0">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" />
-              </svg>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '32px' }}>
+            <div style={{ width: '56px', height: '56px', background: 'rgba(212,163,90,0.12)', border: '1px solid rgba(212,163,90,0.25)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '24px' }}>
+              🔥
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Resume Grill</h1>
-              <p className="text-slate-600 dark:text-slate-300 text-lg">
+              <h1 style={{ fontSize: '28px', fontWeight: 800, color: '#f0e8d8', marginBottom: '6px' }}>Resume Grill</h1>
+              <p style={{ color: '#7a6f62', fontSize: '15px', lineHeight: 1.5 }}>
                 Think you know your resume? Let&apos;s see if you can explain everything you wrote.
               </p>
-              <p className="text-orange-600 dark:text-orange-400 text-sm mt-2">
-                This interview will test your deep knowledge of the technologies, projects, and achievements on your resume.
+              <p style={{ color: '#d4a35a', fontSize: '13px', marginTop: '6px' }}>
+                This interview tests your deep knowledge of the technologies, projects, and achievements on your resume.
               </p>
             </div>
           </div>
 
           {/* Resume Selection */}
-          <div className="space-y-4">
-            <label className="block text-slate-900 dark:text-white font-semibold text-lg">
+          <div style={{ marginBottom: '28px' }}>
+            <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#f0e8d8', marginBottom: '12px' }}>
               Select a resume to get grilled on:
             </label>
 
             {loading ? (
-              <div className="space-y-3">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-16 bg-slate-100 dark:bg-slate-800 rounded-lg animate-pulse" />
+                  <div key={i} style={{ height: '64px', background: 'rgba(255,255,255,0.04)', borderRadius: '12px' }} className="animate-pulse" />
                 ))}
               </div>
             ) : resumes.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-slate-500 dark:text-slate-400 mb-4">No resumes found. Upload one first!</p>
-                <button
-                  onClick={() => router.push('/resumes')}
-                  className="px-6 py-3 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white rounded-lg transition-colors"
-                >
-                  Upload Resume
-                </button>
+              <div style={{ textAlign: 'center', padding: '48px 24px' }}>
+                <p style={{ color: '#7a6f62', fontSize: '14px', marginBottom: '16px' }}>No resumes found. Upload one first!</p>
+                <GlassButton variant="amber" size="md" onClick={() => router.push('/resumes')}>Upload Resume</GlassButton>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {resumes.map((resume) => (
                   <button
                     key={resume.id}
                     onClick={() => setSelectedResume(resume.id)}
-                    className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
-                      selectedResume === resume.id
-                        ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
-                        : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600'
-                    }`}
+                    style={{
+                      width: '100%', padding: '14px 16px', borderRadius: '12px', border: selectedResume === resume.id ? '1px solid rgba(212,163,90,0.40)' : '1px solid rgba(255,255,255,0.08)',
+                      background: selectedResume === resume.id ? 'rgba(212,163,90,0.08)' : 'rgba(255,255,255,0.03)',
+                      cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s',
+                    }}
+                    onMouseEnter={e => { if (selectedResume !== resume.id) e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
+                    onMouseLeave={e => { if (selectedResume !== resume.id) e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
                   >
-                    <div className="flex items-center justify-between">
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <div>
-                        <p className="text-slate-900 dark:text-white font-semibold">
+                        <p style={{ color: '#f0e8d8', fontWeight: 600, fontSize: '14px', marginBottom: '2px' }}>
                           {resume.parsed_data?.name || 'Resume'}
                         </p>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm">
+                        <p style={{ color: '#7a6f62', fontSize: '12px' }}>
                           Uploaded {new Date(resume.created_at).toLocaleDateString()}
                         </p>
                       </div>
                       {selectedResume === resume.id && (
-                        <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
-                          <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <div style={{ width: '22px', height: '22px', background: '#d4a35a', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <svg style={{ width: '12px', height: '12px', color: '#0d0a08' }} fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
                         </div>
@@ -216,8 +194,8 @@ export default function ResumeGrillPage() {
 
           {/* Number of Questions Slider */}
           {resumes.length > 0 && (
-            <div className="mt-8">
-              <label className="block text-slate-900 dark:text-white font-semibold text-lg mb-2">
+            <div style={{ marginBottom: '28px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#f0e8d8', marginBottom: '10px' }}>
                 Number of Questions: {numQuestions}
               </label>
               <input
@@ -226,9 +204,9 @@ export default function ResumeGrillPage() {
                 max={maxQuestions}
                 value={Math.min(numQuestions, maxQuestions)}
                 onChange={(e) => setNumQuestions(parseInt(e.target.value))}
-                className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                style={{ width: '100%', accentColor: '#d4a35a' }}
               />
-              <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1">
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#7a6f62', marginTop: '4px' }}>
                 <span>1 question</span>
                 <span>{maxQuestions} questions</span>
               </div>
@@ -237,34 +215,22 @@ export default function ResumeGrillPage() {
 
           {/* Start Button */}
           {resumes.length > 0 && (
-            <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
-              <button
+            <div style={{ paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+              <GlassButton
+                variant="amber"
+                size="md"
                 onClick={handleStartGrill}
+                className="w-full justify-center"
                 disabled={!selectedResume || creating}
-                className={`w-full py-4 px-6 rounded-lg font-bold text-lg transition-all ${
-                  !selectedResume || creating
-                    ? 'bg-slate-400 dark:bg-slate-600 text-slate-300 dark:text-slate-400 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-orange-500 to-red-600 text-white hover:from-orange-600 hover:to-red-700 transform hover:scale-105'
-                }`}
               >
-                {creating ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Generating Questions...
-                  </span>
-                ) : (
-                  "Get Grilled 🔥"
-                )}
-              </button>
-              <p className="text-center text-slate-500 dark:text-slate-400 text-sm mt-3">
+                {creating ? 'Generating Questions...' : 'Get Grilled 🔥'}
+              </GlassButton>
+              <p style={{ textAlign: 'center', color: '#7a6f62', fontSize: '12px', marginTop: '10px' }}>
                 This will generate {numQuestions} tough {numQuestions === 1 ? 'question' : 'questions'} about your resume
               </p>
             </div>
           )}
-        </div>
+        </motion.div>
       </div>
     </main>
   );

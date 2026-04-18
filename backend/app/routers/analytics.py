@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 
 from app.database import get_db
 from app.dependencies import get_current_user
-from app.models.interview import Interview
+from app.models.interview import Interview, InterviewStatus
 from app.models.question import Question
 from app.models.answer import Answer
 
@@ -90,9 +90,9 @@ async def get_progress(
     # Get all completed interviews for the user
     interviews = db.query(Interview).filter(
         Interview.user_id == current_user.id,
-        Interview.status == "COMPLETED",
+        Interview.status == InterviewStatus.COMPLETED,
         Interview.overall_score.isnot(None)
-    ).order_by(Interview.completed_at).all()
+    ).order_by(Interview.created_at).all()
 
     if not interviews:
         return {

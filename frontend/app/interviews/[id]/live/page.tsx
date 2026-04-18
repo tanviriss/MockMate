@@ -61,6 +61,7 @@ export default function LiveInterviewPage({
     transcript,
     error,
     isTranscribing,
+    isProcessingAnswer,
     totalQuestions,
     currentQuestionNumber,
     welcomeMessage,
@@ -397,6 +398,20 @@ export default function LiveInterviewPage({
                 <p className="text-slate-500 dark:text-slate-400">
                   Please wait while we transcribe your answer
                 </p>
+              </div>
+            )}
+
+            {/* Processing Answer State — shown after confirm while AI decides on follow-up */}
+            {isProcessingAnswer && !transcript && !isTranscribing && (
+              <div
+                className="glass rounded-2xl p-8 sm:p-12 text-center"
+                style={{ border: '1px solid rgba(212,163,90,0.18)' }}
+              >
+                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', color: '#d4a35a' }}>
+                  <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: '2px solid rgba(212,163,90,0.30)', borderTopColor: '#d4a35a', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
+                  <span style={{ fontSize: '16px', fontWeight: 600 }}>Analyzing your answer…</span>
+                </div>
               </div>
             )}
 

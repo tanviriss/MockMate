@@ -6,8 +6,10 @@ import { useClerkAuth } from '@/hooks/useClerkAuth';
 import { api } from '@/lib/api';
 import Logo from '@/components/Logo';
 import Modal from '@/components/Modal';
-import { SkeletonResume } from '@/components/Skeleton';
 import LoadingMessages from '@/components/LoadingMessages';
+import { motion } from 'framer-motion';
+import { GlassButton } from '@/components/ui/glass-button';
+
 interface Resume {
   id: number;
   file_url: string;
@@ -56,7 +58,6 @@ export default function ResumesPage() {
       setLoading(true);
       const token = await getToken();
       if (!token) return;
-
       const data = await api.getResumes(token);
       setResumes(data.resumes || []);
     } catch (err) {
@@ -69,9 +70,9 @@ export default function ResumesPage() {
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
+    if (e.type === 'dragenter' || e.type === 'dragover') {
       setDragActive(true);
-    } else if (e.type === "dragleave") {
+    } else if (e.type === 'dragleave') {
       setDragActive(false);
     }
   };
@@ -80,7 +81,6 @@ export default function ResumesPage() {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFileSelect(e.dataTransfer.files[0]);
     }
@@ -101,13 +101,11 @@ export default function ResumesPage() {
 
   const handleUpload = async () => {
     if (!selectedFile) return;
-
     try {
       setUploading(true);
       setError('');
       const token = await getToken();
       if (!token) return;
-
       await api.uploadResume(selectedFile, token);
       setSelectedFile(null);
       fetchResumes();
@@ -129,10 +127,7 @@ export default function ResumesPage() {
         try {
           const token = await getToken();
           if (!token) return;
-
           const result = await api.deleteResume(resumeId, token);
-
-          // Show success message
           setModalState({
             isOpen: true,
             type: 'success',
@@ -142,7 +137,6 @@ export default function ResumesPage() {
               : 'Resume deleted successfully.',
             showCancel: false,
           });
-
           fetchResumes();
         } catch (err) {
           setModalState({
@@ -163,46 +157,29 @@ export default function ResumesPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-slate-100 dark:bg-slate-800">
-        {/* Neutral slate theme background */}
-        <div className="fixed inset-0 z-0 bg-slate-100 dark:bg-slate-800">
-          {/* Subtle colored accents */}
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-slate-200/50 dark:bg-slate-700/30 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-zinc-200/40 dark:bg-slate-600/20 rounded-full blur-3xl"></div>
-        </div>
-
-        {/* Navigation */}
-        <nav className="relative z-10 border-b border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-          <div className="max-w-7xl mx-auto px-6 py-4">
-            <div className="flex justify-between items-center">
-              <Logo />
-            </div>
+      <main style={{ minHeight: '100vh', background: '#1a1822' }}>
+        <nav className="glass sticky top-0 z-50" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <Logo />
           </div>
         </nav>
-
-        {/* Main Content Skeleton */}
-        <div className="relative z-10 max-w-6xl mx-auto px-6 py-12">
-          <div className="h-12 w-64 bg-slate-200 dark:bg-slate-700 rounded-lg mb-4 animate-pulse"></div>
-          <div className="h-6 w-96 bg-slate-200 dark:bg-slate-700 rounded-lg mb-12 animate-pulse"></div>
-
-          {/* Upload Section Skeleton */}
-          <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-8 mb-8">
-            <div className="h-8 w-48 bg-slate-200 dark:bg-slate-700 rounded-lg mb-6 animate-pulse"></div>
-            <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-12">
-              <div className="h-64 bg-slate-100 dark:bg-slate-800 rounded-lg animate-pulse"></div>
-            </div>
+        <div className="max-w-6xl mx-auto px-6 py-12">
+          <div style={{ height: '44px', width: '240px', background: 'rgba(255,255,255,0.06)', borderRadius: '10px', marginBottom: '16px' }} className="animate-pulse" />
+          <div style={{ height: '24px', width: '360px', background: 'rgba(255,255,255,0.04)', borderRadius: '8px', marginBottom: '48px' }} className="animate-pulse" />
+          <div className="glass rounded-2xl p-8 mb-6">
+            <div style={{ height: '32px', width: '200px', background: 'rgba(255,255,255,0.06)', borderRadius: '8px', marginBottom: '24px' }} className="animate-pulse" />
+            <div style={{ height: '200px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px' }} className="animate-pulse" />
           </div>
-
-          {/* Resumes List Skeleton */}
-          <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden">
-            <div className="p-6 border-b border-slate-200 dark:border-slate-700">
-              <div className="h-8 w-48 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse"></div>
-            </div>
-            <div className="divide-y divide-slate-200 dark:divide-slate-700">
-              {[1, 2, 3].map((i) => (
-                <SkeletonResume key={i} />
-              ))}
-            </div>
+          <div className="glass rounded-2xl overflow-hidden">
+            {[1, 2, 3].map((i) => (
+              <div key={i} style={{ padding: '24px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', gap: '16px' }}>
+                <div style={{ width: '56px', height: '56px', background: 'rgba(212,163,90,0.12)', borderRadius: '12px' }} className="animate-pulse" />
+                <div style={{ flex: 1 }}>
+                  <div style={{ height: '20px', width: '160px', background: 'rgba(255,255,255,0.06)', borderRadius: '6px', marginBottom: '8px' }} className="animate-pulse" />
+                  <div style={{ height: '14px', width: '120px', background: 'rgba(255,255,255,0.04)', borderRadius: '6px' }} className="animate-pulse" />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </main>
@@ -210,81 +187,77 @@ export default function ResumesPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-100 dark:bg-slate-800">
-      {/* Neutral slate theme background */}
-      <div className="fixed inset-0 z-0 bg-slate-100 dark:bg-slate-800">
-        {/* Subtle colored accents */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-slate-200/50 dark:bg-slate-700/30 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-zinc-200/40 dark:bg-slate-600/20 rounded-full blur-3xl"></div>
-      </div>
-
-      {/* Navigation */}
-      <nav className="relative z-10 border-b border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex justify-between items-center">
-            <button onClick={() => router.push('/dashboard')}>
-              <Logo />
-            </button>
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              Back to Dashboard
-            </button>
-          </div>
+    <main style={{ minHeight: '100vh', background: '#1a1822' }}>
+      {/* Navbar */}
+      <nav className="glass sticky top-0 z-50" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <button onClick={() => router.push('/dashboard')}>
+            <Logo />
+          </button>
+          <button
+            onClick={() => router.push('/dashboard')}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#7a6f62', fontSize: '14px', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.15s' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#f0e8d8')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#7a6f62')}
+          >
+            <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Dashboard
+          </button>
         </div>
       </nav>
 
-      {/* Main Content */}
-      <div className="relative z-10 max-w-6xl mx-auto px-6 py-12">
-        <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">
-          My Resumes
-        </h1>
-        <p className="text-xl text-slate-600 dark:text-slate-400 mb-12">
-          Upload and manage your resumes with AI-powered parsing
-        </p>
+      <div className="max-w-6xl mx-auto px-6 py-12">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', stiffness: 260, damping: 24 }}>
+          <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 800, color: '#f0e8d8', marginBottom: '8px' }}>My Resumes</h1>
+          <p style={{ color: '#7a6f62', fontSize: '16px', marginBottom: '40px' }}>Upload and manage your resumes with AI-powered parsing</p>
+        </motion.div>
 
         {error && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg backdrop-blur-sm mb-6">
+          <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.20)', color: '#fca5a5', padding: '12px 16px', borderRadius: '10px', marginBottom: '24px', fontSize: '14px' }}>
             {error}
           </div>
         )}
 
         {/* Upload Section */}
-        <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-8 mb-8">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Upload New Resume</h2>
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: 'spring', stiffness: 260, damping: 24, delay: 0.08 }}
+          className="glass rounded-2xl p-8 mb-6"
+          style={{ border: '1px solid rgba(255,255,255,0.06)' }}
+        >
+          <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#f0e8d8', marginBottom: '20px' }}>Upload New Resume</h2>
 
           <div
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
             onDrop={handleDrop}
-            className={`border-2 border-dashed rounded-xl p-12 text-center transition ${
-              dragActive
-                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/10'
-                : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500'
-            }`}
+            style={{
+              border: `2px dashed ${dragActive ? '#d4a35a' : 'rgba(212,163,90,0.25)'}`,
+              borderRadius: '16px',
+              padding: '48px 24px',
+              textAlign: 'center',
+              transition: 'all 0.2s',
+              background: dragActive ? 'rgba(212,163,90,0.06)' : 'rgba(255,255,255,0.02)',
+              cursor: 'default',
+            }}
           >
             {!selectedFile ? (
               <div>
-                <div className="w-16 h-16 mx-auto mb-4 bg-blue-500 dark:bg-blue-400 rounded-full flex items-center justify-center">
-                  <svg className="w-8 h-8 text-white dark:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div style={{ width: '56px', height: '56px', margin: '0 auto 16px', background: 'rgba(212,163,90,0.12)', border: '1px solid rgba(212,163,90,0.25)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg style={{ width: '24px', height: '24px', color: '#d4a35a' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                   </svg>
                 </div>
-                <p className="text-slate-900 dark:text-white text-lg font-semibold mb-2">
-                  Drop your resume here or click to browse
-                </p>
-                <p className="text-slate-600 dark:text-slate-400 text-sm mb-4">
-                  PDF only, max 10MB
-                </p>
-                <label className="cursor-pointer">
-                  <span className="px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-lg font-semibold hover:bg-slate-800 dark:hover:bg-slate-100 transition inline-block">
+                <p style={{ color: '#f0e8d8', fontSize: '16px', fontWeight: 600, marginBottom: '6px' }}>Drop your resume here or click to browse</p>
+                <p style={{ color: '#7a6f62', fontSize: '13px', marginBottom: '20px' }}>PDF only, max 10MB</p>
+                <label style={{ cursor: 'pointer' }}>
+                  <GlassButton variant="amber" size="sm" onClick={() => {}} className="pointer-events-none inline-flex">
                     Choose File
-                  </span>
+                  </GlassButton>
                   <input
                     type="file"
                     accept=".pdf"
@@ -294,29 +267,23 @@ export default function ResumesPage() {
                 </label>
               </div>
             ) : (
-              <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800 p-4 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-500 dark:bg-blue-400 rounded-lg flex items-center justify-center">
-                    <svg className="w-6 h-6 text-white dark:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(212,163,90,0.06)', border: '1px solid rgba(212,163,90,0.15)', borderRadius: '12px', padding: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ width: '40px', height: '40px', background: 'rgba(212,163,90,0.15)', border: '1px solid rgba(212,163,90,0.25)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg style={{ width: '20px', height: '20px', color: '#d4a35a' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                   </div>
-                  <div className="text-left">
-                    <p className="text-slate-900 dark:text-white font-medium">{selectedFile.name}</p>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                  <div style={{ textAlign: 'left' }}>
+                    <p style={{ color: '#f0e8d8', fontWeight: 600, fontSize: '14px' }}>{selectedFile.name}</p>
+                    <p style={{ color: '#7a6f62', fontSize: '12px' }}>{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleUpload}
-                    disabled={uploading}
-                    className="px-6 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-700 dark:hover:bg-blue-600 hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {uploading ? 'Uploading...' : 'Upload'}
-                  </button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <GlassButton variant="amber" size="sm" onClick={handleUpload}>Upload</GlassButton>
                   <button
                     onClick={() => setSelectedFile(null)}
-                    className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition"
+                    style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: '8px', color: '#7a6f62', fontSize: '13px', cursor: 'pointer' }}
                   >
                     Cancel
                   </button>
@@ -324,102 +291,96 @@ export default function ResumesPage() {
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* Resumes List */}
-        <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden">
-          <div className="p-6 border-b border-slate-200 dark:border-slate-700">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-              Your Resumes ({resumes.length})
-            </h2>
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: 'spring', stiffness: 260, damping: 24, delay: 0.16 }}
+          className="glass rounded-2xl overflow-hidden"
+          style={{ border: '1px solid rgba(255,255,255,0.06)' }}
+        >
+          <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#f0e8d8' }}>Your Resumes ({resumes.length})</h2>
           </div>
 
           {resumes.length === 0 ? (
-            <div className="p-12 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
-                <svg className="w-8 h-8 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div style={{ padding: '64px 24px', textAlign: 'center' }}>
+              <div style={{ width: '56px', height: '56px', margin: '0 auto 16px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg style={{ width: '24px', height: '24px', color: '#7a6f62' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <p className="text-slate-500 dark:text-slate-400">No resumes uploaded yet.</p>
-              <p className="text-slate-400 dark:text-slate-500 text-sm mt-2">Upload your first resume above!</p>
+              <p style={{ color: '#7a6f62', fontSize: '14px' }}>No resumes uploaded yet.</p>
+              <p style={{ color: '#7a6f62', fontSize: '13px', opacity: 0.7, marginTop: '4px' }}>Upload your first resume above!</p>
             </div>
           ) : (
-            <div className="divide-y divide-slate-200 dark:divide-slate-700">
-              {resumes.map((resume) => (
-                <div key={resume.id} className="p-6 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition group">
-                  <div className="flex gap-6">
-                    <div className="flex-shrink-0">
-                      <div className="w-16 h-16 bg-blue-500 dark:bg-blue-400 rounded-xl flex items-center justify-center">
-                        <svg className="w-8 h-8 text-white dark:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                      </div>
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">
-                        {resume.parsed_data?.name || 'Resume'}
-                      </h3>
-                      <p className="text-slate-600 dark:text-slate-400 text-sm mb-3">
-                        {resume.parsed_data?.email || 'No email'}
-                      </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-500 mb-4">
-                        Uploaded: {new Date(resume.created_at).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}
-                      </p>
-
-                      {/* Skills Preview */}
-                      {resume.parsed_data?.technical_skills && Array.isArray(resume.parsed_data.technical_skills) && (
-                        <div>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-2">Top Skills:</p>
-                          <div className="flex flex-wrap gap-2">
-                            {resume.parsed_data.technical_skills.slice(0, 6).map((skill: string, idx: number) => (
-                              <span
-                                key={idx}
-                                className="px-3 py-1 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-full"
-                              >
-                                {skill}
-                              </span>
-                            ))}
-                            {resume.parsed_data.technical_skills.length > 6 && (
-                              <span className="px-3 py-1 text-xs text-slate-500 dark:text-slate-400">
-                                +{resume.parsed_data.technical_skills.length - 6} more
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                      <a
-                        href={resume.file_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-lg text-sm font-medium transition text-center"
-                      >
-                        View PDF
-                      </a>
-                      <button
-                        onClick={() => handleDelete(resume.id)}
-                        className="px-4 py-2 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg text-sm font-medium transition"
-                      >
-                        Delete
-                      </button>
-                    </div>
+            <div>
+              {resumes.map((resume, idx) => (
+                <motion.div
+                  key={resume.id}
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.06, type: 'spring', stiffness: 300, damping: 28 }}
+                  style={{ padding: '20px 24px', borderBottom: idx < resumes.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', display: 'flex', gap: '16px', transition: 'background 0.15s' }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.02)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                >
+                  <div style={{ flexShrink: 0, width: '52px', height: '52px', background: 'rgba(212,163,90,0.12)', border: '1px solid rgba(212,163,90,0.20)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg style={{ width: '24px', height: '24px', color: '#d4a35a' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
                   </div>
-                </div>
+
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#f0e8d8', marginBottom: '2px' }}>
+                      {resume.parsed_data?.name || 'Resume'}
+                    </h3>
+                    <p style={{ color: '#7a6f62', fontSize: '13px', marginBottom: '8px' }}>
+                      {resume.parsed_data?.email || 'No email'} · Uploaded {new Date(resume.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                    </p>
+                    {resume.parsed_data?.technical_skills && Array.isArray(resume.parsed_data.technical_skills) && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                        {resume.parsed_data.technical_skills.slice(0, 6).map((skill: string, i: number) => (
+                          <span key={i} style={{ padding: '2px 8px', background: 'rgba(212,163,90,0.08)', border: '1px solid rgba(212,163,90,0.18)', color: '#d4a35a', fontSize: '11px', borderRadius: '999px' }}>
+                            {skill}
+                          </span>
+                        ))}
+                        {resume.parsed_data.technical_skills.length > 6 && (
+                          <span style={{ fontSize: '11px', color: '#7a6f62', padding: '2px 0' }}>+{resume.parsed_data.technical_skills.length - 6} more</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexShrink: 0 }}>
+                    <a
+                      href={resume.file_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ padding: '7px 14px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: '10px', color: '#f0e8d8', fontSize: '13px', fontWeight: 600, textDecoration: 'none', textAlign: 'center', transition: 'background 0.15s' }}
+                      onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.10)')}
+                      onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)')}
+                    >
+                      View PDF
+                    </a>
+                    <button
+                      onClick={() => handleDelete(resume.id)}
+                      style={{ padding: '7px 14px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.20)', borderRadius: '10px', color: '#fca5a5', fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: 'background 0.15s' }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(239,68,68,0.15)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'rgba(239,68,68,0.08)')}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </motion.div>
               ))}
             </div>
           )}
-        </div>
+        </motion.div>
       </div>
 
-      {/* Modal */}
       <Modal
         isOpen={modalState.isOpen}
         onClose={() => setModalState({ ...modalState, isOpen: false })}
@@ -429,20 +390,6 @@ export default function ResumesPage() {
         type={modalState.type}
         showCancel={modalState.showCancel}
       />
-
-      <style jsx global>{`
-        @keyframes blob {
-          0%, 100% { transform: translate(0px, 0px) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-        }
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-      `}</style>
     </main>
   );
 }

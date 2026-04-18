@@ -1,9 +1,8 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { getAllGuides } from '@/lib/guides';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import BackToHomeButton from '@/components/BackToHomeButton';
+import GuideCard from '@/components/GuideCard';
 
 export const metadata: Metadata = {
   title: 'Interview Preparation Guides | Reherse',
@@ -32,25 +31,24 @@ export default async function GuidesPage() {
   const guides = await getAllGuides();
 
   return (
-    <main className="min-h-screen bg-slate-50 dark:bg-slate-950">
-      {/* Background */}
-      <div className="fixed inset-0 z-0 bg-slate-50 dark:bg-slate-950">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-slate-200/40 dark:bg-slate-800/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-zinc-200/30 dark:bg-zinc-800/15 rounded-full blur-3xl"></div>
+    <main style={{ minHeight: '100vh', background: '#1a1822', color: '#f0e8d8' }}>
+      {/* Ambient glow */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div style={{ position: 'absolute', top: '-150px', right: '-150px', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(212,163,90,0.07) 0%, transparent 70%)', borderRadius: '50%' }} />
+        <div style={{ position: 'absolute', bottom: '-150px', left: '-150px', width: '450px', height: '450px', background: 'radial-gradient(circle, rgba(212,163,90,0.04) 0%, transparent 70%)', borderRadius: '50%' }} />
       </div>
 
-      {/* Content */}
       <div className="relative z-10">
-        {/* Hero Section */}
-        <section className="py-20 px-6">
+        {/* Hero */}
+        <section style={{ padding: '80px 24px 48px' }}>
           <div className="max-w-7xl mx-auto text-center">
-            <Badge variant="outline" className="mb-6 bg-purple-50 dark:bg-purple-950/20 border-purple-200 dark:border-purple-800">
+            <div style={{ display: 'inline-block', padding: '4px 14px', background: 'rgba(212,163,90,0.10)', border: '1px solid rgba(212,163,90,0.25)', borderRadius: '999px', fontSize: '11px', fontWeight: 700, color: '#d4a35a', letterSpacing: '0.10em', textTransform: 'uppercase', marginBottom: '24px' }}>
               Free Resources
-            </Badge>
-            <h1 className="text-5xl md:text-6xl font-bold text-slate-900 dark:text-white mb-6">
+            </div>
+            <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 900, color: '#f0e8d8', marginBottom: '16px', letterSpacing: '-0.02em' }}>
               Interview Preparation Guides
             </h1>
-            <p className="text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto mb-8">
+            <p style={{ color: '#7a6f62', fontSize: '18px', maxWidth: '600px', margin: '0 auto 32px', lineHeight: 1.6 }}>
               Expert strategies, tips, and techniques to help you ace behavioral interviews,
               technical assessments, and land your dream job.
             </p>
@@ -59,44 +57,23 @@ export default async function GuidesPage() {
         </section>
 
         {/* Guides Grid */}
-        <section className="pb-20 px-6">
+        <section style={{ padding: '0 24px 80px' }}>
           <div className="max-w-7xl mx-auto">
             {guides.length === 0 ? (
-              <div className="text-center py-20">
-                <p className="text-slate-600 dark:text-slate-400 text-xl">
-                  Guides coming soon! Check back later.
-                </p>
+              <div style={{ textAlign: 'center', padding: '80px 24px' }}>
+                <p style={{ color: '#7a6f62', fontSize: '18px' }}>Guides coming soon! Check back later.</p>
               </div>
             ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {guides.map((guide) => (
-                  <Link key={guide.slug} href={`/guides/${guide.slug}`}>
-                    <Card className="group h-full hover:border-slate-400 dark:hover:border-slate-600 transition-all hover:scale-105 cursor-pointer">
-                      <CardContent className="p-6">
-                        <Badge
-                          variant="outline"
-                          className="mb-3 bg-purple-50 dark:bg-purple-950/20 border-purple-200 dark:border-purple-800"
-                        >
-                          {guide.category}
-                        </Badge>
-                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3 line-clamp-2">
-                          {guide.title}
-                        </h3>
-                        <p className="text-slate-600 dark:text-slate-400 mb-4 line-clamp-3">
-                          {guide.description}
-                        </p>
-                        <div className="flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
-                          <span>{guide.readTime}</span>
-                          <span className="text-purple-600 dark:text-purple-400 font-semibold group-hover:translate-x-2 transition-transform flex items-center gap-1">
-                            Read guide
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                          </span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
+                  <GuideCard
+                    key={guide.slug}
+                    slug={guide.slug}
+                    category={guide.category}
+                    title={guide.title}
+                    description={guide.description}
+                    readTime={guide.readTime}
+                  />
                 ))}
               </div>
             )}
@@ -104,32 +81,30 @@ export default async function GuidesPage() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-20 px-6">
+        <section style={{ padding: '0 24px 80px' }}>
           <div className="max-w-4xl mx-auto">
-            <Card className="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 border-purple-200 dark:border-purple-800">
-              <CardContent className="p-12 text-center">
-                <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">
-                  Ready to Practice?
-                </h2>
-                <p className="text-xl text-slate-600 dark:text-slate-400 mb-8">
-                  Turn these strategies into skills with Reherse&apos;s AI-powered interview coach
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Link
-                    href="/sign-up"
-                    className="inline-flex items-center justify-center px-8 py-3 bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white font-semibold rounded-lg transition-colors"
-                  >
-                    Start Free Practice →
-                  </Link>
-                  <Link
-                    href="/"
-                    className="inline-flex items-center justify-center px-8 py-3 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-900 dark:text-white font-semibold rounded-lg border border-slate-200 dark:border-slate-700 transition-colors"
-                  >
-                    Learn More
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="glass-amber rounded-2xl p-12 text-center" style={{ border: '1px solid rgba(212,163,90,0.20)' }}>
+              <h2 style={{ fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', fontWeight: 800, color: '#f0e8d8', marginBottom: '12px' }}>
+                Ready to Practice?
+              </h2>
+              <p style={{ color: '#7a6f62', fontSize: '16px', marginBottom: '32px' }}>
+                Turn these strategies into skills with Reherse&apos;s AI-powered interview coach
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Link
+                  href="/sign-up"
+                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '12px 28px', background: 'rgba(212,163,90,0.15)', border: '1px solid rgba(212,163,90,0.35)', borderRadius: '12px', color: '#d4a35a', fontWeight: 700, fontSize: '15px', textDecoration: 'none', backdropFilter: 'blur(16px)', transition: 'background 0.15s' }}
+                >
+                  Start Free Practice →
+                </Link>
+                <Link
+                  href="/"
+                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '12px 28px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', color: '#f0e8d8', fontWeight: 700, fontSize: '15px', textDecoration: 'none', backdropFilter: 'blur(16px)', transition: 'background 0.15s' }}
+                >
+                  Learn More
+                </Link>
+              </div>
+            </div>
           </div>
         </section>
       </div>

@@ -8,6 +8,8 @@ import Logo from '@/components/Logo';
 import LoadingMessages from '@/components/LoadingMessages';
 import { useBilling } from '@/lib/useBilling';
 import UpgradeModal from '@/components/UpgradeModal';
+import { motion } from 'framer-motion';
+import { GlassButton } from '@/components/ui/glass-button';
 
 interface Resume {
   id: number;
@@ -17,6 +19,19 @@ interface Resume {
   };
   created_at: string;
 }
+
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '12px 16px',
+  background: 'rgba(255,255,255,0.04)',
+  border: '1px solid rgba(255,255,255,0.08)',
+  borderRadius: '10px',
+  color: '#f0e8d8',
+  fontSize: '14px',
+  outline: 'none',
+  transition: 'border-color 0.15s',
+  boxSizing: 'border-box',
+};
 
 export default function NewInterviewPage() {
   const router = useRouter();
@@ -38,9 +53,7 @@ export default function NewInterviewPage() {
   });
 
   useEffect(() => {
-    if (isReady) {
-      fetchResumes();
-    }
+    if (isReady) fetchResumes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReady]);
 
@@ -51,8 +64,6 @@ export default function NewInterviewPage() {
       if (!token) return;
       const data = await api.getResumes(token);
       setResumes(data.resumes || []);
-
-      // Auto-select first resume if available
       if (data.resumes && data.resumes.length > 0) {
         setFormData(prev => ({ ...prev, resume_id: data.resumes[0].id.toString() }));
       }
@@ -65,37 +76,19 @@ export default function NewInterviewPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!formData.resume_id) {
-      setError('Please select a resume');
-      return;
-    }
-
-    if (!formData.job_description.trim()) {
-      setError('Please enter a job description');
-      return;
-    }
+    if (!formData.resume_id) { setError('Please select a resume'); return; }
+    if (!formData.job_description.trim()) { setError('Please enter a job description'); return; }
 
     try {
       setCreating(true);
       setError('');
-
       const token = await getToken();
       if (!token) return;
-
       const response = await api.createInterview(
-        {
-          resume_id: parseInt(formData.resume_id),
-          job_description: formData.job_description,
-          num_questions: formData.num_questions
-        },
+        { resume_id: parseInt(formData.resume_id), job_description: formData.job_description, num_questions: formData.num_questions },
         token
       );
-
-      // Store interview data in session storage for details page
       sessionStorage.setItem(`interview_${response.id}`, JSON.stringify(response));
-
-      // Navigate to interview details page (keep creating state to prevent flash)
       router.push(`/interviews/${response.id}`);
     } catch (err) {
       const e = err as Error & { code?: string; upgrade_required?: boolean };
@@ -110,100 +103,93 @@ export default function NewInterviewPage() {
     }
   };
 
-  if (creating) {
-    return <LoadingMessages interval={1500} type="interview" />;
-  }
+  if (creating) return <LoadingMessages interval={1500} type="interview" />;
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-          <p className="text-slate-600 dark:text-slate-400">Loading...</p>
+      <main style={{ minHeight: '100vh', background: '#1a1822', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ width: '40px', height: '40px', border: '2px solid rgba(212,163,90,0.3)', borderTopColor: '#d4a35a', borderRadius: '50%', margin: '0 auto 16px', animation: 'spin 0.8s linear infinite' }} />
+          <p style={{ color: '#7a6f62', fontSize: '14px' }}>Loading...</p>
         </div>
-      </div>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-slate-100 dark:bg-slate-800">
+    <main style={{ minHeight: '100vh', background: '#1a1822' }}>
       {showUpgradeModal && <UpgradeModal reason={upgradeReason} onClose={() => setShowUpgradeModal(false)} />}
-      {/* Neutral slate theme background */}
-      <div className="fixed inset-0 z-0 bg-slate-100 dark:bg-slate-800">
-        {/* Subtle colored accents */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-slate-200/50 dark:bg-slate-700/30 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-zinc-200/40 dark:bg-slate-600/20 rounded-full blur-3xl"></div>
-      </div>
 
-      {/* Navigation */}
-      <nav className="relative z-10 border-b border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex justify-between items-center">
-            <button onClick={() => router.push('/dashboard')}>
-              <Logo />
-            </button>
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              Back to Dashboard
-            </button>
-          </div>
+      {/* Navbar */}
+      <nav className="glass sticky top-0 z-50" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <button onClick={() => router.push('/dashboard')}>
+            <Logo />
+          </button>
+          <button
+            onClick={() => router.push('/dashboard')}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#7a6f62', fontSize: '14px', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.15s' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#f0e8d8')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#7a6f62')}
+          >
+            <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Dashboard
+          </button>
         </div>
       </nav>
 
-      {/* Main Content */}
-      <div className="relative z-10 max-w-4xl mx-auto px-6 py-12">
-        <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">
-          Create New Interview
-        </h1>
-        <p className="text-xl text-slate-600 dark:text-slate-400 mb-8">
-          Generate AI-powered interview questions based on your resume and job description
-        </p>
-
+      <div className="max-w-4xl mx-auto px-6 py-12">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', stiffness: 260, damping: 24 }}>
+          <h1 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 800, color: '#f0e8d8', marginBottom: '8px' }}>Create New Interview</h1>
+          <p style={{ color: '#7a6f62', fontSize: '16px', marginBottom: '40px' }}>Generate AI-powered interview questions based on your resume and job description</p>
+        </motion.div>
 
         {resumes.length === 0 ? (
-          <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-12 text-center">
-            <div className="w-16 h-16 mx-auto mb-4 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
-              <svg className="w-8 h-8 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', stiffness: 260, damping: 24, delay: 0.08 }}
+            className="glass rounded-2xl p-12"
+            style={{ textAlign: 'center', border: '1px solid rgba(255,255,255,0.06)' }}
+          >
+            <div style={{ width: '56px', height: '56px', margin: '0 auto 16px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg style={{ width: '24px', height: '24px', color: '#7a6f62' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">No Resumes Found</h3>
-            <p className="text-slate-500 dark:text-slate-400 mb-6">You need to upload a resume before creating an interview.</p>
-            <button
-              onClick={() => router.push('/resumes')}
-              className="px-6 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-700 dark:hover:bg-blue-600 hover:shadow-lg transition"
-            >
-              Upload Resume
-            </button>
-          </div>
+            <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#f0e8d8', marginBottom: '8px' }}>No Resumes Found</h3>
+            <p style={{ color: '#7a6f62', fontSize: '14px', marginBottom: '24px' }}>You need to upload a resume before creating an interview.</p>
+            <GlassButton variant="amber" size="md" onClick={() => router.push('/resumes')}>Upload Resume</GlassButton>
+          </motion.div>
         ) : (
-          <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-2xl p-8">
+          <motion.form
+            onSubmit={handleSubmit}
+            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', stiffness: 260, damping: 24, delay: 0.08 }}
+            className="glass rounded-2xl p-8"
+            style={{ border: '1px solid rgba(255,255,255,0.06)' }}
+          >
             {error && (
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg backdrop-blur-sm mb-6">
+              <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.20)', color: '#fca5a5', padding: '12px 16px', borderRadius: '10px', marginBottom: '24px', fontSize: '14px' }}>
                 {error}
               </div>
             )}
 
-            <div className="space-y-6">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               {/* Resume Selection */}
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
-                  Select Resume
-                </label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#f0e8d8', marginBottom: '8px' }}>Select Resume</label>
                 <select
                   value={formData.resume_id}
                   onChange={(e) => setFormData({ ...formData, resume_id: e.target.value })}
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  style={{ ...inputStyle }}
+                  onFocus={e => (e.currentTarget.style.borderColor = '#d4a35a')}
+                  onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)')}
                   required
                 >
                   {resumes.map((resume) => (
-                    <option key={resume.id} value={resume.id} className="bg-white dark:bg-slate-800">
-                      {resume.parsed_data?.name || `Resume ${resume.id}`} - {new Date(resume.created_at).toLocaleDateString()}
+                    <option key={resume.id} value={resume.id} style={{ background: '#1a1822', color: '#f0e8d8' }}>
+                      {resume.parsed_data?.name || `Resume ${resume.id}`} · {new Date(resume.created_at).toLocaleDateString()}
                     </option>
                   ))}
                 </select>
@@ -211,31 +197,25 @@ export default function NewInterviewPage() {
 
               {/* Job Description */}
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
-                  Job Description
-                </label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#f0e8d8', marginBottom: '8px' }}>Job Description</label>
                 <textarea
                   value={formData.job_description}
                   onChange={(e) => setFormData({ ...formData, job_description: e.target.value })}
                   rows={10}
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  style={{ ...inputStyle, resize: 'vertical' }}
+                  onFocus={e => (e.currentTarget.style.borderColor = '#d4a35a')}
+                  onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)')}
                   placeholder="Paste the job description here..."
                   required
                 />
-                <p className="text-slate-500 dark:text-slate-400 text-sm mt-2">
-                  Paste the full job description to get the most relevant interview questions
-                </p>
+                <p style={{ color: '#7a6f62', fontSize: '12px', marginTop: '6px' }}>Paste the full job description to get the most relevant interview questions</p>
               </div>
 
               {/* Number of Questions */}
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
-                    Number of Questions: {formData.num_questions}
-                  </label>
-                  {!isPremium && (
-                    <span className="text-xs text-slate-500 dark:text-slate-400">Pro: up to 15</span>
-                  )}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <label style={{ fontSize: '13px', fontWeight: 600, color: '#f0e8d8' }}>Number of Questions: {formData.num_questions}</label>
+                  {!isPremium && <span style={{ fontSize: '11px', color: '#7a6f62' }}>Pro: up to 15</span>}
                 </div>
                 <input
                   type="range"
@@ -243,40 +223,21 @@ export default function NewInterviewPage() {
                   max={maxQuestions}
                   value={Math.min(formData.num_questions, maxQuestions)}
                   onChange={(e) => setFormData({ ...formData, num_questions: parseInt(e.target.value) })}
-                  className="w-full"
+                  style={{ width: '100%', accentColor: '#d4a35a' }}
                 />
-                <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1">
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#7a6f62', marginTop: '4px' }}>
                   <span>1 question</span>
                   <span>{maxQuestions} questions{!isPremium ? ' (free plan)' : ''}</span>
                 </div>
               </div>
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={creating}
-                className="w-full py-4 bg-blue-600 dark:bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-700 dark:hover:bg-blue-600 hover:shadow-lg transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-              >
+              <GlassButton variant="amber" size="md" onClick={() => {}} className="w-full justify-center" type="submit">
                 Generate Interview Questions
-              </button>
+              </GlassButton>
             </div>
-          </form>
+          </motion.form>
         )}
       </div>
-
-      <style jsx global>{`
-        @keyframes blob {
-          0%, 100% { transform: translate(0px, 0px) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-        }
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-      `}</style>
     </main>
   );
 }

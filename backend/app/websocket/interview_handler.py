@@ -5,6 +5,7 @@ import socketio
 import tempfile
 import os
 import base64
+import asyncio
 from typing import Optional
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
@@ -37,6 +38,44 @@ sio = socketio.AsyncServer(
     cors_credentials=True,
     compression_threshold=1024,
 )
+
+
+async def precompute_followup(sid: str, question_id: int, transcript: str, question_text: str, question_context: dict):
+    """
+    Background task: run follow-up analysis during transcript review so the
+    result is ready (or nearly ready) by the time the user clicks Confirm.
+    """
+    try:
+        session = session_manager.get_session(sid)
+        if not session:
+            return
+        # Skip if we've already hit the follow-up limit for this question
+        if session.followup_counts.get(question_id, 0) >= 1:
+            return
+        # Skip if a follow-up is already pending (e.g. answering a follow-up)
+        if session.pending_followup:
+            return
+
+        needs_followup, followup_data = await should_ask_followup(
+            question_text=question_text,
+            answer_transcript=transcript,
+            question_context=question_context
+        )
+
+        # Re-fetch session — state may have changed while we were awaiting
+        session = session_manager.get_session(sid)
+        if not session:
+            return
+
+        session.precomputed_followup = {
+            'question_id': question_id,
+            'needs_followup': needs_followup,
+            'followup_data': followup_data,
+        }
+        session_manager.update_session(sid, session)
+        logger.info(f"Pre-computed follow-up for question {question_id}: needs={needs_followup}")
+    except Exception as e:
+        logger.warning(f"precompute_followup failed (non-critical): {e}")
 
 
 async def validate_token(token: str) -> Optional[dict]:
@@ -243,6 +282,14 @@ async def start_interview(sid, data):
 async def send_question(sid, question: Question, question_index: int, total_questions: int):
     """Send question to client with audio (with TTS fallback)"""
     try:
+        # Store question text/context in session for follow-up pre-computation
+        session = session_manager.get_session(sid)
+        if session:
+            session.current_question_text = question.question_text
+            session.current_question_context = question.question_context or {}
+            session.precomputed_followup = None  # Clear any stale pre-computed result
+            session_manager.update_session(sid, session)
+
         # Always send the question text first
         await sio.emit('question', {
             'question_id': question.id,
@@ -454,6 +501,21 @@ async def submit_answer(sid, data):
                 'duration': transcription_result.get('duration')
             }, room=sid)
 
+            # Pre-compute follow-up analysis in background while user reviews transcript.
+            # By the time they confirm, the result is likely ready — eliminating the wait.
+            precompute_session = session_manager.get_session(sid)
+            if (precompute_session
+                    and not precompute_session.pending_followup
+                    and precompute_session.followup_counts.get(question_id, 0) < 1
+                    and precompute_session.current_question_text):
+                asyncio.create_task(precompute_followup(
+                    sid=sid,
+                    question_id=question_id,
+                    transcript=transcript,
+                    question_text=precompute_session.current_question_text,
+                    question_context=precompute_session.current_question_context,
+                ))
+
             # Store only transcript and audio URL (not the base64 data)
             session_manager.add_answer(sid, question_id, {
                 'transcript': transcript,
@@ -558,21 +620,34 @@ async def confirm_answer(sid, data):
             session_manager.update_session(sid, session)
         else:
             # Check if we already asked a follow-up for this question (max 1 per question)
-            # Track follow-ups per question to prevent infinite loops
             if not hasattr(session, 'followup_counts'):
                 session.followup_counts = {}
 
             followup_count = session.followup_counts.get(question_id, 0)
-            max_followups = 1  # Limit to 1 follow-up per question
+            max_followups = 1
 
             if followup_count >= max_followups:
                 logger.info(f"Max follow-ups ({max_followups}) reached for question {question_id}, moving on")
             else:
-                needs_followup, followup_data = await should_ask_followup(
-                    question_text=current_question.question_text,
-                    answer_transcript=transcript,
-                    question_context=current_question.question_context or {}
-                )
+                # Signal to frontend immediately so it shows a loading state
+                await sio.emit('processing_answer', {}, room=sid)
+
+                # Use pre-computed result if available (computed during transcript review)
+                precomputed = getattr(session, 'precomputed_followup', None)
+                if precomputed and precomputed.get('question_id') == question_id:
+                    needs_followup = precomputed['needs_followup']
+                    followup_data = precomputed['followup_data']
+                    session.precomputed_followup = None
+                    session_manager.update_session(sid, session)
+                    logger.info(f"Using pre-computed follow-up result for question {question_id}")
+                else:
+                    # Pre-computation wasn't ready — run synchronously (user confirmed fast)
+                    logger.info(f"Pre-computed result not available for question {question_id}, computing now")
+                    needs_followup, followup_data = await should_ask_followup(
+                        question_text=current_question.question_text,
+                        answer_transcript=transcript,
+                        question_context=current_question.question_context or {}
+                    )
 
                 if needs_followup and followup_data:
                     followup_text = followup_data.get('followup_question', '')
@@ -726,7 +801,9 @@ async def complete_interview(sid, session, db: Session):
         ).first()
 
         if interview:
+            from datetime import datetime, timezone
             interview.status = "completed"
+            interview.completed_at = datetime.now(timezone.utc)
             db.commit()
 
         session_manager.complete_session(sid)

@@ -54,48 +54,40 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-100 dark:bg-slate-800">
-      {/* Neutral slate theme background */}
-      <div className="fixed inset-0 z-0 bg-slate-100 dark:bg-slate-800">
-        {/* Subtle colored accents */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-slate-200/50 dark:bg-slate-700/30 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-zinc-200/40 dark:bg-slate-600/20 rounded-full blur-3xl"></div>
+    <main style={{ minHeight: '100vh', background: '#1a1822', color: '#f0e8d8' }}>
+      {/* Ambient glows */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div style={{ position: 'absolute', top: '-150px', right: '-150px', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(212,163,90,0.07) 0%, transparent 70%)', borderRadius: '50%' }} />
+        <div style={{ position: 'absolute', bottom: '-150px', left: '-150px', width: '450px', height: '450px', background: 'radial-gradient(circle, rgba(212,163,90,0.04) 0%, transparent 70%)', borderRadius: '50%' }} />
       </div>
 
       {/* Navigation */}
-      <nav className="relative z-10 border-b border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+      <nav className="glass sticky top-0 z-50" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex justify-between items-center">
             <Logo />
-            <div className="flex items-center gap-3 sm:gap-4 md:gap-6">
+            <div className="flex items-center gap-3 sm:gap-4">
               {billing && (
                 isPremium ? (
                   <button
                     onClick={manageSubscription}
-                    className="px-3 py-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs font-semibold rounded-full hover:opacity-90 transition-opacity"
+                    style={{ padding: '4px 14px', background: 'rgba(212,163,90,0.15)', border: '1px solid rgba(212,163,90,0.35)', borderRadius: '9999px', color: '#d4a35a', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}
                   >
                     ⚡ Pro
                   </button>
                 ) : (
                   <button
                     onClick={() => upgrade('monthly')}
-                    className="px-3 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-full hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors border border-slate-200 dark:border-slate-600"
+                    style={{ padding: '4px 14px', background: 'rgba(212,163,90,0.10)', border: '1px solid rgba(212,163,90,0.25)', borderRadius: '9999px', color: '#d4a35a', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}
                   >
                     Upgrade to Pro
                   </button>
                 )
               )}
-              <span className="text-slate-600 dark:text-slate-400 text-sm hidden sm:block">
+              <span style={{ color: '#7a6f62', fontSize: '13px' }} className="hidden sm:block">
                 {user.fullName || user.primaryEmailAddress?.emailAddress}
               </span>
-              <UserButton
-                afterSignOutUrl="/"
-                appearance={{
-                  elements: {
-                    avatarBox: "w-10 h-10"
-                  }
-                }}
-              />
+              <UserButton afterSignOutUrl="/" appearance={{ elements: { avatarBox: 'w-10 h-10' } }} />
             </div>
           </div>
         </div>
@@ -105,30 +97,33 @@ export default function DashboardPage() {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10 md:py-12">
         {/* Welcome Section */}
         <div className="mb-8 sm:mb-10 md:mb-12">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-3 sm:mb-4">
+          <h1 style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)', fontWeight: 800, color: '#f0e8d8', marginBottom: '8px' }}>
             Welcome back, {user.firstName || 'there'}!
           </h1>
-          <p className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-400">
+          <p style={{ color: '#7a6f62', fontSize: '16px' }}>
             Ready to practice and ace your next interview?
           </p>
         </div>
 
         {/* Free tier usage banner */}
         {billing && !isPremium && (
-          <div className="mb-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div
+            className="glass-amber rounded-xl mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+            style={{ padding: '16px 20px', borderLeft: '3px solid rgba(212,163,90,0.6)' }}
+          >
             <div>
-              <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+              <p style={{ fontSize: '13px', fontWeight: 700, color: '#f0e8d8', marginBottom: '2px' }}>
                 {interviewsRemaining === 0
                   ? "You've used all your free interviews"
                   : `${interviewsRemaining} free interview${interviewsRemaining === 1 ? '' : 's'} remaining`}
               </p>
-              <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
+              <p style={{ fontSize: '12px', color: '#7a6f62' }}>
                 Upgrade to Pro for unlimited interviews, Company Prep, and more.
               </p>
             </div>
             <button
               onClick={() => upgrade('monthly')}
-              className="shrink-0 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-lg transition-colors"
+              style={{ flexShrink: 0, padding: '8px 18px', background: 'rgba(212,163,90,0.15)', border: '1px solid rgba(212,163,90,0.35)', borderRadius: '10px', color: '#d4a35a', fontSize: '13px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
             >
               Upgrade to Pro →
             </button>
@@ -137,247 +132,175 @@ export default function DashboardPage() {
 
         {/* Feature Cards Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
-          {/* My Resumes Card */}
-          <button
-            onClick={() => router.push('/resumes')}
-            className="group relative overflow-hidden bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 md:p-8 hover:border-slate-300 dark:hover:border-slate-700 transition-all hover:scale-105 transform text-left"
-          >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 dark:bg-blue-500/5 rounded-bl-full"></div>
-            <div className="relative">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-blue-500 dark:bg-blue-400 rounded-xl flex items-center justify-center mb-4 sm:mb-5 md:mb-6 group-hover:scale-110 transition-transform">
-                <svg className="w-6 h-6 sm:w-7 sm:h-7 text-white dark:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2 sm:mb-3">My Resumes</h3>
-              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mb-3 sm:mb-4">
-                Upload and manage your resumes with AI-powered parsing
-              </p>
-              <div className="flex items-center text-blue-600 dark:text-blue-400 font-semibold group-hover:translate-x-2 transition-transform">
-                Manage resumes
-                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </div>
-          </button>
-
-          {/* Practice Interview Card */}
-          <button
-            onClick={() => router.push('/interviews/new')}
-            className="group relative overflow-hidden bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 md:p-8 hover:border-slate-300 dark:hover:border-slate-700 transition-all hover:scale-105 transform text-left"
-          >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 dark:bg-purple-500/5 rounded-bl-full"></div>
-            <div className="relative">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-purple-500 dark:bg-purple-400 rounded-xl flex items-center justify-center mb-4 sm:mb-5 md:mb-6 group-hover:scale-110 transition-transform">
-                <svg className="w-6 h-6 sm:w-7 sm:h-7 text-white dark:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                </svg>
-              </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2 sm:mb-3">Create Interview</h3>
-              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mb-3 sm:mb-4">
-                Generate AI interview questions based on job description
-              </p>
-              <div className="flex items-center text-purple-600 dark:text-purple-400 font-semibold group-hover:translate-x-2 transition-transform">
-                Start interview
-                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </div>
-          </button>
 
           {upgradeReason && (
             <UpgradeModal reason={upgradeReason} onClose={() => setUpgradeReason(null)} />
           )}
 
-          {/* Resume Grill Card */}
+          {/* My Resumes */}
+          <button
+            onClick={() => router.push('/resumes')}
+            className="group glass relative overflow-hidden rounded-2xl text-left"
+            style={{ padding: 'clamp(20px, 3vw, 32px)', transition: 'box-shadow 0.2s, transform 0.2s' }}
+            onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.35), 0 0 0 1px rgba(212,163,90,0.15)'; e.currentTarget.style.transform = 'scale(1.02)'; }}
+            onMouseLeave={e => { e.currentTarget.style.boxShadow = ''; e.currentTarget.style.transform = ''; }}
+          >
+            <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'radial-gradient(circle at 80% 0%, rgba(212,163,90,0.07) 0%, transparent 60%)' }} />
+            <div style={{ width: '48px', height: '48px', background: 'rgba(212,163,90,0.12)', border: '1px solid rgba(212,163,90,0.25)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d4a35a', marginBottom: '20px' }} className="group-hover:scale-110 transition-transform">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+            </div>
+            <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#f0e8d8', marginBottom: '8px' }}>My Resumes</h3>
+            <p style={{ fontSize: '13px', color: '#7a6f62', lineHeight: 1.5, marginBottom: '16px' }}>Upload and manage your resumes with AI-powered parsing</p>
+            <div className="flex items-center gap-1.5 group-hover:translate-x-1 transition-transform" style={{ color: '#d4a35a', fontSize: '13px', fontWeight: 600 }}>
+              Manage resumes
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
+            </div>
+          </button>
+
+          {/* Create Interview */}
+          <button
+            onClick={() => router.push('/interviews/new')}
+            className="group glass relative overflow-hidden rounded-2xl text-left"
+            style={{ padding: 'clamp(20px, 3vw, 32px)', transition: 'box-shadow 0.2s, transform 0.2s' }}
+            onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.35), 0 0 0 1px rgba(212,163,90,0.15)'; e.currentTarget.style.transform = 'scale(1.02)'; }}
+            onMouseLeave={e => { e.currentTarget.style.boxShadow = ''; e.currentTarget.style.transform = ''; }}
+          >
+            <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'radial-gradient(circle at 80% 0%, rgba(212,163,90,0.07) 0%, transparent 60%)' }} />
+            <div style={{ width: '48px', height: '48px', background: 'rgba(212,163,90,0.12)', border: '1px solid rgba(212,163,90,0.25)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d4a35a', marginBottom: '20px' }} className="group-hover:scale-110 transition-transform">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+            </div>
+            <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#f0e8d8', marginBottom: '8px' }}>Create Interview</h3>
+            <p style={{ fontSize: '13px', color: '#7a6f62', lineHeight: 1.5, marginBottom: '16px' }}>Generate AI interview questions based on job description</p>
+            <div className="flex items-center gap-1.5 group-hover:translate-x-1 transition-transform" style={{ color: '#d4a35a', fontSize: '13px', fontWeight: 600 }}>
+              Start interview
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
+            </div>
+          </button>
+
+          {/* Resume Grill */}
           <button
             onClick={() => isPremium ? router.push('/interviews/resume-grill') : setUpgradeReason('resume_grill')}
-            className="group relative overflow-hidden bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 md:p-8 hover:border-slate-300 dark:hover:border-slate-700 transition-all hover:scale-105 transform text-left"
+            className="group glass relative overflow-hidden rounded-2xl text-left"
+            style={{ padding: 'clamp(20px, 3vw, 32px)', transition: 'box-shadow 0.2s, transform 0.2s' }}
+            onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.35), 0 0 0 1px rgba(212,163,90,0.15)'; e.currentTarget.style.transform = 'scale(1.02)'; }}
+            onMouseLeave={e => { e.currentTarget.style.boxShadow = ''; e.currentTarget.style.transform = ''; }}
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 dark:bg-amber-500/5 rounded-bl-full"></div>
-            <div className="relative">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-amber-500 dark:bg-amber-400 rounded-xl flex items-center justify-center mb-4 sm:mb-5 md:mb-6 group-hover:scale-110 transition-transform">
-                <svg className="w-6 h-6 sm:w-7 sm:h-7 text-white dark:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" />
-                </svg>
-              </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2 sm:mb-3">Resume Grill</h3>
-              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mb-3 sm:mb-4">
-                Think you know your resume? Get grilled on what you wrote
-              </p>
-              <div className="flex items-center text-amber-600 dark:text-amber-400 font-semibold group-hover:translate-x-2 transition-transform">
-                Get grilled
-                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
+            <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'radial-gradient(circle at 80% 0%, rgba(212,163,90,0.07) 0%, transparent 60%)' }} />
+            {!isPremium && <div style={{ position: 'absolute', top: '12px', right: '12px', padding: '2px 10px', background: 'rgba(212,163,90,0.12)', border: '1px solid rgba(212,163,90,0.30)', borderRadius: '999px', fontSize: '10px', fontWeight: 700, color: '#d4a35a', letterSpacing: '0.08em' }}>PRO</div>}
+            <div style={{ width: '48px', height: '48px', background: 'rgba(212,163,90,0.12)', border: '1px solid rgba(212,163,90,0.25)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d4a35a', marginBottom: '20px' }} className="group-hover:scale-110 transition-transform">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" /></svg>
+            </div>
+            <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#f0e8d8', marginBottom: '8px' }}>Resume Grill</h3>
+            <p style={{ fontSize: '13px', color: '#7a6f62', lineHeight: 1.5, marginBottom: '16px' }}>Think you know your resume? Get grilled on what you wrote</p>
+            <div className="flex items-center gap-1.5 group-hover:translate-x-1 transition-transform" style={{ color: '#d4a35a', fontSize: '13px', fontWeight: 600 }}>
+              Get grilled
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
             </div>
           </button>
 
-          {/* Company-Specific Prep Card */}
+          {/* Company Prep */}
           <button
             onClick={() => isPremium ? router.push('/interviews/company-prep') : setUpgradeReason('company_prep')}
-            className="group relative overflow-hidden bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 md:p-8 hover:border-slate-300 dark:hover:border-slate-700 transition-all hover:scale-105 transform text-left"
+            className="group glass relative overflow-hidden rounded-2xl text-left"
+            style={{ padding: 'clamp(20px, 3vw, 32px)', transition: 'box-shadow 0.2s, transform 0.2s' }}
+            onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.35), 0 0 0 1px rgba(212,163,90,0.15)'; e.currentTarget.style.transform = 'scale(1.02)'; }}
+            onMouseLeave={e => { e.currentTarget.style.boxShadow = ''; e.currentTarget.style.transform = ''; }}
           >
-            {!isPremium && (
-              <div className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-semibold">
-                PRO
-              </div>
-            )}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 dark:bg-emerald-500/5 rounded-bl-full"></div>
-            <div className="relative">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-emerald-500 dark:bg-emerald-400 rounded-xl flex items-center justify-center mb-4 sm:mb-5 md:mb-6 group-hover:scale-110 transition-transform">
-                <svg className="w-6 h-6 sm:w-7 sm:h-7 text-white dark:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-              </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2 sm:mb-3">Company Prep</h3>
-              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mb-3 sm:mb-4">
-                Practice with real questions from Google, Meta, Amazon and more
-              </p>
-              <div className="flex items-center text-emerald-600 dark:text-emerald-400 font-semibold group-hover:translate-x-2 transition-transform">
-                Start prep
-                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
+            <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'radial-gradient(circle at 80% 0%, rgba(212,163,90,0.07) 0%, transparent 60%)' }} />
+            {!isPremium && <div style={{ position: 'absolute', top: '12px', right: '12px', padding: '2px 10px', background: 'rgba(212,163,90,0.12)', border: '1px solid rgba(212,163,90,0.30)', borderRadius: '999px', fontSize: '10px', fontWeight: 700, color: '#d4a35a', letterSpacing: '0.08em' }}>PRO</div>}
+            <div style={{ width: '48px', height: '48px', background: 'rgba(212,163,90,0.12)', border: '1px solid rgba(212,163,90,0.25)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d4a35a', marginBottom: '20px' }} className="group-hover:scale-110 transition-transform">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+            </div>
+            <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#f0e8d8', marginBottom: '8px' }}>Company Prep</h3>
+            <p style={{ fontSize: '13px', color: '#7a6f62', lineHeight: 1.5, marginBottom: '16px' }}>Practice with real questions from Google, Meta, Amazon and more</p>
+            <div className="flex items-center gap-1.5 group-hover:translate-x-1 transition-transform" style={{ color: '#d4a35a', fontSize: '13px', fontWeight: 600 }}>
+              Start prep
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
             </div>
           </button>
 
-          {/* My Interviews Card */}
+          {/* My Interviews */}
           <button
             onClick={() => router.push('/interviews')}
-            className="group relative overflow-hidden bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 md:p-8 hover:border-slate-300 dark:hover:border-slate-700 transition-all hover:scale-105 transform text-left"
+            className="group glass relative overflow-hidden rounded-2xl text-left"
+            style={{ padding: 'clamp(20px, 3vw, 32px)', transition: 'box-shadow 0.2s, transform 0.2s' }}
+            onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.35), 0 0 0 1px rgba(212,163,90,0.15)'; e.currentTarget.style.transform = 'scale(1.02)'; }}
+            onMouseLeave={e => { e.currentTarget.style.boxShadow = ''; e.currentTarget.style.transform = ''; }}
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/10 dark:bg-pink-500/5 rounded-bl-full"></div>
-            <div className="relative">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-pink-500 dark:bg-pink-400 rounded-xl flex items-center justify-center mb-4 sm:mb-5 md:mb-6 group-hover:scale-110 transition-transform">
-                <svg className="w-6 h-6 sm:w-7 sm:h-7 text-white dark:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                </svg>
-              </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2 sm:mb-3">My Interviews</h3>
-              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mb-3 sm:mb-4">
-                View and manage all your interview sessions
-              </p>
-              <div className="flex items-center text-pink-600 dark:text-pink-400 font-semibold group-hover:translate-x-2 transition-transform">
-                View interviews
-                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
+            <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'radial-gradient(circle at 80% 0%, rgba(212,163,90,0.07) 0%, transparent 60%)' }} />
+            <div style={{ width: '48px', height: '48px', background: 'rgba(212,163,90,0.12)', border: '1px solid rgba(212,163,90,0.25)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d4a35a', marginBottom: '20px' }} className="group-hover:scale-110 transition-transform">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
+            </div>
+            <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#f0e8d8', marginBottom: '8px' }}>My Interviews</h3>
+            <p style={{ fontSize: '13px', color: '#7a6f62', lineHeight: 1.5, marginBottom: '16px' }}>View and manage all your interview sessions</p>
+            <div className="flex items-center gap-1.5 group-hover:translate-x-1 transition-transform" style={{ color: '#d4a35a', fontSize: '13px', fontWeight: 600 }}>
+              View interviews
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
             </div>
           </button>
 
-          {/* Analytics Card */}
+          {/* Analytics */}
           <button
             onClick={() => router.push('/analytics')}
-            className="group relative overflow-hidden bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 md:p-8 hover:border-slate-300 dark:hover:border-slate-700 transition-all hover:scale-105 transform text-left"
+            className="group glass relative overflow-hidden rounded-2xl text-left"
+            style={{ padding: 'clamp(20px, 3vw, 32px)', transition: 'box-shadow 0.2s, transform 0.2s' }}
+            onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.35), 0 0 0 1px rgba(212,163,90,0.15)'; e.currentTarget.style.transform = 'scale(1.02)'; }}
+            onMouseLeave={e => { e.currentTarget.style.boxShadow = ''; e.currentTarget.style.transform = ''; }}
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 dark:bg-cyan-500/5 rounded-bl-full"></div>
-            <div className="relative">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-cyan-500 dark:bg-cyan-400 rounded-xl flex items-center justify-center mb-4 sm:mb-5 md:mb-6 group-hover:scale-110 transition-transform">
-                <svg className="w-6 h-6 sm:w-7 sm:h-7 text-white dark:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-              </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2 sm:mb-3">Analytics</h3>
-              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mb-3 sm:mb-4">
-                Track your progress and get AI-powered insights
-              </p>
-              <div className="flex items-center text-cyan-600 dark:text-cyan-400 font-semibold group-hover:translate-x-2 transition-transform">
-                View analytics
-                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
+            <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'radial-gradient(circle at 80% 0%, rgba(212,163,90,0.07) 0%, transparent 60%)' }} />
+            <div style={{ width: '48px', height: '48px', background: 'rgba(212,163,90,0.12)', border: '1px solid rgba(212,163,90,0.25)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d4a35a', marginBottom: '20px' }} className="group-hover:scale-110 transition-transform">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+            </div>
+            <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#f0e8d8', marginBottom: '8px' }}>Analytics</h3>
+            <p style={{ fontSize: '13px', color: '#7a6f62', lineHeight: 1.5, marginBottom: '16px' }}>Track your progress and get AI-powered insights</p>
+            <div className="flex items-center gap-1.5 group-hover:translate-x-1 transition-transform" style={{ color: '#d4a35a', fontSize: '13px', fontWeight: 600 }}>
+              View analytics
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
             </div>
           </button>
 
-          {/* Interview Guides Card */}
+          {/* Interview Guides */}
           <button
             onClick={() => router.push('/guides')}
-            className="group relative overflow-hidden bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 md:p-8 hover:border-slate-300 dark:hover:border-slate-700 transition-all hover:scale-105 transform text-left"
+            className="group glass relative overflow-hidden rounded-2xl text-left"
+            style={{ padding: 'clamp(20px, 3vw, 32px)', transition: 'box-shadow 0.2s, transform 0.2s' }}
+            onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.35), 0 0 0 1px rgba(212,163,90,0.15)'; e.currentTarget.style.transform = 'scale(1.02)'; }}
+            onMouseLeave={e => { e.currentTarget.style.boxShadow = ''; e.currentTarget.style.transform = ''; }}
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 dark:bg-indigo-500/5 rounded-bl-full"></div>
-            <div className="relative">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-indigo-500 dark:bg-indigo-400 rounded-xl flex items-center justify-center mb-4 sm:mb-5 md:mb-6 group-hover:scale-110 transition-transform">
-                <svg className="w-6 h-6 sm:w-7 sm:h-7 text-white dark:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-              </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2 sm:mb-3">Interview Guides</h3>
-              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mb-3 sm:mb-4">
-                Expert tips and strategies to ace your interviews
-              </p>
-              <div className="flex items-center text-indigo-600 dark:text-indigo-400 font-semibold group-hover:translate-x-2 transition-transform">
-                Browse guides
-                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
+            <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'radial-gradient(circle at 80% 0%, rgba(212,163,90,0.07) 0%, transparent 60%)' }} />
+            <div style={{ width: '48px', height: '48px', background: 'rgba(212,163,90,0.12)', border: '1px solid rgba(212,163,90,0.25)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d4a35a', marginBottom: '20px' }} className="group-hover:scale-110 transition-transform">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+            </div>
+            <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#f0e8d8', marginBottom: '8px' }}>Interview Guides</h3>
+            <p style={{ fontSize: '13px', color: '#7a6f62', lineHeight: 1.5, marginBottom: '16px' }}>Expert tips and strategies to ace your interviews</p>
+            <div className="flex items-center gap-1.5 group-hover:translate-x-1 transition-transform" style={{ color: '#d4a35a', fontSize: '13px', fontWeight: 600 }}>
+              Browse guides
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
             </div>
           </button>
         </div>
 
         {/* Quick Stats */}
         <div className="mt-8 sm:mt-10 md:mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
-          <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-xl p-4 sm:p-5 md:p-6">
-            <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mb-2">Resumes Uploaded</p>
-            {loading ? (
-              <div className="h-8 sm:h-9 w-12 sm:w-16 bg-slate-200 dark:bg-slate-800 animate-pulse rounded"></div>
-            ) : (
-              <p className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{stats?.resumes_uploaded || 0}</p>
-            )}
-          </div>
-          <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-xl p-4 sm:p-5 md:p-6">
-            <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mb-2">Interviews Completed</p>
-            {loading ? (
-              <div className="h-8 sm:h-9 w-12 sm:w-16 bg-slate-200 dark:bg-slate-800 animate-pulse rounded"></div>
-            ) : (
-              <p className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{stats?.interviews_completed || 0}</p>
-            )}
-          </div>
-          <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-xl p-4 sm:p-5 md:p-6">
-            <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mb-2">Questions Practiced</p>
-            {loading ? (
-              <div className="h-8 sm:h-9 w-12 sm:w-16 bg-slate-200 dark:bg-slate-800 animate-pulse rounded"></div>
-            ) : (
-              <p className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{stats?.questions_practiced || 0}</p>
-            )}
-          </div>
-          <div className="bg-white dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-xl p-4 sm:p-5 md:p-6">
-            <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mb-2">Average Score</p>
-            {loading ? (
-              <div className="h-8 sm:h-9 w-12 sm:w-16 bg-slate-200 dark:bg-slate-800 animate-pulse rounded"></div>
-            ) : (
-              <p className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
-                {stats?.average_score ? `${stats.average_score}/10` : '-'}
-              </p>
-            )}
-          </div>
+          {[
+            { label: 'Resumes Uploaded', value: stats?.resumes_uploaded },
+            { label: 'Interviews Completed', value: stats?.interviews_completed },
+            { label: 'Questions Practiced', value: stats?.questions_practiced },
+            { label: 'Average Score', value: stats?.average_score != null ? `${stats.average_score}/10` : null },
+          ].map((s) => (
+            <div key={s.label} className="glass rounded-xl" style={{ padding: 'clamp(16px, 2vw, 24px)' }}>
+              <p style={{ color: '#7a6f62', fontSize: '12px', marginBottom: '8px', fontWeight: 500 }}>{s.label}</p>
+              {loading ? (
+                <div style={{ height: '32px', width: '56px', background: 'rgba(255,255,255,0.06)', borderRadius: '6px' }} className="animate-pulse" />
+              ) : (
+                <p style={{ fontSize: 'clamp(1.4rem, 3vw, 1.8rem)', fontWeight: 800, color: '#f0e8d8', lineHeight: 1 }}>
+                  {s.value ?? 0}
+                </p>
+              )}
+            </div>
+          ))}
         </div>
       </div>
-
-      <style jsx global>{`
-        @keyframes blob {
-          0%, 100% { transform: translate(0px, 0px) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-        }
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-      `}</style>
     </main>
   );
 }

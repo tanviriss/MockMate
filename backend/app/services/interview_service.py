@@ -315,7 +315,7 @@ Return JSON:
 Return ONLY JSON, no markdown."""
 
     response = model.generate_content(prompt)
-    import json
+    import json, re
     result_text = response.text.strip()
 
     if result_text.startswith('```json'):
@@ -325,7 +325,12 @@ Return ONLY JSON, no markdown."""
     if result_text.endswith('```'):
         result_text = result_text[:-3]
 
-    return json.loads(result_text.strip())
+    result_text = result_text.strip()
+    try:
+        return json.loads(result_text)
+    except json.JSONDecodeError:
+        result_text = re.sub(r'[\x00-\x1f\x7f]', ' ', result_text)
+        return json.loads(result_text)
 
 
 async def generate_resume_grill_questions(resume_data: dict, num_questions: int = 10) -> list:

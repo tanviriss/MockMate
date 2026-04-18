@@ -20,7 +20,10 @@ class InterviewSession:
         self.answers = []
         self.status = "active"
         self.pending_followup = None
-        self.followup_counts = {} 
+        self.followup_counts = {}
+        self.current_question_text = ""
+        self.current_question_context: dict = {}
+        self.precomputed_followup = None
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert session to dictionary"""
@@ -32,7 +35,10 @@ class InterviewSession:
             "answers": self.answers,
             "status": self.status,
             "pending_followup": self.pending_followup,
-            "followup_counts": self.followup_counts
+            "followup_counts": self.followup_counts,
+            "current_question_text": self.current_question_text,
+            "current_question_context": self.current_question_context,
+            "precomputed_followup": self.precomputed_followup,
         }
 
     @classmethod
@@ -48,6 +54,9 @@ class InterviewSession:
         session.status = data.get("status", "active")
         session.pending_followup = data.get("pending_followup")
         session.followup_counts = data.get("followup_counts", {})
+        session.current_question_text = data.get("current_question_text", "")
+        session.current_question_context = data.get("current_question_context", {})
+        session.precomputed_followup = data.get("precomputed_followup")
         return session
 
 

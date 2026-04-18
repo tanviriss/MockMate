@@ -18,6 +18,7 @@ interface InterviewState {
   transcript: string | null;
   error: string | null;
   isTranscribing: boolean;
+  isProcessingAnswer: boolean;
   totalQuestions: number;
   currentQuestionNumber: number;
   welcomeMessage: string | null;
@@ -35,6 +36,7 @@ export function useInterview(interviewId: number, userId: string, token: string)
     transcript: null,
     error: null,
     isTranscribing: false,
+    isProcessingAnswer: false,
     totalQuestions: 0,
     currentQuestionNumber: 0,
     welcomeMessage: null,
@@ -140,6 +142,7 @@ export function useInterview(interviewId: number, userId: string, token: string)
         currentQuestionNumber: data.question_number,
         questionAudio: null,
         transcript: null,
+        isProcessingAnswer: false,
       }));
     });
 
@@ -165,6 +168,10 @@ export function useInterview(interviewId: number, userId: string, token: string)
       }));
     });
 
+    socket.on("processing_answer", () => {
+      setState((prev) => ({ ...prev, isProcessingAnswer: true }));
+    });
+
     socket.on("followup_question", (data) => {
       const cleanFollowupText = data.followup_text
         .replace(/\*\*/g, '')
@@ -179,6 +186,7 @@ export function useInterview(interviewId: number, userId: string, token: string)
         },
         questionAudio: null,
         transcript: null,
+        isProcessingAnswer: false,
       }));
     });
 
@@ -346,10 +354,10 @@ export function useInterview(interviewId: number, userId: string, token: string)
         transcript: transcript,
       });
 
-      // Reset transcript for next question
       setState((prev) => ({
         ...prev,
         transcript: null,
+        isProcessingAnswer: true,
       }));
     },
     [state.currentQuestion]
