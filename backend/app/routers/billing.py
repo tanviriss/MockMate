@@ -7,6 +7,7 @@ from app.dependencies import get_current_user
 from app.services.stripe_service import create_checkout_session, create_portal_session
 from app.services.subscription_service import get_or_create_subscription, get_lifetime_interview_count
 from app.config import settings
+from app.logging_config import logger
 
 router = APIRouter(prefix="/billing", tags=["Billing"])
 
@@ -54,6 +55,7 @@ async def create_checkout(
         )
         return {"url": url}
     except Exception as e:
+        logger.exception(f"Billing endpoint error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -66,4 +68,5 @@ async def create_portal(
         url = create_portal_session(user_id=current_user.id, email=current_user.email, db=db)
         return {"url": url}
     except Exception as e:
+        logger.exception(f"Billing endpoint error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
