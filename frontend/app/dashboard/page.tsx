@@ -179,7 +179,7 @@ export default function DashboardPage() {
 
           {/* Resume Grill */}
           <button
-            onClick={() => isPremium ? router.push('/interviews/resume-grill') : setUpgradeReason('resume_grill')}
+            onClick={() => { if (!billing) return; isPremium ? router.push('/interviews/resume-grill') : setUpgradeReason('resume_grill'); }}
             className="group glass relative overflow-hidden rounded-2xl text-left"
             style={{ padding: 'clamp(20px, 3vw, 32px)', transition: 'box-shadow 0.2s, transform 0.2s' }}
             onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.35), 0 0 0 1px rgba(212,163,90,0.15)'; e.currentTarget.style.transform = 'scale(1.02)'; }}
@@ -200,7 +200,7 @@ export default function DashboardPage() {
 
           {/* Company Prep */}
           <button
-            onClick={() => isPremium ? router.push('/interviews/company-prep') : setUpgradeReason('company_prep')}
+            onClick={() => { if (!billing) return; isPremium ? router.push('/interviews/company-prep') : setUpgradeReason('company_prep'); }}
             className="group glass relative overflow-hidden rounded-2xl text-left"
             style={{ padding: 'clamp(20px, 3vw, 32px)', transition: 'box-shadow 0.2s, transform 0.2s' }}
             onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.35), 0 0 0 1px rgba(212,163,90,0.15)'; e.currentTarget.style.transform = 'scale(1.02)'; }}
