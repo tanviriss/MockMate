@@ -11,7 +11,13 @@ def get_or_create_customer(user_id: str, email: str, db: Session) -> str:
     sub = db.query(Subscription).filter(Subscription.user_id == user_id).first()
 
     if sub and sub.stripe_customer_id:
-        return sub.stripe_customer_id
+        try:
+            stripe.Customer.retrieve(sub.stripe_customer_id)
+            return sub.stripe_customer_id
+        except stripe.error.InvalidRequestError:
+            logger.warning(f"Stale stripe_customer_id for user {user_id}, recreating")
+            sub.stripe_customer_id = None
+            db.commit()
 
     customer = stripe.Customer.create(email=email, metadata={"user_id": user_id})
 
