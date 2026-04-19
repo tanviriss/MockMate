@@ -87,7 +87,19 @@ export default function DashboardPage() {
               <span style={{ color: '#7a6f62', fontSize: '13px' }} className="hidden sm:block">
                 {user.fullName || user.primaryEmailAddress?.emailAddress}
               </span>
-              <UserButton afterSignOutUrl="/" appearance={{ elements: { avatarBox: 'w-10 h-10' } }} />
+              <UserButton afterSignOutUrl="/" appearance={{ elements: { avatarBox: 'w-10 h-10' } }}>
+                <UserButton.MenuItems>
+                  <UserButton.Link
+                    label="Billing"
+                    labelIcon={
+                      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                      </svg>
+                    }
+                    href="/settings/billing"
+                  />
+                </UserButton.MenuItems>
+              </UserButton>
             </div>
           </div>
         </div>
