@@ -25,7 +25,7 @@ interface Resume {
 export default function ResumeGrillPage() {
   const router = useRouter();
   const { getToken } = useAuth();
-  const { isPremium, loading: billingLoading } = useBilling();
+  const { billing, isPremium, loading: billingLoading } = useBilling();
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [selectedResume, setSelectedResume] = useState<number | null>(null);
   const [numQuestions, setNumQuestions] = useState<number>(5);
@@ -79,7 +79,7 @@ export default function ResumeGrillPage() {
     }
   };
 
-  if (billingLoading) {
+  if (billingLoading || !billing) {
     return (
       <main style={{ minHeight: '100vh', background: '#1a1822', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ width: '40px', height: '40px', border: '2px solid rgba(212,163,90,0.3)', borderTopColor: '#d4a35a', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />

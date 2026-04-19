@@ -11,14 +11,14 @@ export interface BillingStatus {
 }
 
 export function useBilling() {
-  const { getToken } = useAuth();
+  const { getToken, isLoaded, userId } = useAuth();
   const [billing, setBilling] = useState<BillingStatus | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchBilling = useCallback(async () => {
+    const token = await getToken();
+    if (!token) return;
     try {
-      const token = await getToken();
-      if (!token) return;
       const data = await api.getBillingStatus(token);
       setBilling(data);
     } catch (err) {
@@ -29,8 +29,10 @@ export function useBilling() {
   }, [getToken]);
 
   useEffect(() => {
+    if (!isLoaded) return;
+    if (!userId) { setLoading(false); return; }
     fetchBilling();
-  }, [fetchBilling]);
+  }, [isLoaded, userId, fetchBilling]);
 
   const isPremium = billing?.plan === 'premium' && billing?.status === 'active';
   const interviewsRemaining = billing?.interviews_limit != null

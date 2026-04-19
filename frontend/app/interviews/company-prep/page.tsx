@@ -37,7 +37,7 @@ const inputStyle: React.CSSProperties = {
 export default function CompanyPrepPage() {
   const router = useRouter();
   const { isReady, getToken } = useClerkAuth();
-  const { isPremium, loading: billingLoading } = useBilling();
+  const { billing, isPremium, loading: billingLoading } = useBilling();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [loading, setLoading] = useState(true);
@@ -105,7 +105,7 @@ export default function CompanyPrepPage() {
     }
   };
 
-  if (loading || billingLoading) {
+  if (loading || billingLoading || !billing) {
     return (
       <main style={{ minHeight: '100vh', background: '#1a1822', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>

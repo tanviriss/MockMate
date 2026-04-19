@@ -23,6 +23,7 @@ async def get_billing_status(
 ):
     sub = get_or_create_subscription(current_user.id, db)
     interviews_used = get_lifetime_interview_count(current_user.id, db)
+    logger.info(f"Billing status for {current_user.id}: plan={sub.plan} status={sub.status}")
 
     return {
         "plan": sub.plan,
