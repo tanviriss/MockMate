@@ -39,6 +39,7 @@ def create_checkout_session(user_id: str, email: str, price_id: str, db: Session
         payment_method_types=["card"],
         line_items=[{"price": price_id, "quantity": 1}],
         mode="subscription",
+        allow_promotion_codes=True,
         success_url=f"{settings.FRONTEND_URL}/billing/success?session_id={{CHECKOUT_SESSION_ID}}",
         cancel_url=f"{settings.FRONTEND_URL}/billing/cancel",
         metadata={"user_id": user_id},

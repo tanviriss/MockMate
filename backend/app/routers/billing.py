@@ -52,7 +52,7 @@ async def create_checkout(
             user_id=current_user.id,
             email=current_user.email,
             price_id=price_id,
-            db=db
+            db=db,
         )
         return {"url": url}
     except Exception as e:
