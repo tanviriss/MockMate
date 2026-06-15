@@ -1330,7 +1330,7 @@ export default function Home() {
             className="pt-8 text-center text-sm"
             style={{ borderTop: '1px solid rgba(255,255,255,0.05)', color: '#7a6f62' }}
           >
-            © 2025 Reherse. All rights reserved.
+            © 2026 Reherse. All rights reserved.
           </div>
         </footer>
 

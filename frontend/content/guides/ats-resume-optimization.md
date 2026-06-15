@@ -1,5 +1,5 @@
 ---
-title: "How to Beat ATS: Resume Optimization Guide for 2025"
+title: "How to Beat ATS: Resume Optimization Guide for 2026"
 description: "Learn how to optimize your resume to pass Applicant Tracking Systems (ATS) and land more interviews. Includes formatting tips, keyword strategies, and common mistakes to avoid."
 category: "Resume & Application"
 keywords: ["ATS resume", "resume optimization", "applicant tracking system", "ATS-friendly resume", "resume tips"]
